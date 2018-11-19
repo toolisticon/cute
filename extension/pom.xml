@@ -16,18 +16,24 @@
     <modules>
         <module>api</module>
         <module>junit4</module>
-        <module>junit5</module>
         <module>testng</module>
     </modules>
 
-    <dependencies>
 
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-        </dependency>
+    <!-- junit 5 is java 8 based - so just compile it with java >=8 -->
+    <profiles>
+        <profile>
+            <id>java-8</id>
+            <activation>
+                <jdk>1.8</jdk>
+            </activation>
 
-    </dependencies>
+            <modules>
+                <module>junit5</module>
+            </modules>
+
+        </profile>
+    </profiles>
 
 
     <build>
