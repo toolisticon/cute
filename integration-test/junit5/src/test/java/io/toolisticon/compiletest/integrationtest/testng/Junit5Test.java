@@ -1,7 +1,6 @@
 package io.toolisticon.compiletest.integrationtest.testng;
 
 
-
 import io.toolisticon.compiletesting.CompileTestBuilder;
 import io.toolisticon.compiletesting.UnitTestProcessor;
 import org.junit.jupiter.api.Assertions;

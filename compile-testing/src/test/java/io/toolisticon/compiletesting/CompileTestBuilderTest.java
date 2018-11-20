@@ -25,7 +25,7 @@ public class CompileTestBuilderTest {
     public void test_UnitTest_successfullCompilation_build() {
 
         JavaFileObject testSource = Mockito.mock(JavaFileObject.class);
-        JavaFileObject expectedGeneratedSource = JavaFileObjectUtils.readFromString("Jupp.txt","TATA!");
+        JavaFileObject expectedGeneratedSource = JavaFileObjectUtils.readFromString("Jupp.txt", "TATA!");
         CompileTestBuilder.createCompileTestBuilder()
                 .unitTest()
                 .useProcessor(
@@ -57,7 +57,6 @@ public class CompileTestBuilderTest {
                 .addNoteChecks("NOTE")
                 .finishAddMessageChecks()
                 .compilationShouldSucceed()
-                .addExpectedGeneratedFileObjects(expectedGeneratedSource)
                 .testCompilation();
 
 
@@ -242,21 +241,6 @@ public class CompileTestBuilderTest {
 
     }
 
-    @Test
-    public void test_addExpectedGeneratedSources() {
-
-        JavaFileObject testSource1 = Mockito.mock(JavaFileObject.class);
-        JavaFileObject testSource2 = Mockito.mock(JavaFileObject.class);
-
-        CompileTestBuilder.CompileTimeTestBuilder builder = CompileTestBuilder.createCompileTestBuilder()
-                .compilationTest()
-                .addExpectedGeneratedJavaFileObjects(testSource1)
-                .addExpectedGeneratedJavaFileObjects(testSource2);
-
-        MatcherAssert.assertThat(builder.createCompileTestConfiguration().getExpectedGeneratedJavaFileObjectsCheck(), Matchers.containsInAnyOrder(testSource1, testSource2));
-
-
-    }
 
     @Test
     public void test_useProcessors() {

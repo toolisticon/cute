@@ -2,6 +2,7 @@ package io.toolisticon.compiletesting.impl;
 
 import javax.tools.FileObject;
 import javax.tools.ForwardingJavaFileManager;
+import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
 import javax.tools.SimpleJavaFileObject;
 import javax.tools.StandardJavaFileManager;
@@ -31,6 +32,7 @@ public class CompileTestFileManager extends ForwardingJavaFileManager<StandardJa
 
         final Map<URI, T> fileObjectCache = new HashMap<URI, T>();
 
+
         public boolean contains(URI uri) {
             return fileObjectCache.containsKey(uri);
         }
@@ -52,7 +54,7 @@ public class CompileTestFileManager extends ForwardingJavaFileManager<StandardJa
 
 
     final FileObjectCache<JavaFileObject> generatedJavaFileObjectCache = new FileObjectCache<JavaFileObject>();
-    final FileObjectCache<FileObject> generatedFileObjectsCache = new FileObjectCache<FileObject>();
+    final FileObjectCache<FileObject> generatedFileObjectCache = new FileObjectCache<FileObject>();
 
 
     public CompileTestFileManager(StandardJavaFileManager standardJavaFileManager) {
@@ -76,7 +78,7 @@ public class CompileTestFileManager extends ForwardingJavaFileManager<StandardJa
     @Override
     public FileObject getFileForOutput(Location location, String packageName, String relativeName, FileObject sibling) throws IOException {
         JavaFileObject result = new InMemoryOutputJavaFileObject(uriForFileObject(location, packageName, relativeName), JavaFileObject.Kind.OTHER);
-        generatedFileObjectsCache.addFileObject(result.toUri(), result);
+        generatedFileObjectCache.addFileObject(result.toUri(), result);
         return result;
     }
 
@@ -108,8 +110,8 @@ public class CompileTestFileManager extends ForwardingJavaFileManager<StandardJa
 
             URI uri = uriForFileObject(location, packageName, relativeName);
 
-            if (generatedFileObjectsCache.contains(uri)) {
-                return generatedFileObjectsCache.getFileObject(uri);
+            if (generatedFileObjectCache.contains(uri)) {
+                return generatedFileObjectCache.getFileObject(uri);
             } else {
                 throw new FileNotFoundException("Can't find FileObject for uri:" + uri.toString());
             }
@@ -117,41 +119,34 @@ public class CompileTestFileManager extends ForwardingJavaFileManager<StandardJa
         return super.getFileForInput(location, packageName, relativeName);
     }
 
-    public boolean containsGeneratedJavaFileObject(JavaFileObject javaFileObject) {
+    /**
+     * Checks if JavaFileObject for passed parameters exists.
+     *
+     * @param location
+     * @param className
+     * @param kind
+     * @return
+     */
+    public boolean existsExpectedJavaFileObject(JavaFileManager.Location location, String className, JavaFileObject.Kind kind) {
 
-        try {
-            for (JavaFileObject generatedJavaFileObject : generatedJavaFileObjectCache.getEntries()) {
+        return this.generatedJavaFileObjectCache.contains(uriForJavaFileObject(location, className, kind));
 
-
-                if (contentEquals(javaFileObject.openInputStream(), generatedJavaFileObject.openInputStream())) {
-                    return true;
-                }
-
-            }
-        } catch (IOException e) {
-            // ignore
-        }
-
-        return false;
     }
 
-    public boolean containsGeneratedFileObject(FileObject javaFileObject) {
+    /**
+     * Checks if JavaFileObject for passed parameters exists.
+     *
+     * @param location
+     * @param packageName
+     * @param relativeName
+     * @return
+     */
+    public boolean existsExpectedFileObject(JavaFileManager.Location location, String packageName, String relativeName) {
 
-        try {
-            for (FileObject generatedFileObject : generatedFileObjectsCache.getEntries()) {
+        return this.generatedFileObjectCache.contains(uriForFileObject(location, packageName, relativeName));
 
-
-                if (contentEquals(javaFileObject.openInputStream(), generatedFileObject.openInputStream())) {
-                    return true;
-                }
-
-            }
-        } catch (IOException e) {
-            // ignore
-        }
-
-        return false;
     }
+
 
     public String getGeneratedFileOverview() {
 
@@ -175,7 +170,7 @@ public class CompileTestFileManager extends ForwardingJavaFileManager<StandardJa
 
         StringBuilder stringBuilder = new StringBuilder();
 
-        if (generatedFileObjectsCache.fileObjectCache.size() == 0) {
+        if (generatedJavaFileObjectCache.fileObjectCache.size() == 0) {
             stringBuilder.append("'No files were generated !!!'");
         } else {
 
@@ -199,12 +194,12 @@ public class CompileTestFileManager extends ForwardingJavaFileManager<StandardJa
 
         StringBuilder stringBuilder = new StringBuilder();
 
-        if (generatedFileObjectsCache.fileObjectCache.size() == 0) {
+        if (generatedFileObjectCache.fileObjectCache.size() == 0) {
             stringBuilder.append("'No files were generated !!!'");
         } else {
 
             stringBuilder.append("[\n");
-            for (Map.Entry<URI, FileObject> entry : generatedFileObjectsCache.fileObjectCache.entrySet()) {
+            for (Map.Entry<URI, FileObject> entry : generatedFileObjectCache.fileObjectCache.entrySet()) {
 
                 try {
                     String content = (String) entry.getValue().getCharContent(false);
@@ -253,7 +248,6 @@ public class CompileTestFileManager extends ForwardingJavaFileManager<StandardJa
 
     }
 
-    ;
 
     private static URI uriForFileObject(Location location, String packageName, String relativeName) {
         StringBuilder uri = new StringBuilder("mem:///").append(location.getName()).append('/');

@@ -6,6 +6,7 @@ import io.toolisticon.compiletesting.impl.UnitTestAnnotationProcessorClass;
 
 import javax.annotation.processing.Processor;
 import javax.tools.FileObject;
+import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
 
 /**
@@ -136,29 +137,62 @@ public class CompileTestBuilder {
         }
 
 
-        public T addExpectedGeneratedJavaFileObjects(JavaFileObject... expectedGeneratedJavaFileObjects) {
+        public T addGeneratedFileObjectExistsCheck(JavaFileManager.Location location, String packageName, String relativeName) {
+            return addGeneratedFileObjectExistsCheck(location, packageName, relativeName, (FileObject) null);
+        }
 
-            if (expectedGeneratedJavaFileObjects != null) {
-                compileTestConfiguration.addExpectedGeneratedJavaFileObjectCheck(expectedGeneratedJavaFileObjects);
-            }
+        public T addGeneratedFileObjectExistsCheck(JavaFileManager.Location location, String packageName, String relativeName, FileObject expectedFileObject) {
+            compileTestConfiguration.addExpectedGeneratedFileObjectCheck(location, packageName, relativeName, expectedFileObject);
             return createNextInstance(compileTestConfiguration);
+        }
 
+        public T addGeneratedFileObjectExistsCheck(JavaFileManager.Location location, String packageName, String relativeName, GeneratedFileObjectMatcher<FileObject> generatedFileObjectMatcher) {
+            compileTestConfiguration.addExpectedGeneratedFileObjectCheck(location, packageName, relativeName, generatedFileObjectMatcher);
+            return createNextInstance(compileTestConfiguration);
         }
 
         /**
-         * Expected generated FileObjects. (resource files)
+         * Adds a check if a specific generated JavaFileObject exists.
          *
-         * @param expectedGeneratedFileObjects the expected generated FileObjects
+         * @param location
+         * @param className
+         * @param kind
          * @return the next builder instance
          */
-        public T addExpectedGeneratedFileObjects(FileObject... expectedGeneratedFileObjects) {
-
-            if (expectedGeneratedFileObjects != null) {
-                compileTestConfiguration.addExpectedGeneratedFileObjectCheck(expectedGeneratedFileObjects);
-            }
-            return createNextInstance(compileTestConfiguration);
-
+        public T addGeneratedJavaFileObjectExistsCheck(JavaFileManager.Location location, String className, JavaFileObject.Kind kind) {
+            return addGeneratedJavaFileObjectExistsCheck(location, className, kind, (JavaFileObject) null);
         }
+
+        /**
+         * Adds a check if a specific generated JavaFileObject exists.
+         * Additionally checks if files are equal if passed expectedJavaFileObject is not null.
+         *
+         * @param location
+         * @param className
+         * @param kind
+         * @param expectedJavaFileObject
+         * @return the next builder instance
+         */
+        public T addGeneratedJavaFileObjectExistsCheck(JavaFileManager.Location location, String className, JavaFileObject.Kind kind, JavaFileObject expectedJavaFileObject) {
+            compileTestConfiguration.addExpectedGeneratedJavaFileObjectCheck(location, className, kind, expectedJavaFileObject);
+            return createNextInstance(compileTestConfiguration);
+        }
+
+        /**
+         * Adds a check if a specific generated JavaFileObject exists.
+         * Additionally checks file object matches with passed matcher.
+         *
+         * @param location
+         * @param className
+         * @param kind
+         * @param generatedJavaFileObjectCheck
+         * @return the next builder instance
+         */
+        public T addGeneratedJavaFileObjectExistsCheck(JavaFileManager.Location location, String className, JavaFileObject.Kind kind, GeneratedFileObjectMatcher<JavaFileObject> generatedJavaFileObjectCheck) {
+            compileTestConfiguration.addExpectedGeneratedJavaFileObjectCheck(location, className, kind, generatedJavaFileObjectCheck);
+            return createNextInstance(compileTestConfiguration);
+        }
+
 
         /**
          * Add some message checks.
