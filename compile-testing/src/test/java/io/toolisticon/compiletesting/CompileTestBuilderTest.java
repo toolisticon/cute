@@ -51,11 +51,9 @@ public class CompileTestBuilderTest {
 
                             }
                         })
-                .addMessageChecks()
                 .addWarningChecks("WARNING")
                 .addMandatoryWarningChecks("MANDATORY_WARNING")
                 .addNoteChecks("NOTE")
-                .finishAddMessageChecks()
                 .compilationShouldSucceed()
                 .testCompilation();
 
@@ -79,9 +77,7 @@ public class CompileTestBuilderTest {
 
                     }
                 })
-                .addMessageChecks()
                 .addErrorChecks("ERROR")
-                .finishAddMessageChecks()
                 .compilationShouldFail()
                 .testCompilation();
 
@@ -94,24 +90,21 @@ public class CompileTestBuilderTest {
 
         CompileTestBuilder.CompileTimeTestBuilder builder = CompileTestBuilder.createCompileTestBuilder()
                 .compilationTest()
-                .addMessageChecks()
                 .addWarningChecks("WARN1")
-                .finishAddMessageChecks();
+                ;
 
         MatcherAssert.assertThat(builder.createCompileTestConfiguration().getWarningMessageCheck(), Matchers.containsInAnyOrder("WARN1"));
 
-        CompileTestBuilder.CompileTimeTestBuilder builder2 = builder.addMessageChecks()
-                .addWarningChecks("WARN2")
-                .finishAddMessageChecks();
+        CompileTestBuilder.CompileTimeTestBuilder builder2 = builder
+                .addWarningChecks("WARN2");
 
         MatcherAssert.assertThat(builder2
                 .createCompileTestConfiguration()
                 .getWarningMessageCheck(), Matchers.containsInAnyOrder("WARN1", "WARN2"));
 
-        CompileTestBuilder.CompileTimeTestBuilder builder3 = builder2.addMessageChecks()
+        CompileTestBuilder.CompileTimeTestBuilder builder3 = builder2
                 .addWarningChecks()
-                .addWarningChecks(null)
-                .finishAddMessageChecks();
+                .addWarningChecks(null);
 
         MatcherAssert.assertThat(builder3
                 .createCompileTestConfiguration()
@@ -124,25 +117,21 @@ public class CompileTestBuilderTest {
 
         CompileTestBuilder.CompileTimeTestBuilder builder = CompileTestBuilder.createCompileTestBuilder()
                 .compilationTest()
-                .addMessageChecks()
-                .addMandatoryWarningChecks("MWARN1")
-                .finishAddMessageChecks();
+                .addMandatoryWarningChecks("MWARN1");
 
         MatcherAssert.assertThat(builder.createCompileTestConfiguration()
                 .getMandatoryWarningMessageCheck(), Matchers.containsInAnyOrder("MWARN1"));
 
-        CompileTestBuilder.CompileTimeTestBuilder builder2 = builder.addMessageChecks()
-                .addMandatoryWarningChecks("MWARN2")
-                .finishAddMessageChecks();
+        CompileTestBuilder.CompileTimeTestBuilder builder2 = builder
+                .addMandatoryWarningChecks("MWARN2");
 
         MatcherAssert.assertThat(builder2
                 .createCompileTestConfiguration()
                 .getMandatoryWarningMessageCheck(), Matchers.containsInAnyOrder("MWARN1", "MWARN2"));
 
-        CompileTestBuilder.CompileTimeTestBuilder builder3 = builder2.addMessageChecks()
+        CompileTestBuilder.CompileTimeTestBuilder builder3 = builder2
                 .addMandatoryWarningChecks()
-                .addMandatoryWarningChecks(null)
-                .finishAddMessageChecks();
+                .addMandatoryWarningChecks(null);
 
         MatcherAssert.assertThat(builder3
                 .createCompileTestConfiguration()
@@ -155,25 +144,21 @@ public class CompileTestBuilderTest {
 
         CompileTestBuilder.CompileTimeTestBuilder builder = CompileTestBuilder.createCompileTestBuilder()
                 .compilationTest()
-                .addMessageChecks()
-                .addNoteChecks("NOTE1")
-                .finishAddMessageChecks();
+                .addNoteChecks("NOTE1");
 
         MatcherAssert.assertThat(builder.createCompileTestConfiguration()
                 .getNoteMessageCheck(), Matchers.containsInAnyOrder("NOTE1"));
 
-        CompileTestBuilder.CompileTimeTestBuilder builder2 = builder.addMessageChecks()
-                .addNoteChecks("NOTE2")
-                .finishAddMessageChecks();
+        CompileTestBuilder.CompileTimeTestBuilder builder2 = builder
+                .addNoteChecks("NOTE2");
 
         MatcherAssert.assertThat(builder2
                 .createCompileTestConfiguration()
                 .getNoteMessageCheck(), Matchers.containsInAnyOrder("NOTE1", "NOTE2"));
 
-        CompileTestBuilder.CompileTimeTestBuilder builder3 = builder2.addMessageChecks()
+        CompileTestBuilder.CompileTimeTestBuilder builder3 = builder2
                 .addNoteChecks()
-                .addNoteChecks(null)
-                .finishAddMessageChecks();
+                .addNoteChecks(null);
 
         MatcherAssert.assertThat(builder3
                 .createCompileTestConfiguration()
@@ -186,25 +171,21 @@ public class CompileTestBuilderTest {
 
         CompileTestBuilder.CompileTimeTestBuilder builder = CompileTestBuilder.createCompileTestBuilder()
                 .compilationTest()
-                .addMessageChecks()
-                .addErrorChecks("ERROR1")
-                .finishAddMessageChecks();
+                .addErrorChecks("ERROR1");
 
         MatcherAssert.assertThat(builder.createCompileTestConfiguration()
                 .getErrorMessageCheck(), Matchers.containsInAnyOrder("ERROR1"));
 
-        CompileTestBuilder.CompileTimeTestBuilder builder2 = builder.addMessageChecks()
-                .addErrorChecks("ERROR2")
-                .finishAddMessageChecks();
+        CompileTestBuilder.CompileTimeTestBuilder builder2 = builder
+                .addErrorChecks("ERROR2");
 
         MatcherAssert.assertThat(builder2
                 .createCompileTestConfiguration()
                 .getErrorMessageCheck(), Matchers.containsInAnyOrder("ERROR1", "ERROR2"));
 
-        CompileTestBuilder.CompileTimeTestBuilder builder3 = builder2.addMessageChecks()
+        CompileTestBuilder.CompileTimeTestBuilder builder3 = builder2
                 .addErrorChecks()
-                .addErrorChecks(null)
-                .finishAddMessageChecks();
+                .addErrorChecks(null);
 
         MatcherAssert.assertThat(builder3
                 .createCompileTestConfiguration()

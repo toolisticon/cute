@@ -25,9 +25,7 @@ public class TestNgTest {
                         processingEnvironment.getMessager().printMessage(Diagnostic.Kind.WARNING, "WARNING!");
                     }
                 })
-                .addMessageChecks()
                 .addWarningChecks("WARNING!")
-                .finishAddMessageChecks()
                 .compilationShouldSucceed()
                 .testCompilation();
 
@@ -45,9 +43,7 @@ public class TestNgTest {
                         processingEnvironment.getMessager().printMessage(Diagnostic.Kind.ERROR, "ERROR!");
                     }
                 })
-                .addMessageChecks()
                 .addErrorChecks("ERROR!")
-                .finishAddMessageChecks()
                 .compilationShouldFail()
                 .testCompilation();
 
