@@ -12,7 +12,9 @@ import java.net.URISyntaxException;
 import java.net.URL;
 
 /**
- * Utility class to create JavaFileObjects (and therefore also FileObjects representing).
+ * Utility class to create JavaFileObjects and therefore also FileObjects.
+ * These files can be used for comparision or as source files during compilation.
+ *
  */
 public class JavaFileObjectUtils {
 
@@ -57,7 +59,7 @@ public class JavaFileObjectUtils {
     }
 
     /**
-     * Resource based java source
+     * Resource based java source.
      */
     public static class JavaSourceFromResource extends SimpleJavaFileObject {
 
@@ -70,7 +72,7 @@ public class JavaFileObjectUtils {
 
         }
 
-        public JavaSourceFromResource(String location, Class<?> relativeLocationRoot) {
+        private JavaSourceFromResource(String location, Class<?> relativeLocationRoot) {
 
             super(URI.create("resource:///" + location), Kind.SOURCE);
             this.relativeLocationRoot = relativeLocationRoot;
@@ -104,7 +106,7 @@ public class JavaFileObjectUtils {
 
 
     /**
-     * Url based java source
+     * Url based java source.
      */
     public static class JavaSourceFromUrl extends SimpleJavaFileObject {
 
