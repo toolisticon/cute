@@ -9,6 +9,7 @@ import javax.tools.FileObject;
 import javax.tools.JavaCompiler;
 import javax.tools.JavaFileObject;
 import javax.tools.ToolProvider;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -62,22 +63,88 @@ public class CompileTest {
         checkMessages(compilationResult.getDiagnostics(), Diagnostic.Kind.MANDATORY_WARNING, compileTestConfiguration.getMandatoryWarningMessageCheck());
         checkMessages(compilationResult.getDiagnostics(), Diagnostic.Kind.NOTE, compileTestConfiguration.getNoteMessageCheck());
 
-        // Check generated java source files
-        for (JavaFileObject javaFileObject :
-                this.compileTestConfiguration.getExpectedGeneratedJavaFileObjectsCheck()) {
 
-            if (!compilationResult.getCompileTestFileManager().containsGeneratedJavaFileObject(javaFileObject)) {
-                AssertionSpiServiceLocator.locate().fail("Expected generated JavaFileObject can't be found\n" + compilationResult.getCompileTestFileManager().getGeneratedFileOverview());
+        for (CompileTestConfiguration.GeneratedJavaFileObjectCheck generatedJavaFileObjectCheck : this.compileTestConfiguration.getGeneratedJavaFileObjectChecks()) {
+
+            if (!compilationResult.getCompileTestFileManager().existsExpectedJavaFileObject(generatedJavaFileObjectCheck.getLocation(), generatedJavaFileObjectCheck.getClassName(), generatedJavaFileObjectCheck.getKind())) {
+                AssertionSpiServiceLocator.locate().fail("Generated JavaFileObject (" + generatedJavaFileObjectCheck.getLocation() + "; " + generatedJavaFileObjectCheck.getClassName() + "; " + generatedJavaFileObjectCheck.getKind() + ") doesn't exist.\n" + compilationResult.getCompileTestFileManager().getGeneratedFileOverview());
+            } else {
+
+                try {
+
+                    JavaFileObject foundJavaFileObject = compilationResult.getCompileTestFileManager().getJavaFileForInput(generatedJavaFileObjectCheck.getLocation(), generatedJavaFileObjectCheck.getClassName(), generatedJavaFileObjectCheck.getKind());
+
+                    // check for equality
+                    if (generatedJavaFileObjectCheck.getExpectedJavaFileObject() != null) {
+
+                        if (!CompileTestFileManager.contentEquals(
+                                foundJavaFileObject.openInputStream(),
+                                generatedJavaFileObjectCheck.getExpectedJavaFileObject().openInputStream())) {
+
+                            AssertionSpiServiceLocator.locate().fail("Generated JavaFileObject (" + generatedJavaFileObjectCheck.getLocation() + "; " + generatedJavaFileObjectCheck.getClassName() + "; " + generatedJavaFileObjectCheck.getKind() + ") exists but doesn't match expected JavaFileObject.\n" + compilationResult.getCompileTestFileManager().getGeneratedFileOverview());
+
+                        }
+
+                    }
+
+                    // check with passed matcher
+                    if (generatedJavaFileObjectCheck.getGeneratedFileObjectMatcher() != null) {
+
+                        if (!generatedJavaFileObjectCheck.getGeneratedFileObjectMatcher().check(foundJavaFileObject)) {
+                            AssertionSpiServiceLocator.locate().fail("Generated JavaFileObject (" + generatedJavaFileObjectCheck.getLocation() + "; " + generatedJavaFileObjectCheck.getClassName() + "; " + generatedJavaFileObjectCheck.getKind() + ") exists but doesn't match passed GeneratedFileObjectMatcher.\n" + compilationResult.getCompileTestFileManager().getGeneratedFileOverview());
+                        }
+
+                    }
+
+                } catch (IOException e) {
+                    // ignore
+                }
+
+
             }
+
 
         }
 
-        for (FileObject fileObject :
-                this.compileTestConfiguration.getExpectedGeneratedFileObjectsCheck()) {
+        for (CompileTestConfiguration.GeneratedFileObjectCheck generatedFileObjectCheck : this.compileTestConfiguration.getGeneratedFileObjectChecks()) {
 
-            if (!compilationResult.getCompileTestFileManager().containsGeneratedFileObject(fileObject)) {
-                AssertionSpiServiceLocator.locate().fail("Expected generated FileObject can't be found\n" + compilationResult.getCompileTestFileManager().getGeneratedFileOverview());
+            if (!compilationResult.getCompileTestFileManager().existsExpectedFileObject(generatedFileObjectCheck.getLocation(), generatedFileObjectCheck.getPackageName(), generatedFileObjectCheck.getRelativeName())) {
+                AssertionSpiServiceLocator.locate().fail("Generated FileObject (" + generatedFileObjectCheck.getLocation() + "; " + generatedFileObjectCheck.getPackageName() + "; " + generatedFileObjectCheck.getRelativeName() + ") doesn't exist.\n" + compilationResult.getCompileTestFileManager().getGeneratedFileOverview());
+            } else {
+
+                try {
+
+                    FileObject foundFileObject = compilationResult.getCompileTestFileManager().getFileForInput(generatedFileObjectCheck.getLocation(), generatedFileObjectCheck.getPackageName(), generatedFileObjectCheck.getRelativeName());
+
+                    // check for equality
+                    if (generatedFileObjectCheck.getExpectedFileObject() != null) {
+
+                        if (!CompileTestFileManager.contentEquals(
+                                foundFileObject.openInputStream(),
+                                generatedFileObjectCheck.getExpectedFileObject().openInputStream())) {
+
+                            AssertionSpiServiceLocator.locate().fail("Generated FileObject (" + generatedFileObjectCheck.getLocation() + "; " + generatedFileObjectCheck.getPackageName() + "; " + generatedFileObjectCheck.getRelativeName() + ") exists but doesn't match expected FileObject.\n" + compilationResult.getCompileTestFileManager().getGeneratedFileOverview());
+
+                        }
+
+                    }
+
+                    // check with passed matcher
+                    if (generatedFileObjectCheck.getGeneratedFileObjectMatcher() != null) {
+
+                        if (!generatedFileObjectCheck.getGeneratedFileObjectMatcher().check(foundFileObject)) {
+                            AssertionSpiServiceLocator.locate().fail("Generated FileObject (" + generatedFileObjectCheck.getLocation() + "; " + generatedFileObjectCheck.getPackageName() + "; " + generatedFileObjectCheck.getRelativeName() + ") exists but doesn't match passed GeneratedFileObjectMatcher.\n" + compilationResult.getCompileTestFileManager().getGeneratedFileOverview());
+                        }
+
+                    }
+
+                } catch (IOException e) {
+                    // ignore
+                }
+
+
             }
+
 
         }
 

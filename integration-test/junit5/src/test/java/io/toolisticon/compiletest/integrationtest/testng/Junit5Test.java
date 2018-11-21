@@ -1,7 +1,6 @@
 package io.toolisticon.compiletest.integrationtest.testng;
 
 
-
 import io.toolisticon.compiletesting.CompileTestBuilder;
 import io.toolisticon.compiletesting.UnitTestProcessor;
 import org.junit.jupiter.api.Assertions;
@@ -27,9 +26,7 @@ public class Junit5Test {
                         processingEnvironment.getMessager().printMessage(Diagnostic.Kind.WARNING, "WARNING!");
                     }
                 })
-                .addMessageChecks()
                 .addWarningChecks("WARNING!")
-                .finishAddMessageChecks()
                 .compilationShouldSucceed()
                 .testCompilation();
 
@@ -47,9 +44,7 @@ public class Junit5Test {
                         processingEnvironment.getMessager().printMessage(Diagnostic.Kind.ERROR, "ERROR!");
                     }
                 })
-                .addMessageChecks()
                 .addErrorChecks("ERROR!")
-                .finishAddMessageChecks()
                 .compilationShouldFail()
                 .testCompilation();
 

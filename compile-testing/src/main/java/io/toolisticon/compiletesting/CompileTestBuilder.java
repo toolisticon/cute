@@ -6,6 +6,7 @@ import io.toolisticon.compiletesting.impl.UnitTestAnnotationProcessorClass;
 
 import javax.annotation.processing.Processor;
 import javax.tools.FileObject;
+import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
 
 /**
@@ -15,91 +16,7 @@ import javax.tools.JavaFileObject;
 public class CompileTestBuilder {
 
 
-    /**
-     * Base builder class to configure message evaluations.
-     *
-     * @param <T>
-     */
-    public static class MessageEvaluation<T extends BasicBuilder<T>> {
 
-        private final CompileTestConfiguration compileTestConfiguration;
-        private final T returnInstance;
-
-        private MessageEvaluation(T returnInstance, CompileTestConfiguration compileTestConfiguration) {
-
-            this.compileTestConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
-            this.returnInstance = returnInstance;
-        }
-
-        /**
-         * Adds some warning checks.
-         *
-         * @param warningChecks the warning checks to set, null values will be ignored.
-         * @return the next builder instance
-         */
-        public MessageEvaluation<T> addWarningChecks(String... warningChecks) {
-
-            CompileTestConfiguration nextConfig = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
-            if (warningChecks != null) {
-                nextConfig.addWarningMessageCheck(warningChecks);
-            }
-            return new MessageEvaluation<T>(returnInstance, nextConfig);
-
-        }
-
-        /**
-         * Adds some mandatory warning checks.
-         *
-         * @param mandatoryWarningChecks the mandatory warning checks to set, null values will be ignored.
-         * @return the next builder instance
-         */
-        public MessageEvaluation<T> addMandatoryWarningChecks(String... mandatoryWarningChecks) {
-            CompileTestConfiguration nextConfig = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
-            if (mandatoryWarningChecks != null) {
-                compileTestConfiguration.addMandatoryWarningMessageCheck(mandatoryWarningChecks);
-            }
-            return new MessageEvaluation<T>(returnInstance, compileTestConfiguration);
-        }
-
-        /**
-         * Adds some error checks.
-         *
-         * @param errorChecksToSet the error checks to set, null values will be ignored.
-         * @return the next builder instance
-         */
-        public MessageEvaluation<T> addErrorChecks(String... errorChecksToSet) {
-            CompileTestConfiguration nextConfig = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
-            if (errorChecksToSet != null) {
-                compileTestConfiguration.addErrorMessageCheck(errorChecksToSet);
-            }
-            return new MessageEvaluation<T>(returnInstance, compileTestConfiguration);
-        }
-
-        /**
-         * Adds some notes checks.
-         *
-         * @param noteChecksToSet the notes checks to set, null values will be ignored.
-         * @return the next builder instance
-         */
-        public MessageEvaluation<T> addNoteChecks(String... noteChecksToSet) {
-            CompileTestConfiguration nextConfig = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
-            if (noteChecksToSet != null) {
-                compileTestConfiguration.addNoteMessageCheck(noteChecksToSet);
-            }
-            return new MessageEvaluation<T>(returnInstance, compileTestConfiguration);
-        }
-
-        /**
-         * Finishes message validation builder.
-         *
-         * @return the basic builder instance
-         */
-        public T finishAddMessageChecks() {
-            CompileTestConfiguration nextConfig = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
-            return returnInstance.createNextInstance(nextConfig);
-        }
-
-    }
 
     /**
      * Abstract base builder class.
@@ -136,38 +53,151 @@ public class CompileTestBuilder {
         }
 
 
-        public T addExpectedGeneratedJavaFileObjects(JavaFileObject... expectedGeneratedJavaFileObjects) {
-
-            if (expectedGeneratedJavaFileObjects != null) {
-                compileTestConfiguration.addExpectedGeneratedJavaFileObjectCheck(expectedGeneratedJavaFileObjects);
-            }
-            return createNextInstance(compileTestConfiguration);
-
-        }
-
         /**
-         * Expected generated FileObjects. (resource files)
+         * Adds some warning checks.
          *
-         * @param expectedGeneratedFileObjects the expected generated FileObjects
+         * @param warningChecks the warning checks to set, null values will be ignored.
          * @return the next builder instance
          */
-        public T addExpectedGeneratedFileObjects(FileObject... expectedGeneratedFileObjects) {
+        public T addWarningChecks(String... warningChecks) {
 
-            if (expectedGeneratedFileObjects != null) {
-                compileTestConfiguration.addExpectedGeneratedFileObjectCheck(expectedGeneratedFileObjects);
+            if (warningChecks != null) {
+                compileTestConfiguration.addWarningMessageCheck(warningChecks);
             }
             return createNextInstance(compileTestConfiguration);
 
         }
 
         /**
-         * Add some message checks.
+         * Adds some mandatory warning checks.
          *
-         * @return A MessageEvaluation builder instance
+         * @param mandatoryWarningChecks the mandatory warning checks to set, null values will be ignored.
+         * @return the next builder instance
          */
-        public MessageEvaluation<T> addMessageChecks() {
-            return new MessageEvaluation<T>(createNextInstance(compileTestConfiguration), compileTestConfiguration);
+        public T addMandatoryWarningChecks(String... mandatoryWarningChecks) {
+
+            if (mandatoryWarningChecks != null) {
+                compileTestConfiguration.addMandatoryWarningMessageCheck(mandatoryWarningChecks);
+            }
+            return createNextInstance(compileTestConfiguration);
+
         }
+
+        /**
+         * Adds some error checks.
+         *
+         * @param errorChecksToSet the error checks to set, null values will be ignored.
+         * @return the next builder instance
+         */
+        public T addErrorChecks(String... errorChecksToSet) {
+
+            if (errorChecksToSet != null) {
+                compileTestConfiguration.addErrorMessageCheck(errorChecksToSet);
+            }
+            return createNextInstance(compileTestConfiguration);
+
+        }
+
+        /**
+         * Adds some notes checks.
+         *
+         * @param noteChecksToSet the notes checks to set, null values will be ignored.
+         * @return the next builder instance
+         */
+        public T addNoteChecks(String... noteChecksToSet) {
+
+            if (noteChecksToSet != null) {
+                compileTestConfiguration.addNoteMessageCheck(noteChecksToSet);
+            }
+            return createNextInstance(compileTestConfiguration);
+
+        }
+
+
+        /**
+         * Adds a check if a specific generated FileObject exists.
+         *
+         * @param location
+         * @param packageName
+         * @param relativeName
+         * @return the next builder instance
+         */
+        public T addGeneratedFileObjectExistsCheck(JavaFileManager.Location location, String packageName, String relativeName) {
+            return addGeneratedFileObjectExistsCheck(location, packageName, relativeName, (FileObject) null);
+        }
+
+        /**
+         * Adds a check if a specific generated FileObject exists.
+         * Additionally checks if files are equal if passed expectedFileObject is not null.
+         *
+         * @param location
+         * @param packageName
+         * @param relativeName
+         * @param expectedFileObject
+         * @return the next builder instance
+         */
+        public T addGeneratedFileObjectExistsCheck(JavaFileManager.Location location, String packageName, String relativeName, FileObject expectedFileObject) {
+            compileTestConfiguration.addExpectedGeneratedFileObjectCheck(location, packageName, relativeName, expectedFileObject);
+            return createNextInstance(compileTestConfiguration);
+        }
+
+        /**
+         * Adds a check if a specific generated FileObject exists.
+         * Additionally checks if file object matches with passed matcher.
+         *
+         * @param location
+         * @param packageName
+         * @param relativeName
+         * @param generatedFileObjectMatcher
+         * @return the next builder instance
+         */
+        public T addGeneratedFileObjectExistsCheck(JavaFileManager.Location location, String packageName, String relativeName, GeneratedFileObjectMatcher<FileObject> generatedFileObjectMatcher) {
+            compileTestConfiguration.addExpectedGeneratedFileObjectCheck(location, packageName, relativeName, generatedFileObjectMatcher);
+            return createNextInstance(compileTestConfiguration);
+        }
+
+        /**
+         * Adds a check if a specific generated JavaFileObject exists.
+         *
+         * @param location
+         * @param className
+         * @param kind
+         * @return the next builder instance
+         */
+        public T addGeneratedJavaFileObjectExistsCheck(JavaFileManager.Location location, String className, JavaFileObject.Kind kind) {
+            return addGeneratedJavaFileObjectExistsCheck(location, className, kind, (JavaFileObject) null);
+        }
+
+        /**
+         * Adds a check if a specific generated JavaFileObject exists.
+         * Additionally checks if files are equal if passed expectedJavaFileObject is not null.
+         *
+         * @param location
+         * @param className
+         * @param kind
+         * @param expectedJavaFileObject
+         * @return the next builder instance
+         */
+        public T addGeneratedJavaFileObjectExistsCheck(JavaFileManager.Location location, String className, JavaFileObject.Kind kind, JavaFileObject expectedJavaFileObject) {
+            compileTestConfiguration.addExpectedGeneratedJavaFileObjectCheck(location, className, kind, expectedJavaFileObject);
+            return createNextInstance(compileTestConfiguration);
+        }
+
+        /**
+         * Adds a check if a specific generated JavaFileObject exists.
+         * Additionally checks if java file object matches with passed matcher.
+         *
+         * @param location
+         * @param className
+         * @param kind
+         * @param generatedJavaFileObjectCheck
+         * @return the next builder instance
+         */
+        public T addGeneratedJavaFileObjectExistsCheck(JavaFileManager.Location location, String className, JavaFileObject.Kind kind, GeneratedFileObjectMatcher<JavaFileObject> generatedJavaFileObjectCheck) {
+            compileTestConfiguration.addExpectedGeneratedJavaFileObjectCheck(location, className, kind, generatedJavaFileObjectCheck);
+            return createNextInstance(compileTestConfiguration);
+        }
+
 
         /**
          * Created the compile test configuration instance.
