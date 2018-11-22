@@ -17,20 +17,29 @@ public class CompileTestConfiguration {
 
     public static class ProcessorWithExpectedException {
 
-        private final Processor processor;
+        private final Class<? extends Processor> processorType;
         private final Class<? extends Throwable> throwable;
 
-        public ProcessorWithExpectedException(Processor processor, Class<? extends Throwable> throwable) {
-            this.processor = processor;
+        public ProcessorWithExpectedException(Class<? extends Processor> processorType, Class<? extends Throwable> throwable) {
+            this.processorType = processorType;
             this.throwable = throwable;
         }
 
-        public Processor getProcessor() {
-            return processor;
+        public Class<? extends Processor> getProcessorType() {
+            return processorType;
         }
 
         public Class<? extends Throwable> getThrowable() {
             return throwable;
+        }
+
+        @Override
+        public String toString() {
+            return "ProcessorWithExpectedException{" +
+                    "\n\t\tprocessorType=" + processorType +
+                    ",\n\t\t throwable=" + throwable +
+                    "\n\t" +
+                    '}';
         }
     }
 
@@ -83,6 +92,17 @@ public class CompileTestConfiguration {
             return generatedFileObjectMatcher;
         }
 
+        @Override
+        public String toString() {
+            return "GeneratedJavaFileObjectCheck{" +
+                    "\n\t\tlocation=" + location +
+                    ",\n\t\t className='" + className + '\'' +
+                    ",\n\t\t kind=" + kind +
+                    ",\n\t\t expectedJavaFileObject=" + expectedJavaFileObject +
+                    ",\n\t\t generatedFileObjectMatcher=" + generatedFileObjectMatcher +
+                    "\n\t" +
+                    '}';
+        }
     }
 
 
@@ -135,16 +155,34 @@ public class CompileTestConfiguration {
             return generatedFileObjectMatcher;
         }
 
+        @Override
+        public String toString() {
+            return "GeneratedFileObjectCheck{" +
+                    "\n\t\tlocation=" + location +
+                    ",\n\t\t packageName='" + packageName + '\'' +
+                    ",\n\t\t relativeName='" + relativeName + '\'' +
+                    ",\n\t\t expectedFileObject=" + expectedFileObject +
+                    ",\n\t\t generatedFileObjectMatcher=" + generatedFileObjectMatcher +
+                    "\n\t" +
+                    '}';
+        }
     }
 
     /**
      * The source files to use.
      */
     private final Set<JavaFileObject> sourceFiles = new HashSet<JavaFileObject>();
+
     /**
      * The processors to use.
      */
     private final Set<Processor> processors = new HashSet<Processor>();
+
+    /**
+     * The processor types to use.
+     */
+    private final Set<Class<? extends Processor>> processorTypes = new HashSet<Class<? extends Processor>>();
+
     /**
      * The processors to use with an expected exception raised by this specific processor.
      */
@@ -190,6 +228,7 @@ public class CompileTestConfiguration {
 
         this.sourceFiles.addAll(source.getSourceFiles());
         this.processors.addAll(source.getProcessors());
+        this.processorTypes.addAll(source.getProcessorTypes());
         this.processorsWithExpectedExceptions.addAll(source.processorsWithExpectedExceptions);
         this.expectedThrownException = source.getExpectedThrownException();
 
@@ -220,6 +259,11 @@ public class CompileTestConfiguration {
         }
     }
 
+    /**
+     * This method should only be used for unit compile tests.
+     * Sharing instance between test runs can cause undeterministic behavior.
+     * @param processors
+     */
     public void addProcessors(Processor... processors) {
         if (processors != null) {
             this.processors.addAll(Arrays.asList(processors));
@@ -227,8 +271,15 @@ public class CompileTestConfiguration {
         }
     }
 
-    public void addProcessorWithExpectedException(Processor processors, Class<? extends Throwable> e) {
-        this.processorsWithExpectedExceptions.add(new ProcessorWithExpectedException(processors, e));
+    public void addProcessorTypes(Class<? extends Processor>... processorTypes) {
+        if (processorTypes != null) {
+            this.processorTypes.addAll(Arrays.asList(processorTypes));
+            this.processorTypes.remove(null);
+        }
+    }
+
+    public void addProcessorWithExpectedException(Class<? extends Processor> processorType, Class<? extends Throwable> e) {
+        this.processorsWithExpectedExceptions.add(new ProcessorWithExpectedException(processorType, e));
     }
 
     public void addWarningMessageCheck(String... warningMessage) {
@@ -288,6 +339,10 @@ public class CompileTestConfiguration {
         return processors;
     }
 
+    public Set<Class<? extends Processor>> getProcessorTypes() {
+        return processorTypes;
+    }
+
     public Set<ProcessorWithExpectedException> getProcessorsWithExpectedExceptions() {
         return processorsWithExpectedExceptions;
     }
@@ -306,9 +361,25 @@ public class CompileTestConfiguration {
 
         }
 
+        for (Class<? extends Processor> processorType : this.processorTypes) {
+
+            try {
+                Processor processor = (Processor) processorType.getDeclaredConstructor().newInstance();
+
+                if (this.expectedThrownException != null) {
+                    wrappedProcessors.add(AnnotationProcessorWrapper.wrapProcessor(processor, expectedThrownException));
+                } else {
+                    wrappedProcessors.add(AnnotationProcessorWrapper.wrapProcessor(processor, expectedThrownException));
+                }
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Passed processor " + processorType.getCanonicalName() + " cannot be instantiated.", e);
+            }
+
+        }
+
         for (ProcessorWithExpectedException processor : this.processorsWithExpectedExceptions) {
 
-            wrappedProcessors.add(AnnotationProcessorWrapper.wrapProcessor(processor.processor, processor.throwable != null ? processor.throwable : expectedThrownException));
+            wrappedProcessors.add(AnnotationProcessorWrapper.wrapProcessor(processor.processorType, processor.throwable != null ? processor.throwable : expectedThrownException));
 
         }
 
@@ -348,4 +419,22 @@ public class CompileTestConfiguration {
         return new CompileTestConfiguration(compileTestConfiguration);
     }
 
+    @Override
+    public String toString() {
+        return "CompileTestConfiguration{\n" +
+                "\n\tsourceFiles=" + sourceFiles +
+                ",\n\t processors=" + processors +
+                ",\n\t processorTypes=" + processorTypes +
+                ",\n\t processorsWithExpectedExceptions=" + processorsWithExpectedExceptions +
+                ",\n\t expectedThrownException=" + expectedThrownException +
+                ",\n\t compilationShouldSucceed=" + compilationShouldSucceed +
+                ",\n\t warningMessageCheck=" + warningMessageCheck +
+                ",\n\t mandatoryWarningMessageCheck=" + mandatoryWarningMessageCheck +
+                ",\n\t errorMessageCheck=" + errorMessageCheck +
+                ",\n\t noteMessageCheck=" + noteMessageCheck +
+                ",\n\t generatedJavaFileObjectChecks=" + generatedJavaFileObjectChecks +
+                ",\n\t generatedFileObjectChecks=" + generatedFileObjectChecks +
+                "\n" +
+                '}';
+    }
 }

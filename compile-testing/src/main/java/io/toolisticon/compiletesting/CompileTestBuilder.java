@@ -16,8 +16,6 @@ import javax.tools.JavaFileObject;
 public class CompileTestBuilder {
 
 
-
-
     /**
      * Abstract base builder class.
      * Contains common configurations.
@@ -29,7 +27,7 @@ public class CompileTestBuilder {
         protected final CompileTestConfiguration compileTestConfiguration;
 
         protected BasicBuilder(CompileTestConfiguration compileTestConfiguration) {
-            this.compileTestConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
+            this.compileTestConfiguration = compileTestConfiguration;
         }
 
         /**
@@ -38,8 +36,9 @@ public class CompileTestBuilder {
          * @return the next builder instance
          */
         public T compilationShouldSucceed() {
-            compileTestConfiguration.setCompilationShouldSucceed(true);
-            return createNextInstance(compileTestConfiguration);
+            CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
+            nextConfiguration.setCompilationShouldSucceed(true);
+            return createNextInstance(nextConfiguration);
         }
 
         /**
@@ -48,8 +47,9 @@ public class CompileTestBuilder {
          * @return the next builder instance
          */
         public T compilationShouldFail() {
-            compileTestConfiguration.setCompilationShouldSucceed(false);
-            return createNextInstance(compileTestConfiguration);
+            CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
+            nextConfiguration.setCompilationShouldSucceed(false);
+            return createNextInstance(nextConfiguration);
         }
 
 
@@ -60,11 +60,11 @@ public class CompileTestBuilder {
          * @return the next builder instance
          */
         public T addWarningChecks(String... warningChecks) {
-
+            CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
             if (warningChecks != null) {
-                compileTestConfiguration.addWarningMessageCheck(warningChecks);
+                nextConfiguration.addWarningMessageCheck(warningChecks);
             }
-            return createNextInstance(compileTestConfiguration);
+            return createNextInstance(nextConfiguration);
 
         }
 
@@ -76,10 +76,11 @@ public class CompileTestBuilder {
          */
         public T addMandatoryWarningChecks(String... mandatoryWarningChecks) {
 
+            CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
             if (mandatoryWarningChecks != null) {
-                compileTestConfiguration.addMandatoryWarningMessageCheck(mandatoryWarningChecks);
+                nextConfiguration.addMandatoryWarningMessageCheck(mandatoryWarningChecks);
             }
-            return createNextInstance(compileTestConfiguration);
+            return createNextInstance(nextConfiguration);
 
         }
 
@@ -91,10 +92,11 @@ public class CompileTestBuilder {
          */
         public T addErrorChecks(String... errorChecksToSet) {
 
+            CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
             if (errorChecksToSet != null) {
-                compileTestConfiguration.addErrorMessageCheck(errorChecksToSet);
+                nextConfiguration.addErrorMessageCheck(errorChecksToSet);
             }
-            return createNextInstance(compileTestConfiguration);
+            return createNextInstance(nextConfiguration);
 
         }
 
@@ -106,10 +108,11 @@ public class CompileTestBuilder {
          */
         public T addNoteChecks(String... noteChecksToSet) {
 
+            CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
             if (noteChecksToSet != null) {
-                compileTestConfiguration.addNoteMessageCheck(noteChecksToSet);
+                nextConfiguration.addNoteMessageCheck(noteChecksToSet);
             }
-            return createNextInstance(compileTestConfiguration);
+            return createNextInstance(nextConfiguration);
 
         }
 
@@ -137,8 +140,11 @@ public class CompileTestBuilder {
          * @return the next builder instance
          */
         public T addGeneratedFileObjectExistsCheck(JavaFileManager.Location location, String packageName, String relativeName, FileObject expectedFileObject) {
-            compileTestConfiguration.addExpectedGeneratedFileObjectCheck(location, packageName, relativeName, expectedFileObject);
-            return createNextInstance(compileTestConfiguration);
+
+            CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
+            nextConfiguration.addExpectedGeneratedFileObjectCheck(location, packageName, relativeName, expectedFileObject);
+            return createNextInstance(nextConfiguration);
+
         }
 
         /**
@@ -152,8 +158,11 @@ public class CompileTestBuilder {
          * @return the next builder instance
          */
         public T addGeneratedFileObjectExistsCheck(JavaFileManager.Location location, String packageName, String relativeName, GeneratedFileObjectMatcher<FileObject> generatedFileObjectMatcher) {
-            compileTestConfiguration.addExpectedGeneratedFileObjectCheck(location, packageName, relativeName, generatedFileObjectMatcher);
-            return createNextInstance(compileTestConfiguration);
+
+            CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
+            nextConfiguration.addExpectedGeneratedFileObjectCheck(location, packageName, relativeName, generatedFileObjectMatcher);
+            return createNextInstance(nextConfiguration);
+
         }
 
         /**
@@ -179,8 +188,11 @@ public class CompileTestBuilder {
          * @return the next builder instance
          */
         public T addGeneratedJavaFileObjectExistsCheck(JavaFileManager.Location location, String className, JavaFileObject.Kind kind, JavaFileObject expectedJavaFileObject) {
-            compileTestConfiguration.addExpectedGeneratedJavaFileObjectCheck(location, className, kind, expectedJavaFileObject);
-            return createNextInstance(compileTestConfiguration);
+
+            CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
+            nextConfiguration.addExpectedGeneratedJavaFileObjectCheck(location, className, kind, expectedJavaFileObject);
+            return createNextInstance(nextConfiguration);
+
         }
 
         /**
@@ -194,8 +206,11 @@ public class CompileTestBuilder {
          * @return the next builder instance
          */
         public T addGeneratedJavaFileObjectExistsCheck(JavaFileManager.Location location, String className, JavaFileObject.Kind kind, GeneratedFileObjectMatcher<JavaFileObject> generatedJavaFileObjectCheck) {
-            compileTestConfiguration.addExpectedGeneratedJavaFileObjectCheck(location, className, kind, generatedJavaFileObjectCheck);
-            return createNextInstance(compileTestConfiguration);
+
+            CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
+            nextConfiguration.addExpectedGeneratedJavaFileObjectCheck(location, className, kind, generatedJavaFileObjectCheck);
+            return createNextInstance(nextConfiguration);
+
         }
 
 
@@ -250,34 +265,53 @@ public class CompileTestBuilder {
         }
 
         /**
-         * Adds processors
+         * Adds processors.
          *
-         * @param processors
+         * @param processorTypes
          * @return
          */
-        public CompileTimeTestBuilder useProcessors(Processor... processors) {
-            if (processors != null) {
-                compileTestConfiguration.addProcessors(processors);
+        public CompileTimeTestBuilder useProcessors(Class<? extends Processor>... processorTypes) {
+
+            CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
+            if (processorTypes != null) {
+                nextConfiguration.addProcessorTypes(processorTypes);
             }
-            return createNextInstance(compileTestConfiguration);
+            return createNextInstance(nextConfiguration);
+
         }
 
-        public CompileTimeTestBuilder useProcessorAndExpectException(Processor processor, Class<? extends Throwable> exception) {
+        /**
+         * Adds processors and links them with an expected exception check.
+         * Be aware that sharing a processor instance between tests might lead to undetermined behavior!!
+         * <p>
+         * This method might be removed soon due to the potential issues.
+         *
+         * @param processor
+         * @param exception
+         * @return
+         */
+        public CompileTimeTestBuilder useProcessorAndExpectException(Class<? extends Processor> processor, Class<? extends Throwable> exception) {
+
             if (processor == null) {
                 throw new IllegalArgumentException("Passed processor must not be null");
             }
             if (exception == null) {
                 throw new IllegalArgumentException("Passed exception must not be null");
             }
-            compileTestConfiguration.addProcessorWithExpectedException(processor, exception);
-            return createNextInstance(compileTestConfiguration);
+            CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
+            nextConfiguration.addProcessorWithExpectedException(processor, exception);
+            return createNextInstance(nextConfiguration);
+
         }
 
         public CompileTimeTestBuilder addSources(JavaFileObject... sources) {
+
+            CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
             if (sources != null) {
-                compileTestConfiguration.addSourceFiles(sources);
+                nextConfiguration.addSourceFiles(sources);
             }
-            return createNextInstance(compileTestConfiguration);
+            return createNextInstance(nextConfiguration);
+
         }
 
         protected CompileTimeTestBuilder createNextInstance(CompileTestConfiguration compileTestConfiguration) {
@@ -303,11 +337,13 @@ public class CompileTestBuilder {
                 throw new IllegalArgumentException("passed processor must not be null!");
             }
 
-            // remove existing processor
-            compileTestConfiguration.getProcessors().clear();
-            compileTestConfiguration.addProcessors(processor);
+            CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
 
-            return createNextInstance(compileTestConfiguration);
+            // remove existing processor
+            nextConfiguration.getProcessors().clear();
+            nextConfiguration.addProcessors(processor);
+
+            return createNextInstance(nextConfiguration);
         }
 
         /**
@@ -325,11 +361,13 @@ public class CompileTestBuilder {
                 throw new IllegalArgumentException("passed unitTestProcessor must not be null!");
             }
 
-            // remove existing processor
-            compileTestConfiguration.getProcessors().clear();
-            compileTestConfiguration.addProcessors(new UnitTestAnnotationProcessorClass(unitTestProcessor));
+            CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
 
-            return createNextInstance(compileTestConfiguration);
+            // remove existing processor
+            nextConfiguration.getProcessors().clear();
+            nextConfiguration.addProcessors(new UnitTestAnnotationProcessorClass(unitTestProcessor));
+
+            return createNextInstance(nextConfiguration);
         }
 
 
@@ -348,30 +386,38 @@ public class CompileTestBuilder {
                 throw new IllegalArgumentException("passed source file must not be null!");
             }
 
-            // clear existing sources
-            compileTestConfiguration.getSourceFiles().clear();
-            compileTestConfiguration.addSourceFiles(source);
+            CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
 
-            return createNextInstance(compileTestConfiguration);
+            // clear existing sources
+            nextConfiguration.getSourceFiles().clear();
+            nextConfiguration.addSourceFiles(source);
+
+            return createNextInstance(nextConfiguration);
+
         }
 
         /**
          * Sets an expected exception thrown in the unit test case.
          */
         public UnitTestBuilder expectedThrownException(Class<? extends Throwable> expectedException) {
+
+            CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
             if (expectedException != null) {
-                compileTestConfiguration.setExpectedThrownException(expectedException);
+                nextConfiguration.setExpectedThrownException(expectedException);
             }
-            return createNextInstance(compileTestConfiguration);
+            return createNextInstance(nextConfiguration);
+
         }
 
 
         public void testCompilation() {
+
             if (compileTestConfiguration.getProcessors().size() == 0) {
                 throw new IllegalArgumentException("At least one processor has to be added to the compiler test configuration");
             }
 
             super.testCompilation();
+
         }
 
         /**

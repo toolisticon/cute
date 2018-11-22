@@ -90,8 +90,7 @@ public class CompileTestBuilderTest {
 
         CompileTestBuilder.CompileTimeTestBuilder builder = CompileTestBuilder.createCompileTestBuilder()
                 .compilationTest()
-                .addWarningChecks("WARN1")
-                ;
+                .addWarningChecks("WARN1");
 
         MatcherAssert.assertThat(builder.createCompileTestConfiguration().getWarningMessageCheck(), Matchers.containsInAnyOrder("WARN1"));
 
@@ -222,22 +221,34 @@ public class CompileTestBuilderTest {
 
     }
 
+    private static class SimpleTestProcessor1 extends AbstractProcessor {
+        @Override
+        public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
+            return false;
+        }
+    }
+
+    private static class SimpleTestProcessor2 extends AbstractProcessor {
+        @Override
+        public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
+            return false;
+        }
+    }
 
     @Test
     public void test_useProcessors() {
 
-        Processor testProcessor1 = Mockito.mock(Processor.class);
-        Processor testProcessor2 = Mockito.mock(Processor.class);
+        Class<? extends Processor> testProcessor1 = SimpleTestProcessor1.class;
+        Class<? extends Processor> testProcessor2 = SimpleTestProcessor2.class;
 
         CompileTestBuilder.CompileTimeTestBuilder builder = CompileTestBuilder.createCompileTestBuilder()
                 .compilationTest()
                 .useProcessors(testProcessor1)
                 .useProcessors(testProcessor2)
-                .useProcessors(null)
-                .useProcessors();
+                .useProcessors((Class<? extends Processor>) null);
 
 
-        MatcherAssert.assertThat(builder.createCompileTestConfiguration().getProcessors(), Matchers.containsInAnyOrder(testProcessor1, testProcessor2));
+        MatcherAssert.assertThat(builder.createCompileTestConfiguration().getProcessorTypes(), Matchers.containsInAnyOrder(testProcessor1, testProcessor2));
 
 
     }
@@ -245,8 +256,8 @@ public class CompileTestBuilderTest {
     @Test
     public void test_useProcessorAndExpectException() {
 
-        Processor testProcessor1 = Mockito.mock(Processor.class);
-        Processor testProcessor2 = Mockito.mock(Processor.class);
+        Class<? extends Processor> testProcessor1 = SimpleTestProcessor1.class;
+        Class<? extends Processor> testProcessor2 = SimpleTestProcessor2.class;
 
         CompileTestBuilder.CompileTimeTestBuilder builder = CompileTestBuilder.createCompileTestBuilder()
                 .compilationTest()
@@ -330,17 +341,19 @@ public class CompileTestBuilderTest {
 
     }
 
+    private static class SimpleTestProcessor extends AbstractProcessor {
+        @Override
+        public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
+            return false;
+        }
+    }
+
     @Test(expected = IllegalArgumentException.class)
     public void test_CompileTimeTestBuilder_useProcessorAndExpectException_addNullValuedException() {
 
         CompileTestBuilder.createCompileTestBuilder()
                 .compilationTest()
-                .useProcessorAndExpectException(new AbstractProcessor() {
-                    @Override
-                    public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-                        return false;
-                    }
-                }, null);
+                .useProcessorAndExpectException(SimpleTestProcessor.class, null);
 
 
     }

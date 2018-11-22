@@ -14,7 +14,6 @@ import java.net.URL;
 /**
  * Utility class to create JavaFileObjects and therefore also FileObjects.
  * These files can be used for comparision or as source files during compilation.
- *
  */
 public class JavaFileObjectUtils {
 
@@ -169,7 +168,7 @@ public class JavaFileObjectUtils {
 
 
     /**
-     * Read a java source file from resurces.
+     * Read a java source file from reosurces.
      *
      * @param location the location
      * @param content  content of the file
