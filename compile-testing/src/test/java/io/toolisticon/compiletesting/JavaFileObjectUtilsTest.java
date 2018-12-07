@@ -25,7 +25,7 @@ public class JavaFileObjectUtilsTest {
 
         final String content = "test";
 
-        JavaFileObject fileObject = JavaFileObjectUtils.readFromString("abc", content);
+        JavaFileObject fileObject = JavaFileObjectUtils.readFromString( content);
 
         MatcherAssert.assertThat((String) fileObject.getCharContent(false), Matchers.is(content));
 
@@ -36,7 +36,7 @@ public class JavaFileObjectUtilsTest {
 
         final String content = "test";
 
-        JavaFileObject fileObject = JavaFileObjectUtils.readFromString("abc", content);
+        JavaFileObject fileObject = JavaFileObjectUtils.readFromString( content);
 
         BufferedReader bufferedReader = new BufferedReader(fileObject.openReader(false));
 
@@ -48,7 +48,7 @@ public class JavaFileObjectUtilsTest {
 
         final String content = "test";
 
-        JavaFileObject fileObject = JavaFileObjectUtils.readFromString("abc", content);
+        JavaFileObject fileObject = JavaFileObjectUtils.readFromString( content);
 
         BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(fileObject.openInputStream()));
 

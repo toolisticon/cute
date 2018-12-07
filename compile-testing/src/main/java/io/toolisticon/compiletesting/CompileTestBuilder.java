@@ -16,8 +16,6 @@ import javax.tools.JavaFileObject;
 public class CompileTestBuilder {
 
 
-
-
     /**
      * Abstract base builder class.
      * Contains common configurations.
@@ -26,10 +24,13 @@ public class CompileTestBuilder {
      */
     public static abstract class BasicBuilder<T extends BasicBuilder<T>> {
 
+        /**
+         * the current immutable CompileTestConfiguration
+         */
         protected final CompileTestConfiguration compileTestConfiguration;
 
         protected BasicBuilder(CompileTestConfiguration compileTestConfiguration) {
-            this.compileTestConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
+            this.compileTestConfiguration = compileTestConfiguration;
         }
 
         /**
@@ -38,8 +39,9 @@ public class CompileTestBuilder {
          * @return the next builder instance
          */
         public T compilationShouldSucceed() {
-            compileTestConfiguration.setCompilationShouldSucceed(true);
-            return createNextInstance(compileTestConfiguration);
+            CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
+            nextConfiguration.setCompilationShouldSucceed(true);
+            return createNextInstance(nextConfiguration);
         }
 
         /**
@@ -48,8 +50,9 @@ public class CompileTestBuilder {
          * @return the next builder instance
          */
         public T compilationShouldFail() {
-            compileTestConfiguration.setCompilationShouldSucceed(false);
-            return createNextInstance(compileTestConfiguration);
+            CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
+            nextConfiguration.setCompilationShouldSucceed(false);
+            return createNextInstance(nextConfiguration);
         }
 
 
@@ -59,12 +62,12 @@ public class CompileTestBuilder {
          * @param warningChecks the warning checks to set, null values will be ignored.
          * @return the next builder instance
          */
-        public T addWarningChecks(String... warningChecks) {
-
+        public T expectedWarningMessages(String... warningChecks) {
+            CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
             if (warningChecks != null) {
-                compileTestConfiguration.addWarningMessageCheck(warningChecks);
+                nextConfiguration.addWarningMessageCheck(warningChecks);
             }
-            return createNextInstance(compileTestConfiguration);
+            return createNextInstance(nextConfiguration);
 
         }
 
@@ -74,12 +77,13 @@ public class CompileTestBuilder {
          * @param mandatoryWarningChecks the mandatory warning checks to set, null values will be ignored.
          * @return the next builder instance
          */
-        public T addMandatoryWarningChecks(String... mandatoryWarningChecks) {
+        public T expectedMandatoryWarningMessages(String... mandatoryWarningChecks) {
 
+            CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
             if (mandatoryWarningChecks != null) {
-                compileTestConfiguration.addMandatoryWarningMessageCheck(mandatoryWarningChecks);
+                nextConfiguration.addMandatoryWarningMessageCheck(mandatoryWarningChecks);
             }
-            return createNextInstance(compileTestConfiguration);
+            return createNextInstance(nextConfiguration);
 
         }
 
@@ -89,12 +93,13 @@ public class CompileTestBuilder {
          * @param errorChecksToSet the error checks to set, null values will be ignored.
          * @return the next builder instance
          */
-        public T addErrorChecks(String... errorChecksToSet) {
+        public T expectedErrorMessages(String... errorChecksToSet) {
 
+            CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
             if (errorChecksToSet != null) {
-                compileTestConfiguration.addErrorMessageCheck(errorChecksToSet);
+                nextConfiguration.addErrorMessageCheck(errorChecksToSet);
             }
-            return createNextInstance(compileTestConfiguration);
+            return createNextInstance(nextConfiguration);
 
         }
 
@@ -104,12 +109,13 @@ public class CompileTestBuilder {
          * @param noteChecksToSet the notes checks to set, null values will be ignored.
          * @return the next builder instance
          */
-        public T addNoteChecks(String... noteChecksToSet) {
+        public T expectedNoteMessages(String... noteChecksToSet) {
 
+            CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
             if (noteChecksToSet != null) {
-                compileTestConfiguration.addNoteMessageCheck(noteChecksToSet);
+                nextConfiguration.addNoteMessageCheck(noteChecksToSet);
             }
-            return createNextInstance(compileTestConfiguration);
+            return createNextInstance(nextConfiguration);
 
         }
 
@@ -122,8 +128,8 @@ public class CompileTestBuilder {
          * @param relativeName
          * @return the next builder instance
          */
-        public T addGeneratedFileObjectExistsCheck(JavaFileManager.Location location, String packageName, String relativeName) {
-            return addGeneratedFileObjectExistsCheck(location, packageName, relativeName, (FileObject) null);
+        public T expectedFileObjectExists(JavaFileManager.Location location, String packageName, String relativeName) {
+            return expectedFileObjectExists(location, packageName, relativeName, (FileObject) null);
         }
 
         /**
@@ -136,9 +142,16 @@ public class CompileTestBuilder {
          * @param expectedFileObject
          * @return the next builder instance
          */
-        public T addGeneratedFileObjectExistsCheck(JavaFileManager.Location location, String packageName, String relativeName, FileObject expectedFileObject) {
-            compileTestConfiguration.addExpectedGeneratedFileObjectCheck(location, packageName, relativeName, expectedFileObject);
-            return createNextInstance(compileTestConfiguration);
+        public T expectedFileObjectExists(
+                JavaFileManager.Location location,
+                String packageName,
+                String relativeName,
+                FileObject expectedFileObject) {
+
+            CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
+            nextConfiguration.addGeneratedFileObjectCheck(location, packageName, relativeName, expectedFileObject);
+            return createNextInstance(nextConfiguration);
+
         }
 
         /**
@@ -151,9 +164,16 @@ public class CompileTestBuilder {
          * @param generatedFileObjectMatcher
          * @return the next builder instance
          */
-        public T addGeneratedFileObjectExistsCheck(JavaFileManager.Location location, String packageName, String relativeName, GeneratedFileObjectMatcher<FileObject> generatedFileObjectMatcher) {
-            compileTestConfiguration.addExpectedGeneratedFileObjectCheck(location, packageName, relativeName, generatedFileObjectMatcher);
-            return createNextInstance(compileTestConfiguration);
+        public T expectedFileObjectExists(
+                JavaFileManager.Location location,
+                String packageName,
+                String relativeName,
+                GeneratedFileObjectMatcher<FileObject> generatedFileObjectMatcher) {
+
+            CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
+            nextConfiguration.addGeneratedFileObjectCheck(location, packageName, relativeName, generatedFileObjectMatcher);
+            return createNextInstance(nextConfiguration);
+
         }
 
         /**
@@ -164,8 +184,8 @@ public class CompileTestBuilder {
          * @param kind
          * @return the next builder instance
          */
-        public T addGeneratedJavaFileObjectExistsCheck(JavaFileManager.Location location, String className, JavaFileObject.Kind kind) {
-            return addGeneratedJavaFileObjectExistsCheck(location, className, kind, (JavaFileObject) null);
+        public T expectedJavaFileObjectExists(JavaFileManager.Location location, String className, JavaFileObject.Kind kind) {
+            return expectedJavaFileObjectExists(location, className, kind, (JavaFileObject) null);
         }
 
         /**
@@ -178,9 +198,16 @@ public class CompileTestBuilder {
          * @param expectedJavaFileObject
          * @return the next builder instance
          */
-        public T addGeneratedJavaFileObjectExistsCheck(JavaFileManager.Location location, String className, JavaFileObject.Kind kind, JavaFileObject expectedJavaFileObject) {
-            compileTestConfiguration.addExpectedGeneratedJavaFileObjectCheck(location, className, kind, expectedJavaFileObject);
-            return createNextInstance(compileTestConfiguration);
+        public T expectedJavaFileObjectExists(
+                JavaFileManager.Location location,
+                String className,
+                JavaFileObject.Kind kind,
+                JavaFileObject expectedJavaFileObject) {
+
+            CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
+            nextConfiguration.addGeneratedJavaFileObjectCheck(location, className, kind, expectedJavaFileObject);
+            return createNextInstance(nextConfiguration);
+
         }
 
         /**
@@ -193,11 +220,17 @@ public class CompileTestBuilder {
          * @param generatedJavaFileObjectCheck
          * @return the next builder instance
          */
-        public T addGeneratedJavaFileObjectExistsCheck(JavaFileManager.Location location, String className, JavaFileObject.Kind kind, GeneratedFileObjectMatcher<JavaFileObject> generatedJavaFileObjectCheck) {
-            compileTestConfiguration.addExpectedGeneratedJavaFileObjectCheck(location, className, kind, generatedJavaFileObjectCheck);
-            return createNextInstance(compileTestConfiguration);
-        }
+        public T expectedJavaFileObjectExists(
+                JavaFileManager.Location location,
+                String className,
+                JavaFileObject.Kind kind,
+                GeneratedFileObjectMatcher<JavaFileObject> generatedJavaFileObjectCheck) {
 
+            CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
+            nextConfiguration.addGeneratedJavaFileObjectCheck(location, className, kind, generatedJavaFileObjectCheck);
+            return createNextInstance(nextConfiguration);
+
+        }
 
         /**
          * Created the compile test configuration instance.
@@ -237,7 +270,7 @@ public class CompileTestBuilder {
      * Builder class used to create compile tests (== Integration tests).
      * Class is designed to produce immutable builder instances in it's fluent api.
      */
-    public static class CompileTimeTestBuilder extends BasicBuilder<CompileTimeTestBuilder> {
+    public static class CompilationTestBuilder extends BasicBuilder<CompilationTestBuilder> {
 
         /**
          * Forwarding constructor.
@@ -245,43 +278,71 @@ public class CompileTestBuilder {
          *
          * @param compileTestConfiguration
          */
-        private CompileTimeTestBuilder(CompileTestConfiguration compileTestConfiguration) {
+        private CompilationTestBuilder(CompileTestConfiguration compileTestConfiguration) {
             super(compileTestConfiguration);
         }
 
         /**
-         * Adds processors
+         * Adds processors.
          *
-         * @param processors
-         * @return
+         * @param processorTypes
+         * @@return the CompilationTestBuilder instance
          */
-        public CompileTimeTestBuilder useProcessors(Processor... processors) {
-            if (processors != null) {
-                compileTestConfiguration.addProcessors(processors);
+        public CompilationTestBuilder addProcessors(Class<? extends Processor>... processorTypes) {
+
+            CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
+            if (processorTypes != null) {
+                nextConfiguration.addProcessorTypes(processorTypes);
             }
-            return createNextInstance(compileTestConfiguration);
+            return createNextInstance(nextConfiguration);
+
         }
 
-        public CompileTimeTestBuilder useProcessorAndExpectException(Processor processor, Class<? extends Throwable> exception) {
+        /**
+         * Adds processors and links them with an expected exception check.
+         * Be aware that sharing a processor instance between tests might lead to undetermined behavior!!
+         * <p>
+         * This method might be removed soon due to the potential issues.
+         *
+         * @param processor
+         * @param exception
+         * @return the CompilationTestBuilder instance
+         */
+        public CompilationTestBuilder addProcessorWithExpectedException(Class<? extends Processor> processor, Class<? extends Throwable> exception) {
+
             if (processor == null) {
                 throw new IllegalArgumentException("Passed processor must not be null");
             }
             if (exception == null) {
                 throw new IllegalArgumentException("Passed exception must not be null");
             }
-            compileTestConfiguration.addProcessorWithExpectedException(processor, exception);
-            return createNextInstance(compileTestConfiguration);
+            CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
+            nextConfiguration.addProcessorWithExpectedException(processor, exception);
+            return createNextInstance(nextConfiguration);
+
         }
 
-        public CompileTimeTestBuilder addSources(JavaFileObject... sources) {
+        /**
+         * Adds source files to compile to compilation test
+         *
+         * @param sources the sources to use
+         * @return the CompilationTestBuilder instance
+         */
+        public CompilationTestBuilder addSources(JavaFileObject... sources) {
+
+            CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
             if (sources != null) {
-                compileTestConfiguration.addSourceFiles(sources);
+                nextConfiguration.addSourceFiles(sources);
             }
-            return createNextInstance(compileTestConfiguration);
+            return createNextInstance(nextConfiguration);
+
         }
 
-        protected CompileTimeTestBuilder createNextInstance(CompileTestConfiguration compileTestConfiguration) {
-            return new CompileTimeTestBuilder(compileTestConfiguration);
+        /**
+         * {@inheritDoc}
+         */
+        protected CompilationTestBuilder createNextInstance(CompileTestConfiguration compileTestConfiguration) {
+            return new CompilationTestBuilder(compileTestConfiguration);
         }
 
     }
@@ -303,11 +364,13 @@ public class CompileTestBuilder {
                 throw new IllegalArgumentException("passed processor must not be null!");
             }
 
-            // remove existing processor
-            compileTestConfiguration.getProcessors().clear();
-            compileTestConfiguration.addProcessors(processor);
+            CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
 
-            return createNextInstance(compileTestConfiguration);
+            // remove existing processor
+            nextConfiguration.getProcessors().clear();
+            nextConfiguration.addProcessors(processor);
+
+            return createNextInstance(nextConfiguration);
         }
 
         /**
@@ -325,11 +388,13 @@ public class CompileTestBuilder {
                 throw new IllegalArgumentException("passed unitTestProcessor must not be null!");
             }
 
-            // remove existing processor
-            compileTestConfiguration.getProcessors().clear();
-            compileTestConfiguration.addProcessors(new UnitTestAnnotationProcessorClass(unitTestProcessor));
+            CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
 
-            return createNextInstance(compileTestConfiguration);
+            // remove existing processor
+            nextConfiguration.getProcessors().clear();
+            nextConfiguration.addProcessors(new UnitTestAnnotationProcessorClass(unitTestProcessor));
+
+            return createNextInstance(nextConfiguration);
         }
 
 
@@ -348,30 +413,41 @@ public class CompileTestBuilder {
                 throw new IllegalArgumentException("passed source file must not be null!");
             }
 
-            // clear existing sources
-            compileTestConfiguration.getSourceFiles().clear();
-            compileTestConfiguration.addSourceFiles(source);
+            CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
 
-            return createNextInstance(compileTestConfiguration);
+            // clear existing sources
+            nextConfiguration.getSourceFiles().clear();
+            nextConfiguration.addSourceFiles(source);
+
+            return createNextInstance(nextConfiguration);
+
         }
 
         /**
          * Sets an expected exception thrown in the unit test case.
          */
         public UnitTestBuilder expectedThrownException(Class<? extends Throwable> expectedException) {
+
+            CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
             if (expectedException != null) {
-                compileTestConfiguration.setExpectedThrownException(expectedException);
+                nextConfiguration.setExpectedThrownException(expectedException);
             }
-            return createNextInstance(compileTestConfiguration);
+            return createNextInstance(nextConfiguration);
+
         }
 
 
+        /**
+         * {@inheritDoc}
+         */
         public void testCompilation() {
+
             if (compileTestConfiguration.getProcessors().size() == 0) {
                 throw new IllegalArgumentException("At least one processor has to be added to the compiler test configuration");
             }
 
             super.testCompilation();
+
         }
 
         /**
@@ -393,13 +469,19 @@ public class CompileTestBuilder {
             return JavaFileObjectUtils.readFromResource("/AnnotationProcessorUnitTestClass.java");
         }
 
+        /**
+         * {@inheritDoc}
+         */
         protected UnitTestBuilder createNextInstance(CompileTestConfiguration compileTestConfiguration) {
             return new UnitTestBuilder(compileTestConfiguration);
         }
 
     }
 
-    public static class TestTypeBuilder {
+    /**
+     * Internal builder class for unit and compilation tests.
+     */
+    private static class TestTypeBuilder {
 
         /**
          * Does a compilation test.
@@ -407,8 +489,8 @@ public class CompileTestBuilder {
          *
          * @return the builder
          */
-        public CompileTimeTestBuilder compilationTest() {
-            return new CompileTimeTestBuilder(new CompileTestConfiguration());
+        public CompilationTestBuilder compilationTest() {
+            return new CompilationTestBuilder(new CompileTestConfiguration());
         }
 
 
@@ -425,9 +507,28 @@ public class CompileTestBuilder {
 
     }
 
+    /**
+     * Creates a unit test builder instance.
+     * <p>
+     * Unit tests can be used to test methods that internally rely on the java compile time model
+     * or using the tools provided by the processors processing environment.
+     *
+     * @return the UnitTestBuilderm instance
+     */
+    public static UnitTestBuilder unitTest() {
+        return new TestTypeBuilder().unitTest();
+    }
 
-    public static TestTypeBuilder createCompileTestBuilder() {
-        return new TestTypeBuilder();
+    /**
+     * Creates a compilation test builder instance.
+     * <p>
+     * Compilation tests can be used for all kind of integration tests.
+     * F.e. to test behavior and outcome of a processor.
+     *
+     * @return the CompilationTestBuilder instance
+     */
+    public static CompilationTestBuilder compilationTest() {
+        return new TestTypeBuilder().compilationTest();
     }
 
 }

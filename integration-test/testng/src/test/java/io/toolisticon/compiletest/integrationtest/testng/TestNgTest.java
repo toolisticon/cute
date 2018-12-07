@@ -17,7 +17,8 @@ public class TestNgTest {
     @Test
     public void warningMessageTest() {
 
-        CompileTestBuilder.createCompileTestBuilder()
+        CompileTestBuilder
+
                 .unitTest()
                 .useProcessor(new UnitTestProcessor() {
                     @Override
@@ -25,7 +26,7 @@ public class TestNgTest {
                         processingEnvironment.getMessager().printMessage(Diagnostic.Kind.WARNING, "WARNING!");
                     }
                 })
-                .addWarningChecks("WARNING!")
+                .expectedWarningMessages("WARNING!")
                 .compilationShouldSucceed()
                 .testCompilation();
 
@@ -35,7 +36,7 @@ public class TestNgTest {
     @Test
     public void successfullFailingCompilationTest_ByErrorMessage() {
 
-        CompileTestBuilder.createCompileTestBuilder()
+        CompileTestBuilder
                 .unitTest()
                 .useProcessor(new UnitTestProcessor() {
                     @Override
@@ -43,7 +44,7 @@ public class TestNgTest {
                         processingEnvironment.getMessager().printMessage(Diagnostic.Kind.ERROR, "ERROR!");
                     }
                 })
-                .addErrorChecks("ERROR!")
+                .expectedErrorMessages("ERROR!")
                 .compilationShouldFail()
                 .testCompilation();
 
@@ -54,7 +55,7 @@ public class TestNgTest {
     public void failingCompilationTest_ByErrorMessage() {
 
         try {
-            CompileTestBuilder.createCompileTestBuilder()
+            CompileTestBuilder
                     .unitTest()
                     .useProcessor(new UnitTestProcessor() {
                         @Override

@@ -63,7 +63,7 @@ public class CompileTestFileManagerTest {
     public void test_InMemoryOutputJavaFileObject_setContent_nullValued() throws IOException, URISyntaxException {
 
         CompileTestFileManager compileTestFileManager = new CompileTestFileManager(standardJavaFileManager);
-        CompileTestFileManager.InMemoryOutputJavaFileObject unit = compileTestFileManager.new InMemoryOutputJavaFileObject(new URI("string://abc"), JavaFileObject.Kind.OTHER);
+        CompileTestFileManager.InMemoryOutputJavaFileObject unit = new CompileTestFileManager.InMemoryOutputJavaFileObject(new URI("string://abc"), JavaFileObject.Kind.OTHER);
 
         unit.setContent(null);
 
@@ -75,7 +75,7 @@ public class CompileTestFileManagerTest {
     public void test_InMemoryOutputJavaFileObject_setContent() throws IOException, URISyntaxException {
 
         CompileTestFileManager compileTestFileManager = new CompileTestFileManager(standardJavaFileManager);
-        CompileTestFileManager.InMemoryOutputJavaFileObject unit = compileTestFileManager.new InMemoryOutputJavaFileObject(new URI("string://abc"), JavaFileObject.Kind.OTHER);
+        CompileTestFileManager.InMemoryOutputJavaFileObject unit = new CompileTestFileManager. InMemoryOutputJavaFileObject(new URI("string://abc"), JavaFileObject.Kind.OTHER);
 
         unit.setContent("ABC".getBytes());
 
@@ -87,7 +87,7 @@ public class CompileTestFileManagerTest {
     public void test_InMemoryOutputJavaFileObject_openReader() throws IOException, URISyntaxException {
 
         CompileTestFileManager compileTestFileManager = new CompileTestFileManager(standardJavaFileManager);
-        CompileTestFileManager.InMemoryOutputJavaFileObject unit = compileTestFileManager.new InMemoryOutputJavaFileObject(new URI("string://abc"), JavaFileObject.Kind.OTHER);
+        CompileTestFileManager.InMemoryOutputJavaFileObject unit = new CompileTestFileManager. InMemoryOutputJavaFileObject(new URI("string://abc"), JavaFileObject.Kind.OTHER);
 
         unit.setContent("ABC".getBytes());
 
@@ -106,8 +106,7 @@ public class CompileTestFileManagerTest {
     @Test
     public void test_FileObjectCache() throws URISyntaxException {
 
-        CompileTestFileManager compileTestFileManager = new CompileTestFileManager(standardJavaFileManager);
-        CompileTestFileManager.FileObjectCache unit = compileTestFileManager.new FileObjectCache();
+        CompileTestFileManager.FileObjectCache unit = new CompileTestFileManager.FileObjectCache();
 
         JavaFileObject javaFileObject = Mockito.mock(JavaFileObject.class);
 

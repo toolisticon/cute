@@ -1,5 +1,7 @@
 package io.toolisticon.compiletesting;
 
+import io.toolisticon.compiletesting.common.SimpleTestProcessor1;
+import io.toolisticon.compiletesting.common.SimpleTestProcessor2;
 import io.toolisticon.compiletesting.impl.CompileTestConfiguration;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
@@ -26,7 +28,7 @@ public class CompileTestBuilderTest {
 
         JavaFileObject testSource = Mockito.mock(JavaFileObject.class);
         JavaFileObject expectedGeneratedSource = JavaFileObjectUtils.readFromString("Jupp.txt", "TATA!");
-        CompileTestBuilder.createCompileTestBuilder()
+        CompileTestBuilder
                 .unitTest()
                 .useProcessor(
                         new UnitTestProcessor() {
@@ -51,9 +53,9 @@ public class CompileTestBuilderTest {
 
                             }
                         })
-                .addWarningChecks("WARNING")
-                .addMandatoryWarningChecks("MANDATORY_WARNING")
-                .addNoteChecks("NOTE")
+                .expectedWarningMessages("WARNING")
+                .expectedMandatoryWarningMessages("MANDATORY_WARNING")
+                .expectedNoteMessages("NOTE")
                 .compilationShouldSucceed()
                 .testCompilation();
 
@@ -66,7 +68,7 @@ public class CompileTestBuilderTest {
         JavaFileObject testSource = Mockito.mock(JavaFileObject.class);
         JavaFileObject expectedGeneratedSource = Mockito.mock(JavaFileObject.class);
 
-        CompileTestBuilder.createCompileTestBuilder()
+        CompileTestBuilder
                 .unitTest()
                 .useProcessor(new UnitTestProcessor() {
                     @Override
@@ -77,7 +79,7 @@ public class CompileTestBuilderTest {
 
                     }
                 })
-                .addErrorChecks("ERROR")
+                .expectedErrorMessages("ERROR")
                 .compilationShouldFail()
                 .testCompilation();
 
@@ -88,23 +90,22 @@ public class CompileTestBuilderTest {
     @Test
     public void test_addWarningChecks() {
 
-        CompileTestBuilder.CompileTimeTestBuilder builder = CompileTestBuilder.createCompileTestBuilder()
+        CompileTestBuilder.CompilationTestBuilder builder = CompileTestBuilder
                 .compilationTest()
-                .addWarningChecks("WARN1")
-                ;
+                .expectedWarningMessages("WARN1");
 
         MatcherAssert.assertThat(builder.createCompileTestConfiguration().getWarningMessageCheck(), Matchers.containsInAnyOrder("WARN1"));
 
-        CompileTestBuilder.CompileTimeTestBuilder builder2 = builder
-                .addWarningChecks("WARN2");
+        CompileTestBuilder.CompilationTestBuilder builder2 = builder
+                .expectedWarningMessages("WARN2");
 
         MatcherAssert.assertThat(builder2
                 .createCompileTestConfiguration()
                 .getWarningMessageCheck(), Matchers.containsInAnyOrder("WARN1", "WARN2"));
 
-        CompileTestBuilder.CompileTimeTestBuilder builder3 = builder2
-                .addWarningChecks()
-                .addWarningChecks(null);
+        CompileTestBuilder.CompilationTestBuilder builder3 = builder2
+                .expectedWarningMessages()
+                .expectedWarningMessages(null);
 
         MatcherAssert.assertThat(builder3
                 .createCompileTestConfiguration()
@@ -115,23 +116,23 @@ public class CompileTestBuilderTest {
 
     public void test_addMandatoryWarningChecks() {
 
-        CompileTestBuilder.CompileTimeTestBuilder builder = CompileTestBuilder.createCompileTestBuilder()
+        CompileTestBuilder.CompilationTestBuilder builder = CompileTestBuilder
                 .compilationTest()
-                .addMandatoryWarningChecks("MWARN1");
+                .expectedMandatoryWarningMessages("MWARN1");
 
         MatcherAssert.assertThat(builder.createCompileTestConfiguration()
                 .getMandatoryWarningMessageCheck(), Matchers.containsInAnyOrder("MWARN1"));
 
-        CompileTestBuilder.CompileTimeTestBuilder builder2 = builder
-                .addMandatoryWarningChecks("MWARN2");
+        CompileTestBuilder.CompilationTestBuilder builder2 = builder
+                .expectedMandatoryWarningMessages("MWARN2");
 
         MatcherAssert.assertThat(builder2
                 .createCompileTestConfiguration()
                 .getMandatoryWarningMessageCheck(), Matchers.containsInAnyOrder("MWARN1", "MWARN2"));
 
-        CompileTestBuilder.CompileTimeTestBuilder builder3 = builder2
-                .addMandatoryWarningChecks()
-                .addMandatoryWarningChecks(null);
+        CompileTestBuilder.CompilationTestBuilder builder3 = builder2
+                .expectedMandatoryWarningMessages()
+                .expectedMandatoryWarningMessages(null);
 
         MatcherAssert.assertThat(builder3
                 .createCompileTestConfiguration()
@@ -142,23 +143,23 @@ public class CompileTestBuilderTest {
 
     public void test_addNoteChecks() {
 
-        CompileTestBuilder.CompileTimeTestBuilder builder = CompileTestBuilder.createCompileTestBuilder()
+        CompileTestBuilder.CompilationTestBuilder builder = CompileTestBuilder
                 .compilationTest()
-                .addNoteChecks("NOTE1");
+                .expectedNoteMessages("NOTE1");
 
         MatcherAssert.assertThat(builder.createCompileTestConfiguration()
                 .getNoteMessageCheck(), Matchers.containsInAnyOrder("NOTE1"));
 
-        CompileTestBuilder.CompileTimeTestBuilder builder2 = builder
-                .addNoteChecks("NOTE2");
+        CompileTestBuilder.CompilationTestBuilder builder2 = builder
+                .expectedNoteMessages("NOTE2");
 
         MatcherAssert.assertThat(builder2
                 .createCompileTestConfiguration()
                 .getNoteMessageCheck(), Matchers.containsInAnyOrder("NOTE1", "NOTE2"));
 
-        CompileTestBuilder.CompileTimeTestBuilder builder3 = builder2
-                .addNoteChecks()
-                .addNoteChecks(null);
+        CompileTestBuilder.CompilationTestBuilder builder3 = builder2
+                .expectedNoteMessages()
+                .expectedNoteMessages(null);
 
         MatcherAssert.assertThat(builder3
                 .createCompileTestConfiguration()
@@ -169,23 +170,23 @@ public class CompileTestBuilderTest {
 
     public void test_addErrorChecks() {
 
-        CompileTestBuilder.CompileTimeTestBuilder builder = CompileTestBuilder.createCompileTestBuilder()
+        CompileTestBuilder.CompilationTestBuilder builder = CompileTestBuilder
                 .compilationTest()
-                .addErrorChecks("ERROR1");
+                .expectedErrorMessages("ERROR1");
 
         MatcherAssert.assertThat(builder.createCompileTestConfiguration()
                 .getErrorMessageCheck(), Matchers.containsInAnyOrder("ERROR1"));
 
-        CompileTestBuilder.CompileTimeTestBuilder builder2 = builder
-                .addErrorChecks("ERROR2");
+        CompileTestBuilder.CompilationTestBuilder builder2 = builder
+                .expectedErrorMessages("ERROR2");
 
         MatcherAssert.assertThat(builder2
                 .createCompileTestConfiguration()
                 .getErrorMessageCheck(), Matchers.containsInAnyOrder("ERROR1", "ERROR2"));
 
-        CompileTestBuilder.CompileTimeTestBuilder builder3 = builder2
-                .addErrorChecks()
-                .addErrorChecks(null);
+        CompileTestBuilder.CompilationTestBuilder builder3 = builder2
+                .expectedErrorMessages()
+                .expectedErrorMessages(null);
 
         MatcherAssert.assertThat(builder3
                 .createCompileTestConfiguration()
@@ -197,7 +198,7 @@ public class CompileTestBuilderTest {
     @Test
     public void test_compilationShouldSucceeed() {
 
-        CompileTestBuilder.CompileTimeTestBuilder builder = CompileTestBuilder.createCompileTestBuilder()
+        CompileTestBuilder.CompilationTestBuilder builder = CompileTestBuilder
                 .compilationTest();
 
         MatcherAssert.assertThat(builder.compilationShouldSucceed().createCompileTestConfiguration().getCompilationShouldSucceed(), Matchers.is(Boolean.TRUE));
@@ -212,7 +213,7 @@ public class CompileTestBuilderTest {
         JavaFileObject testSource1 = Mockito.mock(JavaFileObject.class);
         JavaFileObject testSource2 = Mockito.mock(JavaFileObject.class);
 
-        CompileTestBuilder.CompileTimeTestBuilder builder = CompileTestBuilder.createCompileTestBuilder()
+        CompileTestBuilder.CompilationTestBuilder builder = CompileTestBuilder
                 .compilationTest()
                 .addSources(testSource1)
                 .addSources(testSource2);
@@ -226,18 +227,17 @@ public class CompileTestBuilderTest {
     @Test
     public void test_useProcessors() {
 
-        Processor testProcessor1 = Mockito.mock(Processor.class);
-        Processor testProcessor2 = Mockito.mock(Processor.class);
+        Class<? extends Processor> testProcessor1 = SimpleTestProcessor1.class;
+        Class<? extends Processor> testProcessor2 = SimpleTestProcessor2.class;
 
-        CompileTestBuilder.CompileTimeTestBuilder builder = CompileTestBuilder.createCompileTestBuilder()
+        CompileTestBuilder.CompilationTestBuilder builder = CompileTestBuilder
                 .compilationTest()
-                .useProcessors(testProcessor1)
-                .useProcessors(testProcessor2)
-                .useProcessors(null)
-                .useProcessors();
+                .addProcessors(testProcessor1)
+                .addProcessors(testProcessor2)
+                .addProcessors((Class<? extends Processor>) null);
 
 
-        MatcherAssert.assertThat(builder.createCompileTestConfiguration().getProcessors(), Matchers.containsInAnyOrder(testProcessor1, testProcessor2));
+        MatcherAssert.assertThat(builder.createCompileTestConfiguration().getProcessorTypes(), Matchers.containsInAnyOrder(testProcessor1, testProcessor2));
 
 
     }
@@ -245,13 +245,13 @@ public class CompileTestBuilderTest {
     @Test
     public void test_useProcessorAndExpectException() {
 
-        Processor testProcessor1 = Mockito.mock(Processor.class);
-        Processor testProcessor2 = Mockito.mock(Processor.class);
+        Class<? extends Processor> testProcessor1 = SimpleTestProcessor1.class;
+        Class<? extends Processor> testProcessor2 = SimpleTestProcessor2.class;
 
-        CompileTestBuilder.CompileTimeTestBuilder builder = CompileTestBuilder.createCompileTestBuilder()
+        CompileTestBuilder.CompilationTestBuilder builder = CompileTestBuilder
                 .compilationTest()
-                .useProcessorAndExpectException(testProcessor1, IllegalArgumentException.class)
-                .useProcessorAndExpectException(testProcessor2, IllegalStateException.class);
+                .addProcessorWithExpectedException(testProcessor1, IllegalArgumentException.class)
+                .addProcessorWithExpectedException(testProcessor2, IllegalStateException.class);
 
 
         MatcherAssert.assertThat(builder.createCompileTestConfiguration().getProcessorsWithExpectedExceptions(), Matchers.<CompileTestConfiguration.ProcessorWithExpectedException>hasSize(2));
@@ -264,7 +264,7 @@ public class CompileTestBuilderTest {
 
         JavaFileObject javaFileObject = Mockito.mock(JavaFileObject.class);
 
-        CompileTestBuilder.UnitTestBuilder builder = CompileTestBuilder.createCompileTestBuilder()
+        CompileTestBuilder.UnitTestBuilder builder = CompileTestBuilder
                 .unitTest()
                 .useSource(javaFileObject);
 
@@ -278,7 +278,7 @@ public class CompileTestBuilderTest {
         JavaFileObject javaFileObject1 = Mockito.mock(JavaFileObject.class);
         JavaFileObject javaFileObject2 = Mockito.mock(JavaFileObject.class);
 
-        CompileTestBuilder.UnitTestBuilder builder = CompileTestBuilder.createCompileTestBuilder()
+        CompileTestBuilder.UnitTestBuilder builder = CompileTestBuilder
                 .unitTest()
                 .useSource(javaFileObject1)
                 .useSource(javaFileObject2);
@@ -291,7 +291,7 @@ public class CompileTestBuilderTest {
     public void test_useSource_addNullValuedSource() {
 
 
-        CompileTestBuilder.UnitTestBuilder builder = CompileTestBuilder.createCompileTestBuilder()
+        CompileTestBuilder.UnitTestBuilder builder = CompileTestBuilder
                 .unitTest()
                 .useSource(null);
 
@@ -302,7 +302,7 @@ public class CompileTestBuilderTest {
     public void test_useProcessor_addNullValuedProcessor() {
 
 
-        CompileTestBuilder.UnitTestBuilder builder = CompileTestBuilder.createCompileTestBuilder()
+        CompileTestBuilder.UnitTestBuilder builder = CompileTestBuilder
                 .unitTest()
                 .useProcessor((Processor) null);
 
@@ -313,7 +313,7 @@ public class CompileTestBuilderTest {
     public void test_useProcessor_addNullValuedUnitTestProcessor() {
 
 
-        CompileTestBuilder.UnitTestBuilder builder = CompileTestBuilder.createCompileTestBuilder()
+        CompileTestBuilder.UnitTestBuilder builder = CompileTestBuilder
                 .unitTest()
                 .useProcessor((UnitTestProcessor) null);
 
@@ -323,24 +323,26 @@ public class CompileTestBuilderTest {
     @Test(expected = IllegalArgumentException.class)
     public void test_CompileTimeTestBuilder_useProcessorAndExpectException_addNullValuedProcessor() {
 
-        CompileTestBuilder.createCompileTestBuilder()
+        CompileTestBuilder
                 .compilationTest()
-                .useProcessorAndExpectException(null, IllegalStateException.class);
+                .addProcessorWithExpectedException(null, IllegalStateException.class);
 
 
+    }
+
+    private static class SimpleTestProcessor extends AbstractProcessor {
+        @Override
+        public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
+            return false;
+        }
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void test_CompileTimeTestBuilder_useProcessorAndExpectException_addNullValuedException() {
 
-        CompileTestBuilder.createCompileTestBuilder()
+        CompileTestBuilder
                 .compilationTest()
-                .useProcessorAndExpectException(new AbstractProcessor() {
-                    @Override
-                    public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-                        return false;
-                    }
-                }, null);
+                .addProcessorWithExpectedException(SimpleTestProcessor.class, null);
 
 
     }

@@ -28,7 +28,7 @@ import java.util.Map;
 public class CompileTestFileManager extends ForwardingJavaFileManager<StandardJavaFileManager> {
 
 
-    public class FileObjectCache<T extends FileObject> {
+    public static class FileObjectCache<T extends FileObject> {
 
         final Map<URI, T> fileObjectCache = new HashMap<URI, T>();
 
@@ -53,8 +53,8 @@ public class CompileTestFileManager extends ForwardingJavaFileManager<StandardJa
     }
 
 
-    final FileObjectCache<JavaFileObject> generatedJavaFileObjectCache = new FileObjectCache<JavaFileObject>();
-    final FileObjectCache<FileObject> generatedFileObjectCache = new FileObjectCache<FileObject>();
+    private final FileObjectCache<JavaFileObject> generatedJavaFileObjectCache = new FileObjectCache<JavaFileObject>();
+    private final FileObjectCache<FileObject> generatedFileObjectCache = new FileObjectCache<FileObject>();
 
 
     public CompileTestFileManager(StandardJavaFileManager standardJavaFileManager) {
@@ -154,7 +154,7 @@ public class CompileTestFileManager extends ForwardingJavaFileManager<StandardJa
 
 
         stringBuilder
-                .append("GENERATED FILES OVERVIEW:{\n")
+                .append("{\n")
                 .append("  'GENERATED JAVA FILE OBJECTS' : ")
                 .append(getGeneratedJavaFileObjectOverview())
                 .append(",\n  'GENERATED FILE OBJECTS' :")
@@ -204,7 +204,7 @@ public class CompileTestFileManager extends ForwardingJavaFileManager<StandardJa
                 try {
                     String content = (String) entry.getValue().getCharContent(false);
 
-                    stringBuilder.append("    '" + entry.getKey().toString() + "' : '" + (content.length() < 100 ? content : content.substring(0, 97) + "...") + "',\n");
+                    stringBuilder.append("    '" + entry.getKey().toString() + "' : '" + (content.length() < 500 ? content : content.substring(0, 497) + "...") + "',\n");
 
                 } catch (IOException e) {
                     // ignore - can't happen
@@ -264,7 +264,7 @@ public class CompileTestFileManager extends ForwardingJavaFileManager<StandardJa
     }
 
 
-    public class InMemoryOutputJavaFileObject extends SimpleJavaFileObject implements OutputStreamCallback {
+    public static class InMemoryOutputJavaFileObject extends SimpleJavaFileObject implements OutputStreamCallback {
 
         private byte[] content = new byte[0];
 

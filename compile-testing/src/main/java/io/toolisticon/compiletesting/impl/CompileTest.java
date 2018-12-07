@@ -18,6 +18,22 @@ import java.util.Set;
  */
 public class CompileTest {
 
+    // Messages
+    public final static String MESSAGE_COMPILATION_SHOULD_SUCCEED_AND_ERROR_MESSAGE_EXPECTED = "Test configuration error : Compilation should succeed but error messages is expected too !!!";
+    public final static String MESSAGE_COMPILATION_SHOULD_HAVE_SUCCEEDED_BUT_FAILED = "Compilation should have succeeded but failed";
+    public final static String MESSAGE_COMPILATION_SHOULD_HAVE_FAILED_BUT_SUCCEEDED = "Compilation should have failed but succeeded";
+
+    public final static String MESSAGE_JFO_DOESNT_EXIST = "Expected generated JavaFileObject (%s) doesn't exist.\n%s";
+    public final static String MESSAGE_JFO_EXISTS_BUT_DOESNT_MATCH_FO = "Expected generated JavaFileObject (%s) exists but doesn't match expected JavaFileObject.\n%s";
+    public final static String MESSAGE_JFO_EXISTS_BUT_DOESNT_MATCH_MATCHER = "Expected generated JavaFileObject (%s) exists but doesn't match passed GeneratedFileObjectMatcher.\n%s";
+
+    public final static String MESSAGE_FO_DOESNT_EXIST = "Expected generated FileObject (%s) doesn't exist.\n%s";
+    public final static String MESSAGE_FO_EXISTS_BUT_DOESNT_MATCH_FO = "Expected generated FileObject (%s) exists but doesn't match expected FileObject.\n%s";
+    public final static String MESSAGE_FO_EXISTS_BUT_DOESNT_MATCH_MATCHER = "Expected generated FileObject (%s) exists but doesn't match passed GeneratedFileObjectMatcher.\n%s";
+
+    public final static String MESSAGE_PROCESSOR_HASNT_BEEN_APPLIED = "Annotation processor %s hasn't been applied on a class";
+    public final static String MESSAGE_HAVENT_FOUND_MESSSAGE = "Haven't found expected message string '%s' of kind %s. Got messages %s";
+
     private final CompileTestConfiguration compileTestConfiguration;
 
     /**
@@ -45,14 +61,14 @@ public class CompileTest {
         if (compileTestConfiguration.getCompilationShouldSucceed() != null
                 && compileTestConfiguration.getCompilationShouldSucceed()
                 && compileTestConfiguration.getErrorMessageCheck().size() > 0) {
-            throw new InvalidTestConfigurationException("Test configuration error : Compilation should succeed but error messages is expected too !!!");
+            throw new InvalidTestConfigurationException(MESSAGE_COMPILATION_SHOULD_SUCCEED_AND_ERROR_MESSAGE_EXPECTED);
         }
 
 
         // Check if compilation succeeded
         if (compileTestConfiguration.getCompilationShouldSucceed() != null && !compileTestConfiguration.getCompilationShouldSucceed().equals(compilationResult.getCompilationSucceeded())) {
 
-            AssertionSpiServiceLocator.locate().fail(compileTestConfiguration.getCompilationShouldSucceed() ? "Compilation should have succeeded but failed" : "Compilation should have failed but succeeded");
+            AssertionSpiServiceLocator.locate().fail(compileTestConfiguration.getCompilationShouldSucceed() ? MESSAGE_COMPILATION_SHOULD_HAVE_SUCCEEDED_BUT_FAILED : MESSAGE_COMPILATION_SHOULD_HAVE_FAILED_BUT_SUCCEEDED);
 
         }
 
@@ -67,7 +83,7 @@ public class CompileTest {
         for (CompileTestConfiguration.GeneratedJavaFileObjectCheck generatedJavaFileObjectCheck : this.compileTestConfiguration.getGeneratedJavaFileObjectChecks()) {
 
             if (!compilationResult.getCompileTestFileManager().existsExpectedJavaFileObject(generatedJavaFileObjectCheck.getLocation(), generatedJavaFileObjectCheck.getClassName(), generatedJavaFileObjectCheck.getKind())) {
-                AssertionSpiServiceLocator.locate().fail("Generated JavaFileObject (" + generatedJavaFileObjectCheck.getLocation() + "; " + generatedJavaFileObjectCheck.getClassName() + "; " + generatedJavaFileObjectCheck.getKind() + ") doesn't exist.\n" + compilationResult.getCompileTestFileManager().getGeneratedFileOverview());
+                AssertionSpiServiceLocator.locate().fail(String.format(MESSAGE_JFO_DOESNT_EXIST, getJavaFileObjectInfoString(generatedJavaFileObjectCheck), getDebugOutput(compilationResult, compileTestConfiguration)));
             } else {
 
                 try {
@@ -81,7 +97,7 @@ public class CompileTest {
                                 foundJavaFileObject.openInputStream(),
                                 generatedJavaFileObjectCheck.getExpectedJavaFileObject().openInputStream())) {
 
-                            AssertionSpiServiceLocator.locate().fail("Generated JavaFileObject (" + generatedJavaFileObjectCheck.getLocation() + "; " + generatedJavaFileObjectCheck.getClassName() + "; " + generatedJavaFileObjectCheck.getKind() + ") exists but doesn't match expected JavaFileObject.\n" + compilationResult.getCompileTestFileManager().getGeneratedFileOverview());
+                            AssertionSpiServiceLocator.locate().fail(String.format(MESSAGE_JFO_EXISTS_BUT_DOESNT_MATCH_FO, getJavaFileObjectInfoString(generatedJavaFileObjectCheck), getDebugOutput(compilationResult, compileTestConfiguration)));
 
                         }
 
@@ -91,7 +107,7 @@ public class CompileTest {
                     if (generatedJavaFileObjectCheck.getGeneratedFileObjectMatcher() != null) {
 
                         if (!generatedJavaFileObjectCheck.getGeneratedFileObjectMatcher().check(foundJavaFileObject)) {
-                            AssertionSpiServiceLocator.locate().fail("Generated JavaFileObject (" + generatedJavaFileObjectCheck.getLocation() + "; " + generatedJavaFileObjectCheck.getClassName() + "; " + generatedJavaFileObjectCheck.getKind() + ") exists but doesn't match passed GeneratedFileObjectMatcher.\n" + compilationResult.getCompileTestFileManager().getGeneratedFileOverview());
+                            AssertionSpiServiceLocator.locate().fail(String.format(MESSAGE_JFO_EXISTS_BUT_DOESNT_MATCH_MATCHER, getJavaFileObjectInfoString(generatedJavaFileObjectCheck), getDebugOutput(compilationResult, compileTestConfiguration)));
                         }
 
                     }
@@ -109,7 +125,7 @@ public class CompileTest {
         for (CompileTestConfiguration.GeneratedFileObjectCheck generatedFileObjectCheck : this.compileTestConfiguration.getGeneratedFileObjectChecks()) {
 
             if (!compilationResult.getCompileTestFileManager().existsExpectedFileObject(generatedFileObjectCheck.getLocation(), generatedFileObjectCheck.getPackageName(), generatedFileObjectCheck.getRelativeName())) {
-                AssertionSpiServiceLocator.locate().fail("Generated FileObject (" + generatedFileObjectCheck.getLocation() + "; " + generatedFileObjectCheck.getPackageName() + "; " + generatedFileObjectCheck.getRelativeName() + ") doesn't exist.\n" + compilationResult.getCompileTestFileManager().getGeneratedFileOverview());
+                AssertionSpiServiceLocator.locate().fail(String.format(MESSAGE_FO_DOESNT_EXIST, getFileObjectInfoString(generatedFileObjectCheck), getDebugOutput(compilationResult, compileTestConfiguration)));
             } else {
 
                 try {
@@ -123,7 +139,7 @@ public class CompileTest {
                                 foundFileObject.openInputStream(),
                                 generatedFileObjectCheck.getExpectedFileObject().openInputStream())) {
 
-                            AssertionSpiServiceLocator.locate().fail("Generated FileObject (" + generatedFileObjectCheck.getLocation() + "; " + generatedFileObjectCheck.getPackageName() + "; " + generatedFileObjectCheck.getRelativeName() + ") exists but doesn't match expected FileObject.\n" + compilationResult.getCompileTestFileManager().getGeneratedFileOverview());
+                            AssertionSpiServiceLocator.locate().fail(String.format(MESSAGE_FO_EXISTS_BUT_DOESNT_MATCH_FO, getFileObjectInfoString(generatedFileObjectCheck), getDebugOutput(compilationResult, compileTestConfiguration)));
 
                         }
 
@@ -133,7 +149,7 @@ public class CompileTest {
                     if (generatedFileObjectCheck.getGeneratedFileObjectMatcher() != null) {
 
                         if (!generatedFileObjectCheck.getGeneratedFileObjectMatcher().check(foundFileObject)) {
-                            AssertionSpiServiceLocator.locate().fail("Generated FileObject (" + generatedFileObjectCheck.getLocation() + "; " + generatedFileObjectCheck.getPackageName() + "; " + generatedFileObjectCheck.getRelativeName() + ") exists but doesn't match passed GeneratedFileObjectMatcher.\n" + compilationResult.getCompileTestFileManager().getGeneratedFileOverview());
+                            AssertionSpiServiceLocator.locate().fail(String.format(MESSAGE_FO_EXISTS_BUT_DOESNT_MATCH_MATCHER, getFileObjectInfoString(generatedFileObjectCheck), getDebugOutput(compilationResult, compileTestConfiguration)));
                         }
 
                     }
@@ -148,6 +164,14 @@ public class CompileTest {
 
         }
 
+    }
+
+    protected static String getJavaFileObjectInfoString(CompileTestConfiguration.GeneratedJavaFileObjectCheck generatedJavaFileObjectCheck) {
+        return generatedJavaFileObjectCheck.getLocation() + "; " + generatedJavaFileObjectCheck.getClassName() + "; " + generatedJavaFileObjectCheck.getKind();
+    }
+
+    protected static String getFileObjectInfoString(CompileTestConfiguration.GeneratedFileObjectCheck generatedFileObjectCheck) {
+        return generatedFileObjectCheck.getLocation() + "; " + generatedFileObjectCheck.getPackageName() + "; " + generatedFileObjectCheck.getRelativeName();
     }
 
     /**
@@ -189,7 +213,7 @@ public class CompileTest {
                 }
             }
 
-            AssertionSpiServiceLocator.locate().fail("Annotation processor " + processor.getWrappedProcessor().getClass().getCanonicalName() + " hasn't been applied on a class");
+            AssertionSpiServiceLocator.locate().fail(String.format(MESSAGE_PROCESSOR_HASNT_BEEN_APPLIED, processor.getWrappedProcessor().getClass().getCanonicalName()));
 
         }
 
@@ -219,7 +243,7 @@ public class CompileTest {
             }
 
             // Not found ==> assertion fails
-            AssertionSpiServiceLocator.locate().fail("Haven't found expected message string '" + messageToCheck + "' of kind " + kind.name() + ". Got messages " + messages.toString());
+            AssertionSpiServiceLocator.locate().fail(String.format(MESSAGE_HAVENT_FOUND_MESSSAGE, messageToCheck, kind.name(), messages.toString()));
 
         }
 
@@ -246,5 +270,8 @@ public class CompileTest {
 
     }
 
+    private static String getDebugOutput(CompilationResult compilationResult, CompileTestConfiguration compileTestConfiguration) {
+        return "\n-------------------------------\n-- GENERATED FILEOBJECTS: \n-------------------------------\n" + compilationResult.getCompileTestFileManager().getGeneratedFileOverview() + "\n-------------------------------\n-- COMPILE TEST CONFIGURATION: \n-------------------------------\n" + compileTestConfiguration.toString();
+    }
 
 }

@@ -2,7 +2,9 @@ package io.toolisticon.compiletesting.impl;
 
 import io.toolisticon.compiletesting.CompileTestBuilder;
 import io.toolisticon.compiletesting.GeneratedFileObjectMatcher;
+import io.toolisticon.compiletesting.InvalidTestConfigurationException;
 import io.toolisticon.compiletesting.JavaFileObjectUtils;
+import io.toolisticon.compiletesting.TestUtilities;
 import io.toolisticon.compiletesting.UnitTestProcessor;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
@@ -11,6 +13,7 @@ import org.junit.Test;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.TypeElement;
+import javax.tools.Diagnostic;
 import javax.tools.FileObject;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardLocation;
@@ -24,7 +27,7 @@ public class CompileTestTest {
 
 
         try {
-            CompileTestBuilder.createCompileTestBuilder()
+            CompileTestBuilder
                     .unitTest()
                     .useProcessor(new UnitTestProcessor() {
                         @Override
@@ -47,9 +50,9 @@ public class CompileTestTest {
 
                     .compilationShouldSucceed()
 
-                    .addGeneratedFileObjectExistsCheck(StandardLocation.SOURCE_OUTPUT, "root", "Jupp.txt")
-                    .addGeneratedFileObjectExistsCheck(StandardLocation.SOURCE_OUTPUT, "root", "Jupp.txt", JavaFileObjectUtils.readFromString("XXX", "TATA!"))
-                    .addGeneratedFileObjectExistsCheck(StandardLocation.SOURCE_OUTPUT, "root", "Jupp.txt", new GeneratedFileObjectMatcher<FileObject>() {
+                    .expectedFileObjectExists(StandardLocation.SOURCE_OUTPUT, "root", "Jupp.txt")
+                    .expectedFileObjectExists(StandardLocation.SOURCE_OUTPUT, "root", "Jupp.txt", JavaFileObjectUtils.readFromString("TATA!"))
+                    .expectedFileObjectExists(StandardLocation.SOURCE_OUTPUT, "root", "Jupp.txt", new GeneratedFileObjectMatcher<FileObject>() {
                         @Override
                         public boolean check(FileObject fileObject) throws IOException {
                             return fileObject.getCharContent(false).toString().contains("TAT");
@@ -67,7 +70,7 @@ public class CompileTestTest {
 
 
         try {
-            CompileTestBuilder.createCompileTestBuilder()
+            CompileTestBuilder
                     .unitTest()
                     .useProcessor(new UnitTestProcessor() {
                         @Override
@@ -87,14 +90,15 @@ public class CompileTestTest {
                     })
 
                     .compilationShouldSucceed()
-                    .addGeneratedFileObjectExistsCheck(StandardLocation.SOURCE_OUTPUT, "root", "Jupp.txt", JavaFileObjectUtils.readFromString("test", "WURST!"))
+                    .expectedFileObjectExists(StandardLocation.SOURCE_OUTPUT, "root", "Jupp.txt", JavaFileObjectUtils.readFromString("WURST!"))
                     .testCompilation();
 
             Assert.fail("Should have triggered an assertion error");
 
         } catch (AssertionError e) {
 
-            MatcherAssert.assertThat(e.getMessage(), Matchers.containsString("exists but doesn't match expected FileObject"));
+            MatcherAssert.assertThat(e.getMessage(), Matchers.containsString("exists but doesn't match expected FileObject" +
+                    ""));
 
         }
 
@@ -103,7 +107,7 @@ public class CompileTestTest {
 
     @Test
     public void test_JavaFileObjectExists() {
-        CompileTestBuilder.createCompileTestBuilder()
+        CompileTestBuilder
                 .unitTest()
                 .useProcessor(new UnitTestProcessor() {
                     @Override
@@ -125,10 +129,10 @@ public class CompileTestTest {
                 })
 
                 .compilationShouldSucceed()
-                .addGeneratedJavaFileObjectExistsCheck(StandardLocation.CLASS_OUTPUT, "io.toolisticon.compiletesting.CheckTest", JavaFileObject.Kind.CLASS)
-                .addGeneratedJavaFileObjectExistsCheck(StandardLocation.SOURCE_OUTPUT, "io.toolisticon.compiletesting.CheckTest", JavaFileObject.Kind.SOURCE)
-                .addGeneratedJavaFileObjectExistsCheck(StandardLocation.SOURCE_OUTPUT, "io.toolisticon.compiletesting.CheckTest", JavaFileObject.Kind.SOURCE, JavaFileObjectUtils.readFromString("xyz", "package io.toolisticon.compiletesting;\npublic class CheckTest{}"))
-                .addGeneratedJavaFileObjectExistsCheck(StandardLocation.SOURCE_OUTPUT, "io.toolisticon.compiletesting.CheckTest", JavaFileObject.Kind.SOURCE, new GeneratedFileObjectMatcher<JavaFileObject>() {
+                .expectedJavaFileObjectExists(StandardLocation.CLASS_OUTPUT, "io.toolisticon.compiletesting.CheckTest", JavaFileObject.Kind.CLASS)
+                .expectedJavaFileObjectExists(StandardLocation.SOURCE_OUTPUT, "io.toolisticon.compiletesting.CheckTest", JavaFileObject.Kind.SOURCE)
+                .expectedJavaFileObjectExists(StandardLocation.SOURCE_OUTPUT, "io.toolisticon.compiletesting.CheckTest", JavaFileObject.Kind.SOURCE, JavaFileObjectUtils.readFromString("xyz", "package io.toolisticon.compiletesting;\npublic class CheckTest{}"))
+                .expectedJavaFileObjectExists(StandardLocation.SOURCE_OUTPUT, "io.toolisticon.compiletesting.CheckTest", JavaFileObject.Kind.SOURCE, new GeneratedFileObjectMatcher<JavaFileObject>() {
                     @Override
                     public boolean check(JavaFileObject fileObject) throws IOException {
                         return fileObject.getCharContent(false).toString().contains("public class CheckTest{}");
@@ -137,4 +141,75 @@ public class CompileTestTest {
                 .testCompilation();
 
     }
+
+    @Test(expected = InvalidTestConfigurationException.class)
+    public void executeTest_CompilationSucceedAndErrorMessageExpectedShouldThowInvalidTestConfigurationException() {
+        CompileTestBuilder.unitTest()
+                .useProcessor(new UnitTestProcessor() {
+                    @Override
+                    public void unitTest(ProcessingEnvironment processingEnvironment, TypeElement typeElement) {
+
+                    }
+                }).compilationShouldSucceed().expectedErrorMessages("XXX").testCompilation();
+    }
+
+    @Test
+    public void executeTest_expectedComiplationShouldHaveSucceededButFailed() {
+        boolean assertionErrorWasThrown = false;
+        try {
+
+            CompileTestBuilder.unitTest()
+                    .useProcessor(new UnitTestProcessor() {
+                        @Override
+                        public void unitTest(ProcessingEnvironment processingEnvironment, TypeElement typeElement) {
+                            processingEnvironment.getMessager().printMessage(Diagnostic.Kind.ERROR, "FAIL!");
+                        }
+                    })
+                    .compilationShouldSucceed()
+                    .testCompilation();
+
+        } catch (AssertionError e) {
+            TestUtilities.assertAssertionMessageContainsMessageTokensAssertion(e, CompileTest.MESSAGE_COMPILATION_SHOULD_HAVE_SUCCEEDED_BUT_FAILED);
+            assertionErrorWasThrown = true;
+
+        }
+
+        MatcherAssert.assertThat("AssertionError about 'expecting compilation to be successful but failed' should have been thrown", assertionErrorWasThrown);
+
+
+    }
+
+    @Test
+    public void executeTest_expectedCompilationShouldHaveFailedButSucceeded() {
+        boolean assertionErrorWasThrown = false;
+        try {
+
+            CompileTestBuilder.unitTest()
+                    .useProcessor(new UnitTestProcessor() {
+                        @Override
+                        public void unitTest(ProcessingEnvironment processingEnvironment, TypeElement typeElement) {
+
+                        }
+                    })
+                    .compilationShouldFail()
+                    .testCompilation();
+
+        } catch (AssertionError e) {
+            TestUtilities.assertAssertionMessageContainsMessageTokensAssertion(e, CompileTest.MESSAGE_COMPILATION_SHOULD_HAVE_FAILED_BUT_SUCCEEDED);
+            assertionErrorWasThrown = true;
+
+        }
+
+        MatcherAssert.assertThat("AssertionError about 'expecting compilation to fail but was successful' should have been thrown", assertionErrorWasThrown);
+
+
+    }
+
+
+
+
+
+
+
+
 }
