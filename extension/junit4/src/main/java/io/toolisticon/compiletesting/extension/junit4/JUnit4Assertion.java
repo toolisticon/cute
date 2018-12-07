@@ -4,7 +4,7 @@ import io.toolisticon.compiletesting.extension.api.AssertionSpi;
 import io.toolisticon.spiap.api.Service;
 import org.junit.Assert;
 
-@Service(value = AssertionSpi.class, priority = 0, description = "junit 4 is default assertion framework")
+@Service(value = AssertionSpi.class, priority = -5, description = "junit 4 assertion framework")
 public class JUnit4Assertion implements AssertionSpi {
     @Override
     public void fail(String message) {

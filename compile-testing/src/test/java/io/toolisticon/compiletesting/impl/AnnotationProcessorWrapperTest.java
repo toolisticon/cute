@@ -235,7 +235,7 @@ public class AnnotationProcessorWrapperTest {
     public void process_withoutExpectedExceptionShouldSucceed() {
 
 
-        CompileTestBuilder.createCompileTestBuilder().unitTest().useProcessor(
+        CompileTestBuilder.unitTest().useProcessor(
                 new UnitTestAnnotationProcessorClass(new UnitTestProcessor() {
                     @Override
                     public void unitTest(ProcessingEnvironment processingEnvironment, TypeElement typeElement) {
@@ -253,7 +253,7 @@ public class AnnotationProcessorWrapperTest {
     public void process_testExpectedExceptionIsThrown_assertionShouldSucceed() {
 
 
-        CompileTestBuilder.createCompileTestBuilder().unitTest().useProcessor(
+        CompileTestBuilder.unitTest().useProcessor(
                 new UnitTestAnnotationProcessorClass(new UnitTestProcessor() {
                     @Override
                     public void unitTest(ProcessingEnvironment processingEnvironment, TypeElement typeElement) {
@@ -270,7 +270,7 @@ public class AnnotationProcessorWrapperTest {
     public void process_testExpectedExceptionNotThrown_assertionShouldFail() {
 
         try {
-            CompileTestBuilder.createCompileTestBuilder().unitTest().useProcessor(
+            CompileTestBuilder.unitTest().useProcessor(
                     new UnitTestAnnotationProcessorClass(new UnitTestProcessor() {
                         @Override
                         public void unitTest(ProcessingEnvironment processingEnvironment, TypeElement typeElement) {
@@ -289,7 +289,7 @@ public class AnnotationProcessorWrapperTest {
     public void process_testUnexpectedExceptionWasThrown_assertionShouldFail() {
 
         try {
-            CompileTestBuilder.createCompileTestBuilder().unitTest().useProcessor(
+            CompileTestBuilder.unitTest().useProcessor(
                     new UnitTestAnnotationProcessorClass(new UnitTestProcessor() {
                         @Override
                         public void unitTest(ProcessingEnvironment processingEnvironment, TypeElement typeElement) {
@@ -308,7 +308,7 @@ public class AnnotationProcessorWrapperTest {
     public void process_testUnexpectedExceptionWasThrownWhenExpectedExceptionNotSet_assertionShouldFail() {
 
         try {
-            CompileTestBuilder.createCompileTestBuilder().unitTest().useProcessor(
+            CompileTestBuilder.unitTest().useProcessor(
                     new UnitTestAnnotationProcessorClass(new UnitTestProcessor() {
                         @Override
                         public void unitTest(ProcessingEnvironment processingEnvironment, TypeElement typeElement) {

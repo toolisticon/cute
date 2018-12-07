@@ -140,7 +140,7 @@ public final class AnnotationProcessorWrapper implements Processor {
         }
 
         try {
-            return new AnnotationProcessorWrapper(processorTypeToWrap.newInstance());
+            return new AnnotationProcessorWrapper(processorTypeToWrap.getDeclaredConstructor().newInstance());
         } catch (Exception e) {
             throw new IllegalArgumentException("Cannot instantiate passed processor Class '" + processorTypeToWrap.getCanonicalName() + "'. Make sure that a NoArg constructor exists and is accessible.", e);
         }
@@ -158,7 +158,7 @@ public final class AnnotationProcessorWrapper implements Processor {
         }
 
         try {
-            return new AnnotationProcessorWrapper(processorTypeToWrap.newInstance(), expectedThrownException);
+            return new AnnotationProcessorWrapper(processorTypeToWrap.getDeclaredConstructor().newInstance(), expectedThrownException);
         } catch (Exception e) {
             throw new IllegalArgumentException(" instantiate passed processor Class '" + processorTypeToWrap.getCanonicalName() + "'. Make sure that a NoArg constructor exists and is accessible.", e);
         }

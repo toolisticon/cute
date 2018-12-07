@@ -10,6 +10,7 @@ import java.io.StringBufferInputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Random;
 
 /**
  * Utility class to create JavaFileObjects and therefore also FileObjects.
@@ -168,7 +169,7 @@ public class JavaFileObjectUtils {
 
 
     /**
-     * Read a java source file from reosurces.
+     * Read a java source file from string.
      *
      * @param location the location
      * @param content  content of the file
@@ -185,6 +186,35 @@ public class JavaFileObjectUtils {
         }
 
         return new JavaSourceFromString(location, content);
+    }
+
+    /**
+     * Read a java source file from resources.
+     * This one works great if you don't rely on the location, f.e. in case of comparision.
+     *
+     * @param content content of the file
+     * @return
+     */
+    public static SimpleJavaFileObject readFromString(String content) {
+
+        // create a random location
+        String location = "string_" + getRandomString(6);
+
+        return readFromString(location, content);
+    }
+
+    protected static String getRandomString(int length) {
+
+        int leftLimit = 97; // letter 'a'
+        int rightLimit = 122; // letter 'z'
+        Random random = new Random();
+        StringBuilder buffer = new StringBuilder(length);
+        for (int i = 0; i < length; i++) {
+            int randomLimitedInt = leftLimit + (int)
+                    (random.nextFloat() * (rightLimit - leftLimit + 1));
+            buffer.append((char) randomLimitedInt);
+        }
+        return buffer.toString();
     }
 
     /**

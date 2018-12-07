@@ -18,7 +18,7 @@ public class Junit5Test {
     @Test
     public void warningMessageTest() {
 
-        CompileTestBuilder.createCompileTestBuilder()
+        CompileTestBuilder
                 .unitTest()
                 .useProcessor(new UnitTestProcessor() {
                     @Override
@@ -26,7 +26,7 @@ public class Junit5Test {
                         processingEnvironment.getMessager().printMessage(Diagnostic.Kind.WARNING, "WARNING!");
                     }
                 })
-                .addWarningChecks("WARNING!")
+                .expectedWarningMessages("WARNING!")
                 .compilationShouldSucceed()
                 .testCompilation();
 
@@ -36,7 +36,7 @@ public class Junit5Test {
     @Test
     public void successfullFailingCompilationTest_ByErrorMessage() {
 
-        CompileTestBuilder.createCompileTestBuilder()
+        CompileTestBuilder
                 .unitTest()
                 .useProcessor(new UnitTestProcessor() {
                     @Override
@@ -44,7 +44,7 @@ public class Junit5Test {
                         processingEnvironment.getMessager().printMessage(Diagnostic.Kind.ERROR, "ERROR!");
                     }
                 })
-                .addErrorChecks("ERROR!")
+                .expectedErrorMessages("ERROR!")
                 .compilationShouldFail()
                 .testCompilation();
 
@@ -55,7 +55,7 @@ public class Junit5Test {
     public void failingCompilationTest_ByErrorMessage() {
 
         try {
-            CompileTestBuilder.createCompileTestBuilder()
+            CompileTestBuilder
                     .unitTest()
                     .useProcessor(new UnitTestProcessor() {
                         @Override
