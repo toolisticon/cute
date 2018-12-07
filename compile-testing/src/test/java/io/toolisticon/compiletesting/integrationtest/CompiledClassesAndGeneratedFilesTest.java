@@ -1,10 +1,12 @@
 package io.toolisticon.compiletesting.integrationtest;
 
 import io.toolisticon.compiletesting.CompileTestBuilder;
+import io.toolisticon.compiletesting.GeneratedFileObjectMatcher;
 import io.toolisticon.compiletesting.JavaFileObjectUtils;
+import io.toolisticon.compiletesting.TestUtilities;
 import io.toolisticon.compiletesting.common.SimpleTestProcessor1;
+import io.toolisticon.compiletesting.impl.CompileTest;
 import org.hamcrest.MatcherAssert;
-import org.hamcrest.Matchers;
 import org.junit.Test;
 
 import javax.annotation.processing.RoundEnvironment;
@@ -68,20 +70,38 @@ public class CompiledClassesAndGeneratedFilesTest {
     }
 
     @Test
-    public void testCompiledResourceExist() {
+    public void testCompiledResourceExist_byFileObject() {
 
         CompileTestBuilder.compilationTest()
                 .addProcessors(FileGeneratorProcessor.class)
                 .addSources(JavaFileObjectUtils.readFromResource("/integrationtest/CompiledClassesAndGeneratedFilesExistTestcase.java"))
                 .compilationShouldSucceed()
-                .expectedFileObjectExists(StandardLocation.SOURCE_OUTPUT, "/META-INF", "jupp.txt", JavaFileObjectUtils.readFromString( "XXX"))
+                .expectedFileObjectExists(StandardLocation.SOURCE_OUTPUT, "/META-INF", "jupp.txt", JavaFileObjectUtils.readFromString("XXX"))
                 .testCompilation();
 
 
     }
 
     @Test
-    public void testCompiledResourceNotExist() {
+    public void testCompiledResourceExist_ByMatcher() {
+
+        CompileTestBuilder.compilationTest()
+                .addProcessors(FileGeneratorProcessor.class)
+                .addSources(JavaFileObjectUtils.readFromResource("/integrationtest/CompiledClassesAndGeneratedFilesExistTestcase.java"))
+                .compilationShouldSucceed()
+                .expectedFileObjectExists(StandardLocation.SOURCE_OUTPUT, "/META-INF", "jupp.txt", new GeneratedFileObjectMatcher<FileObject>() {
+                    @Override
+                    public boolean check(FileObject fileObject) throws IOException {
+                        return true;
+                    }
+                })
+                .testCompilation();
+
+
+    }
+
+    @Test
+    public void testCompiledResourceNotExist_byFileObject() {
 
         boolean assertionErrorWasThrown = false;
 
@@ -94,7 +114,35 @@ public class CompiledClassesAndGeneratedFilesTest {
                     .testCompilation();
         } catch (AssertionError e) {
 
-            MatcherAssert.assertThat(e.getMessage(), Matchers.containsString("exists but doesn't match expected"));
+            TestUtilities.assertAssertionMessageContainsMessageTokensAssertion(e, CompileTest.MESSAGE_FO_EXISTS_BUT_DOESNT_MATCH_FO);
+            assertionErrorWasThrown = true;
+
+        }
+
+        MatcherAssert.assertThat("AssertError should have  been thrown", assertionErrorWasThrown);
+
+    }
+
+    @Test
+    public void testCompiledResourceNotExist_byMatcher() {
+
+        boolean assertionErrorWasThrown = false;
+
+        try {
+            CompileTestBuilder.compilationTest()
+                    .addProcessors(FileGeneratorProcessor.class)
+                    .addSources(JavaFileObjectUtils.readFromResource("/integrationtest/CompiledClassesAndGeneratedFilesExistTestcase.java"))
+                    .compilationShouldSucceed()
+                    .expectedFileObjectExists(StandardLocation.SOURCE_OUTPUT, "/META-INF", "jupp.txt", new GeneratedFileObjectMatcher<FileObject>() {
+                        @Override
+                        public boolean check(FileObject fileObject) throws IOException {
+                            return false;
+                        }
+                    })
+                    .testCompilation();
+        } catch (AssertionError e) {
+
+            TestUtilities.assertAssertionMessageContainsMessageTokensAssertion(e, CompileTest.MESSAGE_FO_EXISTS_BUT_DOESNT_MATCH_MATCHER);
             assertionErrorWasThrown = true;
 
         }
@@ -148,11 +196,11 @@ public class CompiledClassesAndGeneratedFilesTest {
                 .compilationShouldSucceed()
                 .expectedJavaFileObjectExists(StandardLocation.SOURCE_OUTPUT, JavaFileGeneratorProcessor.PACKAGE_NAME + "." + JavaFileGeneratorProcessor.CLASS_NAME, JavaFileObject.Kind.SOURCE)
                 .expectedJavaFileObjectExists(StandardLocation.CLASS_OUTPUT, JavaFileGeneratorProcessor.PACKAGE_NAME + "." + JavaFileGeneratorProcessor.CLASS_NAME, JavaFileObject.Kind.CLASS)
-
                 .testCompilation();
 
 
     }
+
 
     @Test
     public void testCompiledJavaFileObjectNotExist() {
@@ -161,14 +209,68 @@ public class CompiledClassesAndGeneratedFilesTest {
 
         try {
             CompileTestBuilder.compilationTest()
-                    .addProcessors(FileGeneratorProcessor.class)
+                    .addProcessors(JavaFileGeneratorProcessor.class)
                     .addSources(JavaFileObjectUtils.readFromResource("/integrationtest/CompiledClassesAndGeneratedFilesExistTestcase.java"))
                     .compilationShouldSucceed()
                     .expectedJavaFileObjectExists(StandardLocation.SOURCE_OUTPUT, JavaFileGeneratorProcessor.PACKAGE_NAME + ".Murks", JavaFileObject.Kind.SOURCE)
                     .testCompilation();
         } catch (AssertionError e) {
 
-            MatcherAssert.assertThat(e.getMessage(), Matchers.containsString("doesn't exist"));
+            TestUtilities.assertAssertionMessageContainsMessageTokensAssertion(e, CompileTest.MESSAGE_JFO_DOESNT_EXIST);
+
+            assertionErrorWasThrown = true;
+
+        }
+
+        MatcherAssert.assertThat("AssertError should have  been thrown", assertionErrorWasThrown);
+
+    }
+
+    @Test
+    public void testCompiledJavaFileObjectNotExist_byJavaFileObject() {
+
+        boolean assertionErrorWasThrown = false;
+
+        try {
+            CompileTestBuilder.compilationTest()
+                    .addProcessors(JavaFileGeneratorProcessor.class)
+                    .addSources(JavaFileObjectUtils.readFromResource("/integrationtest/CompiledClassesAndGeneratedFilesExistTestcase.java"))
+                    .compilationShouldSucceed()
+                    .expectedJavaFileObjectExists(StandardLocation.SOURCE_OUTPUT, JavaFileGeneratorProcessor.PACKAGE_NAME + "." + JavaFileGeneratorProcessor.CLASS_NAME, JavaFileObject.Kind.SOURCE, JavaFileObjectUtils.readFromString("XXX!!"))
+                    .testCompilation();
+        } catch (AssertionError e) {
+
+            TestUtilities.assertAssertionMessageContainsMessageTokensAssertion(e, CompileTest.MESSAGE_JFO_EXISTS_BUT_DOESNT_MATCH_FO);
+
+            assertionErrorWasThrown = true;
+
+        }
+
+        MatcherAssert.assertThat("AssertError should have  been thrown", assertionErrorWasThrown);
+
+    }
+
+    @Test
+    public void testCompiledJavaFileObjectNotExist_byMatcher() {
+
+        boolean assertionErrorWasThrown = false;
+
+        try {
+            CompileTestBuilder.compilationTest()
+                    .addProcessors(JavaFileGeneratorProcessor.class)
+                    .addSources(JavaFileObjectUtils.readFromResource("/integrationtest/CompiledClassesAndGeneratedFilesExistTestcase.java"))
+                    .compilationShouldSucceed()
+                    .expectedJavaFileObjectExists(StandardLocation.SOURCE_OUTPUT, JavaFileGeneratorProcessor.PACKAGE_NAME + "." + JavaFileGeneratorProcessor.CLASS_NAME, JavaFileObject.Kind.SOURCE, new GeneratedFileObjectMatcher<JavaFileObject>() {
+                        @Override
+                        public boolean check(JavaFileObject fileObject) throws IOException {
+                            return false;
+                        }
+                    })
+                    .testCompilation();
+        } catch (AssertionError e) {
+
+            TestUtilities.assertAssertionMessageContainsMessageTokensAssertion(e, CompileTest.MESSAGE_JFO_EXISTS_BUT_DOESNT_MATCH_MATCHER);
+
             assertionErrorWasThrown = true;
 
         }
