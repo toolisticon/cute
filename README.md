@@ -5,11 +5,13 @@
 [![codecov](https://codecov.io/gh/toolisticon/compile-testing/branch/master/graph/badge.svg)](https://codecov.io/gh/toolisticon/compile-testing)
 
 # Why you should use this project?
-Testing of annotation processors can be a very difficult task. 
-Mocking of annotations processor related tools given by the JDK and the compile time model is very difficult.
+Testing of annotation processors can be a very difficult task.
+Usually annotation procecssors are tighly bound to the compile time model of Java and are relying on tools provided by the java compiler during compile time.
+
+Mocking of those tools and the compile time model is very difficult.
 It's easier to define testcases as source files and test your processor during a normal compilation process.
 
-This framework allows you to setup such kinds of test in an easy way.
+This compile testing framework allows you to to do this and additionally supports you to provide unit tests for your annotation processor related code in an easy way.
 
 # Features
 
@@ -17,7 +19,7 @@ This framework allows you to setup such kinds of test in an easy way.
 - simple, but powerful fluent api
 - almost dependency-less - just one runtime dependencies (to spiap-api, will be removed soon)
 - supports all Java versions 6,7,8,>=9
-- supported by most IDEs and compilers (Intellij, Eclipse, NetBeans)
+- supported by most IDEs and compilers
 
 # How does it work?
 Simply add the following dependencies to your project to be able to use this testing framework.
@@ -47,20 +49,17 @@ Simply add the following dependencies to your project to be able to use this tes
 
 There are two types of tests: Unit tests and Compilation (or Integration) Tests.
 
-For both test types you can test:
+For both test types you can test
 
 - if compilation was successful or not
 - if certain messages have been created during compilation
-- if certain java files (sources and classes) and resource files have been created
+- if certain java files (sources and classes) or resource files have been created
 - if your annotation processor really has been applied (this is implicitly done)
 
 ## Compilation tests
 
-Compilation test allow you to define testcase source classes and to apply your processor on it.
+Compilation test allow you to define testcase source files and to apply your processor on it.
 
-    // a junit 4 example 
-    // test class should be in same package like your unit under test
-    // tested methods must be package visible
     @Test
     public void exampleCompilationTest() {
 
@@ -77,7 +76,7 @@ Compilation test allow you to define testcase source classes and to apply your p
                 .testCompilation();
     }
 
-It implicitly checks if your annotation processor has been applied and triggers an AssertionError if not.
+Additionally to the explicitely configured assertions it implicitly checks if your annotation processor has been applied and triggers an AssertionError if not.
 
 
 
@@ -88,7 +87,7 @@ These classes and the Java compile time model are hard to mock. That why unit te
 This library helps you to execute unit test at compile time, giving you the ProcessingEnvironment's tools and access to the compile time model for free.
 
 The unit test concept provided by this library uses a default source file and applies a default annotation processor on it. 
-Your unit test code can be declared as part of the fluent api:
+Your unit test code can be declared via the fluent api:
 
     // a junit 4 example 
     // test class should be in same package like your unit under test
@@ -118,8 +117,9 @@ Your unit test code can be declared as part of the fluent api:
                 
     }
  
- Besides that it's also possible to test if an expected exception has been thrown.
- You have compile time model access for all compiled and not compiled classes residing in your classpath, which allows you to setup test classes easily.
+Besides that it's also possible to add an assertion if an expected exception has been thrown.
+
+Additionally you have compile time model access for all classes residing in your classpath (including all test classes), which allows you to setup test classes easily, for example by adding classes to your src/test/java folder or by adding static inner classes to your unit test class.
  
  
  
@@ -129,7 +129,7 @@ Your unit test code can be declared as part of the fluent api:
 
 # Alternatives
 
-- [google compile-testing](https://github.com/google/compile-testing): Another library for testing annotation processor. It has some drawbacks (binds a lot of common 3rd party libraries, lacking compatibility to different Java versions, no documentation) 
+- [google compile-testing](https://github.com/google/compile-testing): Another library for testing annotation processor at compile time. It has some drawbacks (binds a lot of common 3rd party libraries which might lead to version conflicts, compatibility issues with different Java versions, almost no documentation) 
 
 # Contributing
 
@@ -156,7 +156,7 @@ The likelihood of a pull request being used rises with the following properties:
 
 This project is sponsored and supported by [holisticon AG](http://www.holisticon.de/)
 
-![Holisticon AG](/docs/assets/img/sponsors/holisticon-logo.png)
+![Holisticon AG](https://raw.githubusercontent.com/toolisticon/toolisticon.github.io/master/holisticon-logo.png)
 
 # License
 
