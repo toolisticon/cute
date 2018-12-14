@@ -20,7 +20,7 @@ public class CompileTestBuilder {
      * Abstract base builder class.
      * Contains common configurations.
      *
-     * @param <T>
+     * @param <T> The implementing type passed to base class
      */
     public static abstract class BasicBuilder<T extends BasicBuilder<T>> {
 
@@ -123,9 +123,9 @@ public class CompileTestBuilder {
         /**
          * Adds a check if a specific generated FileObject exists.
          *
-         * @param location
-         * @param packageName
-         * @param relativeName
+         * @param location the location (usually a {@link javax.tools.StandardLocation})
+         * @param packageName the package name
+         * @param relativeName the relative name to the passed package
          * @return the next builder instance
          */
         public T expectedFileObjectExists(JavaFileManager.Location location, String packageName, String relativeName) {
@@ -136,10 +136,10 @@ public class CompileTestBuilder {
          * Adds a check if a specific generated FileObject exists.
          * Additionally checks if files are equal if passed expectedFileObject is not null.
          *
-         * @param location
-         * @param packageName
-         * @param relativeName
-         * @param expectedFileObject
+         * @param location the location (usually from javax.tools.StandardLocation)
+         * @param packageName the package name
+         * @param relativeName the package relative name
+         * @param expectedFileObject the file used for comparision of content
          * @return the next builder instance
          */
         public T expectedFileObjectExists(
@@ -158,10 +158,10 @@ public class CompileTestBuilder {
          * Adds a check if a specific generated FileObject exists.
          * Additionally checks if file object matches with passed matcher.
          *
-         * @param location
-         * @param packageName
-         * @param relativeName
-         * @param generatedFileObjectMatcher
+         * @param location the location (usually from javax.tools.StandardLocation)
+         * @param packageName the package name
+         * @param relativeName the package relative name
+         * @param generatedFileObjectMatcher the matcher to use
          * @return the next builder instance
          */
         public T expectedFileObjectExists(
@@ -179,9 +179,9 @@ public class CompileTestBuilder {
         /**
          * Adds a check if a specific generated JavaFileObject exists.
          *
-         * @param location
-         * @param className
-         * @param kind
+         * @param location the location (usually from javax.tools.StandardLocation)
+         * @param className the class name
+         * @param kind the kind of the JavaFileObject
          * @return the next builder instance
          */
         public T expectedJavaFileObjectExists(JavaFileManager.Location location, String className, JavaFileObject.Kind kind) {
@@ -192,10 +192,10 @@ public class CompileTestBuilder {
          * Adds a check if a specific generated JavaFileObject exists.
          * Additionally checks if files are equal if passed expectedJavaFileObject is not null.
          *
-         * @param location
-         * @param className
-         * @param kind
-         * @param expectedJavaFileObject
+         * @param location the location (usually from javax.tools.StandardLocation)
+         * @param className the class name
+         * @param kind the kind of the JavaFileObject
+         * @param expectedJavaFileObject the file used for comparision of content
          * @return the next builder instance
          */
         public T expectedJavaFileObjectExists(
@@ -214,10 +214,10 @@ public class CompileTestBuilder {
          * Adds a check if a specific generated JavaFileObject exists.
          * Additionally checks if java file object matches with passed matcher.
          *
-         * @param location
-         * @param className
-         * @param kind
-         * @param generatedJavaFileObjectCheck
+         * @param location the location (usually a {@link javax.tools.StandardLocation})
+         * @param className the class name
+         * @param kind the kind of the JavaFileObject
+         * @param generatedJavaFileObjectCheck the matcher to use
          * @return the next builder instance
          */
         public T expectedJavaFileObjectExists(
@@ -276,7 +276,7 @@ public class CompileTestBuilder {
          * Forwarding constructor.
          * Clones passed compileTestConfiguration.
          *
-         * @param compileTestConfiguration
+         * @param compileTestConfiguration the compile test configuration
          */
         private CompilationTestBuilder(CompileTestConfiguration compileTestConfiguration) {
             super(compileTestConfiguration);
@@ -285,7 +285,7 @@ public class CompileTestBuilder {
         /**
          * Adds processors.
          *
-         * @param processorTypes
+         * @param processorTypes the processor types to use, processors must have a noarg constructor
          * @@return the CompilationTestBuilder instance
          */
         public CompilationTestBuilder addProcessors(Class<? extends Processor>... processorTypes) {
@@ -304,8 +304,8 @@ public class CompileTestBuilder {
          * <p>
          * This method might be removed soon due to the potential issues.
          *
-         * @param processor
-         * @param exception
+         * @param processor the processor type to use, processors must have a noarg constructor
+         * @param exception the expected exception thrown by the passed processor
          * @return the CompilationTestBuilder instance
          */
         public CompilationTestBuilder addProcessorWithExpectedException(Class<? extends Processor> processor, Class<? extends Throwable> exception) {
@@ -453,7 +453,7 @@ public class CompileTestBuilder {
         /**
          * Internal constructor
          *
-         * @param compileTestConfiguration
+         * @param compileTestConfiguration the compile test configuration
          */
         private UnitTestBuilder(CompileTestConfiguration compileTestConfiguration) {
             super(compileTestConfiguration);

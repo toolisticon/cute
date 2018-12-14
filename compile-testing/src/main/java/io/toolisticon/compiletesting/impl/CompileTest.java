@@ -166,6 +166,7 @@ public class CompileTest {
 
     }
 
+
     protected static String getJavaFileObjectInfoString(CompileTestConfiguration.GeneratedJavaFileObjectCheck generatedJavaFileObjectCheck) {
         return generatedJavaFileObjectCheck.getLocation() + "; " + generatedJavaFileObjectCheck.getClassName() + "; " + generatedJavaFileObjectCheck.getKind();
     }
@@ -198,7 +199,7 @@ public class CompileTest {
     /**
      * Allows checking if annotation processor has been applied during the compilation test.
      *
-     * @param diagnostics
+     * @param diagnostics the DiagnosticCollector instance
      */
     protected void checkIfProcessorsHaveBeenApplied(DiagnosticCollector<JavaFileObject> diagnostics) {
 
@@ -254,7 +255,7 @@ public class CompileTest {
      *
      * @param diagnostics the compilations diagnostics result
      * @param kind        the kind of the messages to return
-     * @return
+     * @return a Set containing all messages of passed kind, or an empty Set.
      */
     protected static Set<String> getMessages(DiagnosticCollector<JavaFileObject> diagnostics, Diagnostic.Kind kind) {
 

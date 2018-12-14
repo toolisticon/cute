@@ -140,7 +140,7 @@ public class JavaFileObjectUtils {
      *
      * @param location             the location
      * @param relativeLocationRoot relative location root class
-     * @return
+     * @return The SimpleJavaFileObject for resource
      */
     public static SimpleJavaFileObject readFromResource(String location, Class<?> relativeLocationRoot) {
 
@@ -156,7 +156,7 @@ public class JavaFileObjectUtils {
      * Passed location will be handled as absolute path
      *
      * @param location the location
-     * @return
+     * @return The SimpleJavaFileObject for resource
      */
     public static SimpleJavaFileObject readFromResource(String location) {
 
@@ -173,7 +173,7 @@ public class JavaFileObjectUtils {
      *
      * @param location the location
      * @param content  content of the file
-     * @return
+     * @return The SimpleJavaFileObject for passed content string
      */
     public static SimpleJavaFileObject readFromString(String location, String content) {
 
@@ -193,7 +193,7 @@ public class JavaFileObjectUtils {
      * This one works great if you don't rely on the location, f.e. in case of comparision.
      *
      * @param content content of the file
-     * @return
+     * @return he SimpleJavaFileObject for passed content string
      */
     public static SimpleJavaFileObject readFromString(String content) {
 
@@ -221,7 +221,7 @@ public class JavaFileObjectUtils {
      * Read a java source file from resurces.
      *
      * @param url the location
-     * @return
+     * @return The SimpleJavaFileObject for passed URL
      */
     public static SimpleJavaFileObject readFromUrl(URL url) throws URISyntaxException {
 
@@ -238,7 +238,7 @@ public class JavaFileObjectUtils {
      *
      * @param stream the inputStream to use
      * @return The String read from the inputStreams
-     * @throws IOException
+     * @throws IOException if an error occurs
      */
     private static String readFromInputStream(InputStream stream) throws IOException {
 

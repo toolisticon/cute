@@ -11,7 +11,7 @@ public interface AssertionSpi {
     /**
      * Triggers a failing assertion.
      *
-     * @param message
+     * @param message the failing assertion message
      */
     void fail(String message);
 

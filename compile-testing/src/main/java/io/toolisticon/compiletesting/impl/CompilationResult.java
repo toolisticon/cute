@@ -20,9 +20,9 @@ public class CompilationResult {
     /**
      * Constructor.
      *
-     * @param compilationSucceeded
-     * @param diagnostics
-     * @param compileTestFileManager
+     * @param compilationSucceeded should compilation succeed
+     * @param diagnostics the DiagnosticsController instance to use
+     * @param compileTestFileManager the file manager used during compilation
      */
     public CompilationResult(Boolean compilationSucceeded,
                              DiagnosticCollector diagnostics,
