@@ -26,7 +26,7 @@ Simply add the following dependencies to your project to be able to use this tes
 
      <dependencies>
 
-        <!-- Compile testing framework, supports junit 4 per default-->
+        <!-- Compile testing framework -->
             <dependency>
             <groupId>io.toolisticon.compiletesting</groupId>
             <artifactId>compile-testing</artifactId>
@@ -34,10 +34,14 @@ Simply add the following dependencies to your project to be able to use this tes
             <scope>test</scope>
         </dependency>
 
-        <!-- optional : ONE extension dependency if your are not using junit 4 -->
+        <!-- 
+            optional : needed only if you want to trigger assertion 
+                       errors via your unit test framework 
+            Per default assertion errors are thrown as java.lang.AssertionError 
+        -->
         <dependency>
             <groupId>io.toolisticon.compiletesting</groupId>
-            <artifactId>${extension-junit5, extension-testng}</artifactId>
+            <artifactId>${extension-junit4, extension-junit5, extension-testng}</artifactId>
             <version>${currentVersion}</version>
             <scope>test</scope>
         </dependency>
