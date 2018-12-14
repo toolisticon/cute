@@ -22,7 +22,7 @@
 
         <dependency>
             <groupId>io.toolisticon.compiletesting</groupId>
-            <artifactId>extension-junit4</artifactId>
+            <artifactId>extension-plainjava</artifactId>
         </dependency>
 
         <dependency>

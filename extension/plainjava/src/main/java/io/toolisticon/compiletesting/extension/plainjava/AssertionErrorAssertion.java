@@ -1,4 +1,4 @@
-package io.toolisticon.compiletesting.extension.def;
+package io.toolisticon.compiletesting.extension.plainjava;
 
 
 import io.toolisticon.compiletesting.extension.api.AssertionSpi;

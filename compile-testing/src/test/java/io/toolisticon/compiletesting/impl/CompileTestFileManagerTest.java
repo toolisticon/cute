@@ -155,7 +155,7 @@ public class CompileTestFileManagerTest {
         Mockito.when(javaFileObject1.toUri()).thenReturn(uri1);
 
         JavaFileObject javaFileObject2 = Mockito.mock(JavaFileObject.class);
-        URI uri2 = new URI("string://def");
+        URI uri2 = new URI("string://plainjava");
         Mockito.when(javaFileObject2.toUri()).thenReturn(uri2);
 
         MatcherAssert.assertThat("Should be detected as different file", !unit.isSameFile(javaFileObject1, javaFileObject2));
