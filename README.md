@@ -25,29 +25,29 @@ This compile testing framework allows you to to do this and additionally support
 Simply add the following dependencies to your project to be able to use this testing framework.
 
 ```xml
-     <dependencies>
+<dependencies>
 
-        <!-- Compile testing framework -->
-            <dependency>
-            <groupId>io.toolisticon.compiletesting</groupId>
-            <artifactId>compile-testing</artifactId>
-            <version>${currentVersion}</version>
-            <scope>test</scope>
-        </dependency>
+   <!-- Compile testing framework -->
+       <dependency>
+       <groupId>io.toolisticon.compiletesting</groupId>
+       <artifactId>compile-testing</artifactId>
+       <version>${currentVersion}</version>
+       <scope>test</scope>
+   </dependency>
 
-        <!-- 
-            optional : needed only if you want to trigger assertion 
-                       errors via your unit test framework 
-            Per default assertion errors are thrown as java.lang.AssertionError 
-        -->
-        <dependency>
-            <groupId>io.toolisticon.compiletesting</groupId>
-            <artifactId>${extension-junit4, extension-junit5, extension-testng}</artifactId>
-            <version>${currentVersion}</version>
-            <scope>test</scope>
-        </dependency>
+   <!-- 
+       optional : needed only if you want to trigger assertion 
+                  errors via your unit test framework 
+       Per default assertion errors are thrown as java.lang.AssertionError 
+   -->
+   <dependency>
+       <groupId>io.toolisticon.compiletesting</groupId>
+       <artifactId>${extension-junit4, extension-junit5, extension-testng}</artifactId>
+       <version>${currentVersion}</version>
+       <scope>test</scope>
+   </dependency>
 
-     </dependencies>
+</dependencies>
 ```
      
 # Tests types
@@ -66,21 +66,21 @@ For both test types you can test
 Compilation test allow you to define testcase source files and to apply your processor on it.
 
 ```java
-    @Test
-    public void exampleCompilationTest() {
+@Test
+public void exampleCompilationTest() {
 
-        CompileTestBuilder.compilationTest()
-                .addSources(JavaFileObjectUtils.readFromResource("/exampletestcase/Testcase1.java"))
-                .addProcessors(YourProcessorUnderTest.class)
-                .compilationShouldSucceed()
-                .expectedWarningMessages("WARNING SNIPPET(will check if a warning exists that contains passed string)")
-                .expectedJavaFileObjectExists(
-                        StandardLocation.SOURCE_OUTPUT,
-                        "your.test.package.GeneratedFile", 
-                        JavaFileObject.Kind.SOURCE, 
-                        JavaFileObjectUtils.readFromString("package your.test.package;\npublic class GeneratedFile{}"))
-                .testCompilation();
-    }
+   CompileTestBuilder.compilationTest()
+           .addSources(JavaFileObjectUtils.readFromResource("/exampletestcase/Testcase1.java"))
+           .addProcessors(YourProcessorUnderTest.class)
+           .compilationShouldSucceed()
+           .expectedWarningMessages("WARNING SNIPPET(will check if a warning exists that contains passed string)")
+           .expectedJavaFileObjectExists(
+                   StandardLocation.SOURCE_OUTPUT,
+                   "your.test.package.GeneratedFile", 
+                   JavaFileObject.Kind.SOURCE, 
+                   JavaFileObjectUtils.readFromString("package your.test.package;\npublic class GeneratedFile{}"))
+           .testCompilation();
+}
 ```
 
 Additionally to the explicitely configured assertions it implicitly checks if your annotation processor has been applied and triggers an AssertionError if not.
@@ -97,33 +97,33 @@ The unit test concept provided by this library uses a default source file and ap
 Your unit test code can be declared via the fluent api:
 
 ```java
-    // a junit 4 example 
-    // test class should be in same package like your unit under test
-    // tested methods must be package visible
-    @Test
-    public void exampleUnitTest() {
-       
-        CompileTestBuilder.unitTest().useProcessor(
-                new UnitTestProcessor() {
-                    @Override
-                    public void unitTest(ProcessingEnvironment processingEnvironment, TypeElement typeElement) {
+// a junit 4 example 
+// test class should be in same package like your unit under test
+// tested methods must be package visible
+@Test
+public void exampleUnitTest() {
 
-                        // Your unit test code
-                        SampleProcesssor sampleProcesssor = new SampleProcesssor();
-                        sampleProcesssor.init(processingEnvironment);
+   CompileTestBuilder.unitTest().useProcessor(
+           new UnitTestProcessor() {
+               @Override
+               public void unitTest(ProcessingEnvironment processingEnvironment, TypeElement typeElement) {
 
-                        String result = sampleProcesssor.yourMethodToTest("ABC");
+                   // Your unit test code
+                   SampleProcesssor sampleProcesssor = new SampleProcesssor();
+                   sampleProcesssor.init(processingEnvironment);
 
-                        // AssertionErrors will be passed through your external unit test function
-                        MatcherAssert.assertThat(result, Matchers.is("EXPECTED RESULT"));
-                        
-                    }
-                })
-                .compilationShouldSucceed()
-                .expectedWarningMessages("WARNING SNIPPET(will check if a warning exists that contains passed string)")
-                .testCompilation();
-                
-    }
+                   String result = sampleProcesssor.yourMethodToTest("ABC");
+
+                   // AssertionErrors will be passed through your external unit test function
+                   MatcherAssert.assertThat(result, Matchers.is("EXPECTED RESULT"));
+
+               }
+           })
+           .compilationShouldSucceed()
+           .expectedWarningMessages("WARNING SNIPPET(will check if a warning exists that contains passed string)")
+           .testCompilation();
+
+}
 ```
  
 Besides that it's also possible to add an assertion if an expected exception has been thrown.
