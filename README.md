@@ -8,18 +8,18 @@
 Testing of annotation processors can be a very difficult task.
 Usually annotation procecssors are tighly bound to the compile time model of Java and are relying on tools provided by the java compiler during compile time.
 
-Mocking of those tools and the compile time model is very difficult.
-It's easier to define testcases as source files and test your processor during a normal compilation process.
+Mocking of both tools and the compile time model is a very difficult task.
+It's much easier to define testcases as source files and test your processor during the normal compilation process.
 
 This compile testing framework allows you to to do this and additionally supports you to provide unit tests for your annotation processor related code in an easy way.
 
 # Features
 
-- allows compile time tests supporting the most relevant test frameworks (junit4, junit5, testng)
+- allows compile time tests supporting the most relevant test frameworks (junit4, junit5, testng, ...)
 - simple, but powerful fluent api
 - almost dependency-less - just one runtime dependencies (to spiap-api, will be removed soon)
 - supports all Java versions 6,7,8,>=9
-- supported by most IDEs and compilers
+- works with most IDEs and compilers
 
 # How does it work?
 Simply add the following dependencies to your project to be able to use this testing framework.
@@ -134,6 +134,7 @@ Additionally you have compile time model access for all classes residing in your
  
 # Projects using this toolkit library
 
+- [Annotation processor toolkit](https://github.com/toolisticon/annotation-processor-toolkit) : Toolkit that allows you to build annotation processors in a more confortable way
 - [SPI-AP](https://github.com/toolisticon/SPI-Annotation-Processor) : Annotation processor for generation of spi service locator files
 
 # Alternatives
