@@ -24,6 +24,7 @@ This compile testing framework allows you to to do this and additionally support
 # How does it work?
 Simply add the following dependencies to your project to be able to use this testing framework.
 
+```xml
      <dependencies>
 
         <!-- Compile testing framework -->
@@ -47,7 +48,7 @@ Simply add the following dependencies to your project to be able to use this tes
         </dependency>
 
      </dependencies>
-
+```
      
 # Tests types
 
@@ -64,6 +65,7 @@ For both test types you can test
 
 Compilation test allow you to define testcase source files and to apply your processor on it.
 
+```java
     @Test
     public void exampleCompilationTest() {
 
@@ -79,6 +81,7 @@ Compilation test allow you to define testcase source files and to apply your pro
                         JavaFileObjectUtils.readFromString("package your.test.package;\npublic class GeneratedFile{}"))
                 .testCompilation();
     }
+```
 
 Additionally to the explicitely configured assertions it implicitly checks if your annotation processor has been applied and triggers an AssertionError if not.
 
@@ -93,6 +96,7 @@ This library helps you to execute unit test at compile time, giving you the Proc
 The unit test concept provided by this library uses a default source file and applies a default annotation processor on it. 
 Your unit test code can be declared via the fluent api:
 
+```java
     // a junit 4 example 
     // test class should be in same package like your unit under test
     // tested methods must be package visible
@@ -120,6 +124,7 @@ Your unit test code can be declared via the fluent api:
                 .testCompilation();
                 
     }
+```
  
 Besides that it's also possible to add an assertion if an expected exception has been thrown.
 
