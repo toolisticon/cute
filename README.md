@@ -1,6 +1,6 @@
 # TOOLISTICON Compile-Testing
 
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.toolisticon.compiletesting/compiletesting-parent/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.toolisticon.compiletesting/compiletesting-parent)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.toolisticon.compiletesting/compiletesting/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.toolisticon.compiletesting/compiletesting)
 [![Build Status](https://api.travis-ci.org/toolisticon/compile-testing.svg)](https://travis-ci.org/toolisticon/compile-testing)
 [![codecov](https://codecov.io/gh/toolisticon/compile-testing/branch/master/graph/badge.svg)](https://codecov.io/gh/toolisticon/compile-testing)
 
