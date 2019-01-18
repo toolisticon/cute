@@ -2,9 +2,14 @@ package io.toolisticon.compiletesting.impl;
 
 import javax.tools.Diagnostic;
 import javax.tools.FileObject;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 
 /**
@@ -100,7 +105,24 @@ final class DebugOutputGenerator {
 
     }
 
-    private static  <FILE_OBJECT extends FileObject> String createGeneratedFileObjectOverview(List<FILE_OBJECT> fileObjects) {
+
+    private static String generateRandomString() {
+        int leftLimit = 97; // letter 'a'
+        int rightLimit = 122; // letter 'z'
+        int targetStringLength = 10;
+        Random random = new Random();
+        StringBuilder buffer = new StringBuilder(targetStringLength);
+        for (int i = 0; i < targetStringLength; i++) {
+            int randomLimitedInt = leftLimit + (int)
+                    (random.nextFloat() * (rightLimit - leftLimit + 1));
+            buffer.append((char) randomLimitedInt);
+        }
+        return buffer.toString();
+    }
+
+    private static <FILE_OBJECT extends FileObject> String createGeneratedFileObjectOverview(List<FILE_OBJECT> fileObjects) {
+
+        final String prefix = "target/compileTesting_failingUnitTests/" + generateRandomString();
 
         StringBuilder stringBuilder = new StringBuilder();
 
@@ -112,7 +134,7 @@ final class DebugOutputGenerator {
 
             for (FILE_OBJECT fileObject : fileObjects) {
 
-                stringBuilder.append("    '" + fileObject.toUri().toString() + "'").append(", \n");
+                stringBuilder.append("    '" + fileObject.toUri().toString() + "'").append(" := '").append(writeFile(prefix, fileObject)).append("', \n");
 
             }
 
@@ -123,5 +145,59 @@ final class DebugOutputGenerator {
         return stringBuilder.toString();
 
     }
+
+    private static String writeFile(String pathPrefix, FileObject fileObject) {
+
+        File outputFile = new File(pathPrefix + fileObject.toUri().getPath());
+        outputFile.getParentFile().mkdirs();
+
+        FileOutputStream fos = null;
+        InputStream is = null;
+
+        try {
+            // create the output file
+            outputFile.createNewFile();
+
+            // open input and output stream for file copy
+            fos = new FileOutputStream(outputFile);
+            is = fileObject.openInputStream();
+
+            byte[] buffer = new byte[20000];
+
+            int ch = is.read(buffer);
+            while (-1 != ch) {
+
+                fos.write(buffer, 0, ch);
+                ch = is.read(buffer);
+
+            }
+
+            fos.flush();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (fos != null) {
+                try {
+                    fos.close();
+                } catch (IOException e) {
+
+                }
+            }
+
+            if (fos != null) {
+                try {
+                    is.close();
+                } catch (IOException e) {
+
+                }
+            }
+        }
+
+        return outputFile.getAbsolutePath();
+
+
+    }
+
 
 }
