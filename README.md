@@ -20,6 +20,11 @@ This compile testing framework allows you to to do this and additionally support
 - almost dependency-less - just one runtime dependencies (to spiap-api, will be removed soon)
 - supports all Java versions 6,7,8,>=9
 - Enables you to debug annotation processors during compilation tests
+- provides useful information for analysis of failing tests:
+   - error and warning messages
+   - unexpected exceptions
+   - writes generated files to filesystem
+   - test configuration
 - works with most IDEs and compilers
 
 # How does it work?
