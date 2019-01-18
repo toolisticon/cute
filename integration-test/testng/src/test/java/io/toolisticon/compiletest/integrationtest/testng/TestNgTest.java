@@ -2,6 +2,8 @@ package io.toolisticon.compiletest.integrationtest.testng;
 
 import io.toolisticon.compiletesting.CompileTestBuilder;
 import io.toolisticon.compiletesting.UnitTestProcessor;
+import org.hamcrest.MatcherAssert;
+import org.hamcrest.Matchers;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -68,7 +70,7 @@ public class TestNgTest {
 
             Assert.fail("Should have failed");
         } catch (AssertionError error) {
-            Assert.assertEquals(error.getMessage(),"Compilation should have succeeded but failed");
+            MatcherAssert.assertThat(error.getMessage(), Matchers.containsString("Compilation should have succeeded but failed"));
         }
 
     }
