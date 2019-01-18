@@ -18,8 +18,10 @@ import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -49,6 +51,10 @@ public class CompileTestFileManager extends ForwardingJavaFileManager<StandardJa
             return fileObjectCache.values();
         }
 
+        public boolean isEmpty() {
+            return fileObjectCache.isEmpty();
+        }
+
 
     }
 
@@ -59,6 +65,14 @@ public class CompileTestFileManager extends ForwardingJavaFileManager<StandardJa
 
     public CompileTestFileManager(StandardJavaFileManager standardJavaFileManager) {
         super(standardJavaFileManager);
+    }
+
+    List<JavaFileObject> getGeneratedJavaFileObjects() {
+        return new ArrayList<JavaFileObject>(generatedJavaFileObjectCache.getEntries());
+    }
+
+    List<FileObject> getGeneratedFileObjects() {
+        return new ArrayList<FileObject>(generatedFileObjectCache.getEntries());
     }
 
     @Override
@@ -119,6 +133,7 @@ public class CompileTestFileManager extends ForwardingJavaFileManager<StandardJa
         return super.getFileForInput(location, packageName, relativeName);
     }
 
+
     /**
      * Checks if JavaFileObject for passed parameters exists.
      *
@@ -147,7 +162,7 @@ public class CompileTestFileManager extends ForwardingJavaFileManager<StandardJa
 
     }
 
-
+/*-
     public String getGeneratedFileOverview() {
 
         StringBuilder stringBuilder = new StringBuilder();
@@ -218,7 +233,7 @@ public class CompileTestFileManager extends ForwardingJavaFileManager<StandardJa
         return stringBuilder.toString();
 
     }
-
+*/
 
     public static boolean contentEquals(InputStream input1, InputStream input2) throws IOException {
         if (!(input1 instanceof BufferedInputStream)) {

@@ -3,6 +3,10 @@ package io.toolisticon.compiletest.integrationtest.junit4;
 
 import io.toolisticon.compiletesting.CompileTestBuilder;
 import io.toolisticon.compiletesting.UnitTestProcessor;
+
+import org.hamcrest.MatcherAssert;
+import org.hamcrest.Matchers;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -68,7 +72,7 @@ public class Junit4Test {
 
             Assert.fail("Should have failed");
         } catch (AssertionError error) {
-            Assert.assertEquals(error.getMessage(), "Compilation should have succeeded but failed");
+            MatcherAssert.assertThat(error.getMessage(), Matchers.containsString("Compilation should have succeeded but failed"));
         }
 
     }

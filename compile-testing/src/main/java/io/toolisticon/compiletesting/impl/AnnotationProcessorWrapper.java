@@ -86,13 +86,13 @@ public final class AnnotationProcessorWrapper implements Processor {
             if (this.expectedThrownException != null) {
 
                 if (!this.expectedThrownException.isAssignableFrom(e.getClass())) {
-                    AssertionSpiServiceLocator.locate().fail("Expected exception of type '" + this.expectedThrownException.getCanonicalName() + "' but exception of type '" + e.getClass().getCanonicalName() + (e.getMessage() != null ? "'  with message '" + e.getMessage() : "") + "' was thrown instead.");
+                    throw new FailingAssertionException("Expected exception of type '" + this.expectedThrownException.getCanonicalName() + "' but exception of type '" + e.getClass().getCanonicalName() + (e.getMessage() != null ? "'  with message '" + e.getMessage() : "") + "' was thrown instead.", e);
                 }
 
             } else {
 
                 // Got unexpected exception
-                AssertionSpiServiceLocator.locate().fail("An unexpected exception of type '" + e.getClass().getCanonicalName() + (e.getMessage() != null ? "'  with message '" + e.getMessage() : "") + "' has been thrown.");
+                throw new FailingAssertionException("An unexpected exception of type '" + e.getClass().getCanonicalName() + (e.getMessage() != null ? "'  with message '" + e.getMessage() : "") + "' has been thrown.", e);
 
             }
 
@@ -102,7 +102,7 @@ public final class AnnotationProcessorWrapper implements Processor {
 
         // check in last round if expected exception has been thrown
         if (roundEnv.processingOver() && expectedExceptionWasThrown && this.expectedThrownException != null) {
-            AssertionSpiServiceLocator.locate().fail("Expected exception of type '" + this.expectedThrownException.getCanonicalName() + "' to be thrown, but wasn't");
+            throw new FailingAssertionException("Expected exception of type '" + this.expectedThrownException.getCanonicalName() + "' to be thrown, but wasn't");
         }
 
         return returnValue;
