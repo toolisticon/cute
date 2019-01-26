@@ -7,7 +7,7 @@
     <parent>
         <groupId>io.toolisticon.compiletesting</groupId>
         <artifactId>integration-test-parent</artifactId>
-        <version>0.4.0</version>
+        <version>0.4.1-SNAPSHOT</version>
     </parent>
 
     <name>integration-test-junit4</name>
