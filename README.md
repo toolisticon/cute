@@ -17,7 +17,6 @@ This compile testing framework allows you to to do this and additionally support
 
 - allows compile time tests supporting the most relevant test frameworks (junit4, junit5, testng, ...)
 - simple, but powerful fluent api
-- almost dependency-less - just one runtime dependencies (to spiap-api, will be removed soon)
 - supports all Java versions 6,7,8,>=9
 - Enables you to debug annotation processors during compilation tests
 - provides useful information for analysis of failing tests:
@@ -26,6 +25,7 @@ This compile testing framework allows you to to do this and additionally support
    - writes generated files to filesystem
    - test configuration
 - works with most IDEs and compilers
+- dependency-less - binds no 3rd party libraries (therefore no versioning conflicts with your application)
 
 # How does it work?
 Simply add the following dependencies to your project to be able to use this testing framework.
