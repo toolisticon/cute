@@ -1,10 +1,15 @@
 package io.toolisticon.compiletesting.impl;
 
+
 import javax.annotation.processing.Processor;
 import javax.tools.Diagnostic;
 import javax.tools.DiagnosticCollector;
 import javax.tools.JavaFileObject;
+import java.io.File;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -81,6 +86,28 @@ final class CompileTestUtilities {
 
         return filteredDiagnostics;
 
+    }
+
+
+
+    protected static List<File> getJarsFromClasspath() {
+        List<File> urls = new ArrayList<File>();
+
+        String[] pathElements = System.getProperty("java.class.path").split(System.getProperty("path.separator"));
+
+        for (String pathElement : pathElements) {
+
+            if (pathElement.endsWith(".jar")) {
+
+                File file = new File(pathElement);
+                if (file.exists()) {
+                    urls.add(file);
+                }
+
+            }
+        }
+
+        return urls;
     }
 
 }

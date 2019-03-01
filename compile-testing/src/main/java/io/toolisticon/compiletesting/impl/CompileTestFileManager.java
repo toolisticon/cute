@@ -6,9 +6,11 @@ import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
 import javax.tools.SimpleJavaFileObject;
 import javax.tools.StandardJavaFileManager;
+import javax.tools.StandardLocation;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,6 +20,8 @@ import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
 import java.net.URI;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -65,6 +69,7 @@ public class CompileTestFileManager extends ForwardingJavaFileManager<StandardJa
 
     public CompileTestFileManager(StandardJavaFileManager standardJavaFileManager) {
         super(standardJavaFileManager);
+
     }
 
     List<JavaFileObject> getGeneratedJavaFileObjects() {
@@ -159,6 +164,7 @@ public class CompileTestFileManager extends ForwardingJavaFileManager<StandardJa
     public boolean existsExpectedFileObject(JavaFileManager.Location location, String packageName, String relativeName) {
 
         return this.generatedFileObjectCache.contains(uriForFileObject(location, packageName, relativeName));
+
 
     }
 

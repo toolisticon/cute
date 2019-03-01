@@ -57,6 +57,21 @@ final class DebugOutputGenerator {
         // Compile test configuration
         stringBuilder.append(getDebugOutputHeader("COMPILE TEST CONFIGURATION")).append(compileTestConfiguration.toString());
 
+        if (compileTestConfiguration.getModules() != null) {
+            stringBuilder.append(getDebugOutputHeader("MODULE PATH"));
+
+            int i = 0;
+            for (File file : CompileTestUtilities.getJarsFromClasspath()) {
+                stringBuilder.append("[")
+                        .append(i++)
+                        .append("] := '")
+                        .append(file.getAbsolutePath())
+                        .append("'\n");
+            }
+
+        }
+
+
         return stringBuilder.toString();
 
     }

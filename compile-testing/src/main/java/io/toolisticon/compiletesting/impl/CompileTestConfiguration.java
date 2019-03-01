@@ -408,6 +408,11 @@ public class CompileTestConfiguration {
     private Class<? extends Throwable> expectedThrownException = null;
 
     /**
+     * Modules used in Java >= 9 environments
+     */
+    private Set<String> modules = null;
+
+    /**
      * Compilation succeeded or not
      */
     private Boolean compilationShouldSucceed;
@@ -445,6 +450,13 @@ public class CompileTestConfiguration {
         this.processorTypes.addAll(source.getProcessorTypes());
         this.processorsWithExpectedExceptions.addAll(source.processorsWithExpectedExceptions);
         this.expectedThrownException = source.getExpectedThrownException();
+
+        if (source.getModules() != null) {
+            this.modules = new HashSet<String>();
+            this.modules.addAll(source.getModules());
+        } else {
+            this.modules = null;
+        }
 
         this.compilationShouldSucceed = source.getCompilationShouldSucceed();
         this.warningMessageCheck.addAll(source.getWarningMessageCheck());
@@ -508,6 +520,19 @@ public class CompileTestConfiguration {
 
         this.processorsWithExpectedExceptions.add(new ProcessorWithExpectedException(processorType, e));
 
+    }
+
+
+    public void addModules(String... modules) {
+        if (modules != null) {
+            if (this.modules == null) {
+                this.modules = new HashSet<String>();
+            }
+            this.modules.addAll(Arrays.asList(modules));
+            this.modules.remove(null);
+        } else {
+            this.modules = null;
+        }
     }
 
     public void addWarningMessageCheck(String... warningMessage) {
@@ -625,6 +650,10 @@ public class CompileTestConfiguration {
 
     }
 
+    public Set<String> getModules() {
+        return modules;
+    }
+
     public Set<String> getWarningMessageCheck() {
         return warningMessageCheck;
     }
@@ -665,6 +694,7 @@ public class CompileTestConfiguration {
                 ",\n\t processorTypes=" + processorTypes +
                 ",\n\t processorsWithExpectedExceptions=" + processorsWithExpectedExceptions +
                 ",\n\t expectedThrownException=" + expectedThrownException +
+                ",\n\t modules=" + modules +
                 ",\n\t compilationShouldSucceed=" + compilationShouldSucceed +
                 ",\n\t warningMessageCheck=" + warningMessageCheck +
                 ",\n\t mandatoryWarningMessageCheck=" + mandatoryWarningMessageCheck +

@@ -136,6 +136,22 @@ public class CompileTestConfigurationTest {
     }
 
     @Test
+    public void modules_addAndGet() {
+
+        unit.addModules("spiap.api", "java.compiler");
+        unit.addModules("java.base");
+
+
+        // do assertion
+        assertModules(unit);
+
+    }
+
+    private void assertModules(CompileTestConfiguration configuration) {
+        MatcherAssert.assertThat(configuration.getModules(), Matchers.containsInAnyOrder("spiap.api", "java.compiler", "java.base"));
+    }
+
+    @Test
     public void expectedThrownException_setAndGet() {
 
         unit.setExpectedThrownException(expectedThrownException);
@@ -358,6 +374,21 @@ public class CompileTestConfigurationTest {
         Set<AnnotationProcessorWrapper> currentCache = unit.getWrappedProcessors();
 
         MatcherAssert.assertThat("Subsequent calls to get wrapped processors should return same cache set!!!", currentCache == previousCache);
+
+    }
+
+    @Test
+    public void wrappedModulesCacheIsResetCorrectly_addProcessors() {
+
+        processorTypes_addAndGet();
+
+        Set<AnnotationProcessorWrapper> previousCache = unit.getWrappedProcessors();
+
+        processors_addAndGet();
+
+        Set<AnnotationProcessorWrapper> currentCache = unit.getWrappedProcessors();
+        MatcherAssert.assertThat("Cache instances must not match!!!", currentCache != previousCache);
+
 
     }
 

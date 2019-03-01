@@ -7,11 +7,13 @@ import javax.tools.Diagnostic;
 import javax.tools.DiagnosticCollector;
 import javax.tools.FileObject;
 import javax.tools.JavaCompiler;
+import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
+import javax.tools.StandardJavaFileManager;
+import javax.tools.StandardLocation;
 import javax.tools.ToolProvider;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.lang.reflect.Method;
 import java.util.Set;
 
 /**
@@ -211,14 +213,68 @@ public class CompileTest {
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
         DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<JavaFileObject>();
 
-        CompileTestFileManager javaFileManager = new CompileTestFileManager(compiler.getStandardFileManager(diagnostics, null, null));
+        StandardJavaFileManager stdJavaFileManager = compiler.getStandardFileManager(diagnostics, null, null);
+
+
+        // Set java 9 module path if modules have been set - do it via reflection to be compatible with older java version
+        if (compileTestConfiguration.getModules() != null) {
+            try {
+                // will throw IllegalArgumentException for < Java 9
+                Method method = StandardJavaFileManager.class.getMethod("setLocation", JavaFileManager.Location.class, Iterable.class);
+                method.invoke(stdJavaFileManager, (JavaFileManager.Location) StandardLocation.valueOf("MODULE_PATH"), (Iterable) CompileTestUtilities.getJarsFromClasspath());
+            } catch (Exception e) {
+                // ignore => only thrown for java <9
+                e.printStackTrace();
+            }
+        }
+
+
+        // setLocationForModule​(JavaFileManager.Location location,String moduleName,Collection<? extends Path> paths)
+/*-
+        if (compileTestConfiguration.getModules() != null) {
+            try {
+                File file = new File("/Users/tobiasstamann/.m2/repository/org/apache/commons/commons-lang3/3.8.1/commons-lang3-3.8.1.jar");
+
+
+                // will throw IllegalArgumentException for < Java 9
+                Method method = StandardJavaFileManager.class.getMethod("setLocationForModule", JavaFileManager.Location.class, String.class, Collection.class);
+                Method toPathMethod = File.class.getMethod("toPath");
+                method.invoke(stdJavaFileManager, (JavaFileManager.Location) StandardLocation.valueOf("MODULE_PATH"), "org.apache.commons.lang3", Arrays.asList(toPathMethod.invoke(file)));
+            } catch (Exception e) {
+                // ignore => only thrown for java <9
+                e.printStackTrace();
+            }
+        }
+        */
+
+
+        CompileTestFileManager javaFileManager = new CompileTestFileManager(stdJavaFileManager);
+
 
         JavaCompiler.CompilationTask compilationTask = compiler.getTask(null, javaFileManager, diagnostics, null, null, compileTestConfiguration.getSourceFiles());
 
         compilationTask.setProcessors(compileTestConfiguration.getWrappedProcessors());
+
+        // handle java 9 modules via reflection to maintain backward compatibility
+        if (compileTestConfiguration.getModules() != null) {
+            try {
+
+                Method method = JavaCompiler.CompilationTask.class.getMethod("addModules", Iterable.class);
+                method.invoke(compilationTask, compileTestConfiguration.getModules());
+
+            } catch (Exception e) {
+                // method not found or access issues ==> java version <9
+                // ignore => only thrown for java <9
+                e.printStackTrace();
+            }
+        }
+
         Boolean compilationSucceeded = compilationTask.call();
 
-        return new CompilationResult(compilationSucceeded, diagnostics, javaFileManager);
+        return new
+
+                CompilationResult(compilationSucceeded, diagnostics, javaFileManager);
+
     }
 
     /**

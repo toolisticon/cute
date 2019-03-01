@@ -3,6 +3,7 @@ package io.toolisticon.compiletesting;
 import io.toolisticon.compiletesting.common.SimpleTestProcessor1;
 import io.toolisticon.compiletesting.common.SimpleTestProcessor2;
 import io.toolisticon.compiletesting.impl.CompileTestConfiguration;
+import io.toolisticon.compiletesting.impl.UnitTestAnnotationProcessorClass;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
 import org.junit.Test;
@@ -347,5 +348,37 @@ public class CompileTestBuilderTest {
 
     }
 
+/**
+    public static class ModuleAP extends UnitTestAnnotationProcessorClass {
+        public ModuleAP() {
+            super(new UnitTestProcessor() {
+                @Override
+                public void unitTest(ProcessingEnvironment processingEnvironment, TypeElement typeElement) {
+
+                }
+            });
+        }
+    }
+
+
+    @Test
+    public void testCompilationOfModuleInfo() {
+
+
+        CompileTestBuilder.compilationTest()
+                .addSources(JavaFileObjectUtils.readFromString("module-info", "module compiletestingtest {\n" +
+                                "    exports io.toolisticon.compiletesting;\n" +
+                                "    requires java.compiler;\n" +
+                                "}")
+                        , JavaFileObjectUtils.readFromString("io/toolisticon/compiletesting/test/WTF", "package io.toolisticon.compiletesting.test;\n public class WTF{}")
+                        , JavaFileObjectUtils.readFromResource("AnnotationProcessorUnitTestClass.java")
+                )
+                .addProcessors(ModuleAP.class)
+                .useModules("java.compiler")
+                .compilationShouldSucceed()
+                .testCompilation();
+
+    }
+*/
 
 }

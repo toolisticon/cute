@@ -116,4 +116,5 @@ public class CompileTestUtilitiesTest {
                 Matchers.equalTo(CompileTestUtilities.TEMPLATE_ANNOTATION_PROCESSOR_WAS_APPLIED.replaceFirst("[%]s", "").replaceFirst("[#][%]s", "#NULL")));
     }
 
+
 }
