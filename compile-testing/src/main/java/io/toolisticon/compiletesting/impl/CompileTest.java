@@ -223,29 +223,15 @@ public class CompileTest {
         StandardJavaFileManager stdJavaFileManager = compiler.getStandardFileManager(diagnostics, null, null);
 
 
+        // get a map for lookup of jar files by module name
         Map<String, File> moduleToJarMap = new HashMap<String, File>();
-
-        // Set java 9 module path if modules have been set - do it via reflection to be compatible with older java version
         if (compileTestConfiguration.getModules() != null) {
             try {
 
 
                 List<File> files = CompileTestUtilities.getJarsFromClasspath();
 
-                //StandardJavaFileManagerBridge.setLocation(stdJavaFileManager, (JavaFileManager.Location) StandardLocation.valueOf("MODULE_PATH"), files);
-
-
-
                 for (File file : files) {
-
-
-
-
-
-                    //JavaFileManager.Location modulePathLocation = (JavaFileManager.Location) StandardLocation.valueOf("MODULE_PATH"); //
-
-                    //StandardJavaFileManagerBridge.setLocation(stdJavaFileManager, (JavaFileManager.Location) StandardLocation.valueOf("MODULE_PATH"), files);
-
 
                     String moduleName = ModuleFinderWrapper.getModuleForJarFile(file);
 
@@ -253,33 +239,8 @@ public class CompileTest {
                         moduleToJarMap.put(moduleName, file);
                     }
 
-/*-
-                    if (moduleName != null) {
-                        JavaFileManager.Location modulePathLocation = StandardJavaFileManagerBridge.getGetLocationForModule(stdJavaFileManager, (JavaFileManager.Location) StandardLocation.valueOf("MODULE_PATH"), moduleName);
-                        System.out.println("MODULE_PATH_LOCATION : " + modulePathLocation.toString());
-                        //StandardJavaFileManagerBridge.setLocationForModule(stdJavaFileManager, modulePathLocation, moduleName, FileBrigde.toPath(file.getParentFile()));
-                        StandardJavaFileManagerBridge.setLocation(stdJavaFileManager, modulePathLocation, Arrays.asList(file));
-                    } else {
-                        System.out.println("DIDN'T FOUND MODULE NAME FOR : " + file.getAbsolutePath());
-                    }
-                    */
-
-
                 }
 
-/*-
-                System.out.println("MODULES....");
-
-                for (Set<JavaFileManager.Location> locations : StandardJavaFileManagerBridge.listLocationsForModules​(stdJavaFileManager, (JavaFileManager.Location) StandardLocation.valueOf("MODULE_PATH"))) {
-
-                    for (JavaFileManager.Location location : locations) {
-
-                        System.out.println(location.toString() + " := " + StandardJavaFileManagerBridge.inferModuleName(stdJavaFileManager, location));
-
-                    }
-
-                }
-                */
 
             } catch (Exception e) {
                 // ignore => only thrown for java <9
@@ -290,30 +251,10 @@ public class CompileTest {
         }
 
 
-        // setLocationForModule​(JavaFileManager.Location location,String moduleName,Collection<? extends Path> paths)
-/*-
-        if (compileTestConfiguration.getModules() != null) {
-            try {
-                File file = new File("/Users/tobiasstamann/.m2/repository/org/apache/commons/commons-lang3/3.8.1/commons-lang3-3.8.1.jar");
-
-
-                // will throw IllegalArgumentException for < Java 9
-                Method method = StandardJavaFileManager.class.getMethod("setLocationForModule", JavaFileManager.Location.class, String.class, Collection.class);
-                Method toPathMethod = File.class.getMethod("toPath");
-                method.invoke(stdJavaFileManager, (JavaFileManager.Location) StandardLocation.valueOf("MODULE_PATH"), "org.apache.commons.lang3", Arrays.asList(toPathMethod.invoke(file)));
-            } catch (Exception e) {
-                // ignore => only thrown for java <9
-                e.printStackTrace();
-            }
-        }
-        */
-
-
+        // Configure java compilation task
         CompileTestFileManager javaFileManager = new CompileTestFileManager(stdJavaFileManager);
 
-
         JavaCompiler.CompilationTask compilationTask = compiler.getTask(null, javaFileManager, diagnostics, null, null, compileTestConfiguration.getSourceFiles());
-
         compilationTask.setProcessors(compileTestConfiguration.getWrappedProcessors());
 
         // handle java 9 modules via reflection to maintain backward compatibility
@@ -331,9 +272,6 @@ public class CompileTest {
                 }
                 StandardJavaFileManagerBridge.setLocation(stdJavaFileManager, (JavaFileManager.Location) StandardLocation.valueOf("MODULE_PATH"), files);
 
-
-
-                System.out.println("SET ADD_MODULES : " + compileTestConfiguration.getModules().toString());
                 Method method = JavaCompiler.CompilationTask.class.getMethod("addModules", Iterable.class);
                 method.invoke(compilationTask, compileTestConfiguration.getModules());
 
@@ -346,9 +284,7 @@ public class CompileTest {
 
         Boolean compilationSucceeded = compilationTask.call();
 
-        return new
-
-                CompilationResult(compilationSucceeded, diagnostics, javaFileManager);
+        return new CompilationResult(compilationSucceeded, diagnostics, javaFileManager);
 
     }
 

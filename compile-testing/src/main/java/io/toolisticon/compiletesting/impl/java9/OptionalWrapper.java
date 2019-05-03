@@ -2,6 +2,9 @@ package io.toolisticon.compiletesting.impl.java9;
 
 import java.lang.reflect.Method;
 
+/**
+ * Wrapper class for Java 8 Optional.
+ */
 public class OptionalWrapper<T> extends AbstractJava9BaseWrapper {
 
     final static Class OPTIONAL_CLASS = AbstractJava9BaseWrapper.getClassForName("java.util.Optional");
@@ -15,6 +18,10 @@ public class OptionalWrapper<T> extends AbstractJava9BaseWrapper {
 
     }
 
+    /**
+     * Calls Optional.get()
+     * @return the result of Optional.get()
+     */
     public T get() {
 
         Object result = isPresent() ?
@@ -24,6 +31,10 @@ public class OptionalWrapper<T> extends AbstractJava9BaseWrapper {
 
     }
 
+    /**
+     * Calls Optional.isPresent()
+     * @return the result of Optional.isPresent()
+     */
     public boolean isPresent() {
         return AbstractJava9BaseWrapper.invoke(METHOD_IS_PRESENT, getWrappedInstance(), Boolean.class);
     }

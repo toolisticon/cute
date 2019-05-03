@@ -3,7 +3,13 @@ package io.toolisticon.compiletesting.impl.java9;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-public abstract class AbstractJava9BaseWrapper {
+/**
+ * To support java 9 modules we must be able to access java 9 related api.
+ * But the remain compatible with all previous java this must be done via reflection.
+ *
+ * This wrapper base class provides support to build wrappers for Java 9 API.
+ */
+abstract class AbstractJava9BaseWrapper {
 
     private final Class clazz;
     private final Object wrappedInstance;
@@ -20,7 +26,7 @@ public abstract class AbstractJava9BaseWrapper {
 
     }
 
-    public Object getWrappedInstance() {
+    Object getWrappedInstance() {
         return wrappedInstance;
     }
 
@@ -29,7 +35,7 @@ public abstract class AbstractJava9BaseWrapper {
     }
 
 
-    public static Class getClassForName(String className) {
+    static Class getClassForName(String className) {
 
         if (Java9SupportCheck.UNSUPPORTED_JAVA_VERSION) {
             return null;
@@ -44,7 +50,7 @@ public abstract class AbstractJava9BaseWrapper {
 
     }
 
-    public static Method getMethod(Class clazz, String methodName, Class... parameterTypes) {
+    static Method getMethod(Class clazz, String methodName, Class... parameterTypes) {
 
         if (clazz == null) {
             throw new IllegalArgumentException("passed class must not be null");
@@ -65,7 +71,16 @@ public abstract class AbstractJava9BaseWrapper {
 
     }
 
-    public static <T> T invoke(Method method, Object instance, Class<T> returnType, Object... parameters) {
+    /**
+     * Invokes a method.
+     * @param method the method to call
+     * @param instance the instance to apply the method on, must be null for static methods
+     * @param returnType the return type
+     * @param parameters the parameters used to call the method
+     * @param <T> The return type
+     * @return the return value of the called method
+     */
+     static <T> T invoke(Method method, Object instance, Class<T> returnType, Object... parameters) {
 
         T result = null;
 

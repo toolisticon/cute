@@ -3,7 +3,7 @@ package io.toolisticon.compiletesting.impl.java9;
 import java.lang.reflect.Array;
 
 /**
- *
+ * Wrapper class for Java 7 Path.
  */
 public class PathWrapper {
 
