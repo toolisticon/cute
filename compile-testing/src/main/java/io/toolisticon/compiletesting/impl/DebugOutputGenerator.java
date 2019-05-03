@@ -106,23 +106,12 @@ final class DebugOutputGenerator {
     }
 
 
-    private static String generateRandomString() {
-        int leftLimit = 97; // letter 'a'
-        int rightLimit = 122; // letter 'z'
-        int targetStringLength = 10;
-        Random random = new Random();
-        StringBuilder buffer = new StringBuilder(targetStringLength);
-        for (int i = 0; i < targetStringLength; i++) {
-            int randomLimitedInt = leftLimit + (int)
-                    (random.nextFloat() * (rightLimit - leftLimit + 1));
-            buffer.append((char) randomLimitedInt);
-        }
-        return buffer.toString();
-    }
+
+
 
     private static <FILE_OBJECT extends FileObject> String createGeneratedFileObjectOverview(List<FILE_OBJECT> fileObjects) {
 
-        final String prefix = "target/compileTesting_failingUnitTests/" + generateRandomString();
+        final String prefix = "target/compileTesting_failingUnitTests/" + CommonUtilities.getRandomString(10);
 
         StringBuilder stringBuilder = new StringBuilder();
 
