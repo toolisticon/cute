@@ -6,10 +6,10 @@
 
 # Why you should use this project?
 Testing of annotation processors can be a very difficult task.
-Usually annotation procecssors are tighly bound to the compile time model of Java and are relying on tools provided by the java compiler during compile time.
+Usually annotation procecssors are tighly bound to the compile time model of Java and are relying on tools provided by the java compiler during the compilation process.
 
 Mocking of both tools and the compile time model is a very difficult task.
-It's much easier to define testcases as source files and test your processor during the normal compilation process.
+It's much easier to define testcases as source files and to test your processors during the normal compilation process.
 
 This compile testing framework allows you to to do this and additionally supports you to provide unit tests for your annotation processor related code in an easy way.
 
@@ -42,9 +42,9 @@ Simply add the following dependencies to your project to be able to use this tes
    </dependency>
 
    <!-- 
-       optional : needed only if you want to trigger assertion 
-                  errors via your unit test framework 
-       Per default assertion errors are thrown as java.lang.AssertionError 
+       optional : only needed if you want to trigger assertion 
+                  errors via your unit test framework
+       Per default assertion errors are thrown and handled as java.lang.AssertionError by most unit test frameworks.
    -->
    <dependency>
        <groupId>io.toolisticon.compiletesting</groupId>
@@ -96,7 +96,7 @@ Additionally to the explicitely configured assertions it implicitly checks if yo
 ## Unit tests
 
 Usually - if you are developing annotation processors - your code is likely to rely on the tools provided to the annotation processor via the ProcessingEnvironment like Filer, Messager, Types and Elements.
-These classes and the Java compile time model are hard to mock. That why unit testing is usually very hard to do.
+These classes and the Java compile time model are hard to mock. Thats why unit testing is usually very hard to do.
 This library helps you to execute unit test at compile time, giving you the ProcessingEnvironment's tools and access to the compile time model for free.
 
 The unit test concept provided by this library uses a default source file and applies a default annotation processor on it. 
@@ -168,13 +168,7 @@ The likelihood of a pull request being used rises with the following properties:
 
 - (2018) Tobias Stamann (Holisticon AG)
 
-## Sponsoring
-
-This project is sponsored and supported by [holisticon AG](http://www.holisticon.de/)
-
-![Holisticon AG](https://raw.githubusercontent.com/toolisticon/toolisticon.github.io/master/holisticon-logo.png)
-
 # License
 
-This project is released under the revised [BSD License](LICENSE).
+This project is released under the revised [MIT License](LICENSE).
 
