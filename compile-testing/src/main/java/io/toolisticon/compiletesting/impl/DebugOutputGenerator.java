@@ -1,5 +1,7 @@
 package io.toolisticon.compiletesting.impl;
 
+import io.toolisticon.compiletesting.impl.java9.ModuleFinderWrapper;
+
 import javax.tools.Diagnostic;
 import javax.tools.FileObject;
 import java.io.File;
@@ -64,6 +66,8 @@ final class DebugOutputGenerator {
             for (File file : CompileTestUtilities.getJarsFromClasspath()) {
                 stringBuilder.append("[")
                         .append(i++)
+                        .append("|")
+                        .append(ModuleFinderWrapper.getModuleForJarFile(file))
                         .append("] := '")
                         .append(file.getAbsolutePath())
                         .append("'\n");

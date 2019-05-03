@@ -41,7 +41,7 @@
                 <configuration>
                     <archive>
                         <manifestEntries>
-                            <Automatic-Module-Name>integration.test.java9.namednonmodule</Automatic-Module-Name>
+                            <Automatic-Module-Name>integration.test.java9.unnamedautomaticmodule</Automatic-Module-Name>
                         </manifestEntries>
                     </archive>
                 </configuration>

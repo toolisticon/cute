@@ -2,6 +2,8 @@ package io.toolisticon.compiletesting.impl;
 
 import io.toolisticon.compiletesting.InvalidTestConfigurationException;
 import io.toolisticon.compiletesting.extension.api.AssertionSpiServiceLocator;
+import io.toolisticon.compiletesting.impl.java9.ModuleFinderWrapper;
+import io.toolisticon.compiletesting.impl.java9.StandardJavaFileManagerBridge;
 
 import javax.tools.Diagnostic;
 import javax.tools.DiagnosticCollector;
@@ -12,8 +14,13 @@ import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.StandardLocation;
 import javax.tools.ToolProvider;
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -216,16 +223,70 @@ public class CompileTest {
         StandardJavaFileManager stdJavaFileManager = compiler.getStandardFileManager(diagnostics, null, null);
 
 
+        Map<String, File> moduleToJarMap = new HashMap<String, File>();
+
         // Set java 9 module path if modules have been set - do it via reflection to be compatible with older java version
         if (compileTestConfiguration.getModules() != null) {
             try {
-                // will throw IllegalArgumentException for < Java 9
-                Method method = StandardJavaFileManager.class.getMethod("setLocation", JavaFileManager.Location.class, Iterable.class);
-                method.invoke(stdJavaFileManager, (JavaFileManager.Location) StandardLocation.valueOf("MODULE_PATH"), (Iterable) CompileTestUtilities.getJarsFromClasspath());
+
+
+                List<File> files = CompileTestUtilities.getJarsFromClasspath();
+
+                //StandardJavaFileManagerBridge.setLocation(stdJavaFileManager, (JavaFileManager.Location) StandardLocation.valueOf("MODULE_PATH"), files);
+
+
+
+                for (File file : files) {
+
+
+
+
+
+                    //JavaFileManager.Location modulePathLocation = (JavaFileManager.Location) StandardLocation.valueOf("MODULE_PATH"); //
+
+                    //StandardJavaFileManagerBridge.setLocation(stdJavaFileManager, (JavaFileManager.Location) StandardLocation.valueOf("MODULE_PATH"), files);
+
+
+                    String moduleName = ModuleFinderWrapper.getModuleForJarFile(file);
+
+                    if (moduleName != null) {
+                        moduleToJarMap.put(moduleName, file);
+                    }
+
+/*-
+                    if (moduleName != null) {
+                        JavaFileManager.Location modulePathLocation = StandardJavaFileManagerBridge.getGetLocationForModule(stdJavaFileManager, (JavaFileManager.Location) StandardLocation.valueOf("MODULE_PATH"), moduleName);
+                        System.out.println("MODULE_PATH_LOCATION : " + modulePathLocation.toString());
+                        //StandardJavaFileManagerBridge.setLocationForModule(stdJavaFileManager, modulePathLocation, moduleName, FileBrigde.toPath(file.getParentFile()));
+                        StandardJavaFileManagerBridge.setLocation(stdJavaFileManager, modulePathLocation, Arrays.asList(file));
+                    } else {
+                        System.out.println("DIDN'T FOUND MODULE NAME FOR : " + file.getAbsolutePath());
+                    }
+                    */
+
+
+                }
+
+/*-
+                System.out.println("MODULES....");
+
+                for (Set<JavaFileManager.Location> locations : StandardJavaFileManagerBridge.listLocationsForModules​(stdJavaFileManager, (JavaFileManager.Location) StandardLocation.valueOf("MODULE_PATH"))) {
+
+                    for (JavaFileManager.Location location : locations) {
+
+                        System.out.println(location.toString() + " := " + StandardJavaFileManagerBridge.inferModuleName(stdJavaFileManager, location));
+
+                    }
+
+                }
+                */
+
             } catch (Exception e) {
                 // ignore => only thrown for java <9
                 e.printStackTrace();
             }
+
+
         }
 
 
@@ -259,6 +320,20 @@ public class CompileTest {
         if (compileTestConfiguration.getModules() != null) {
             try {
 
+                List<File> files = new ArrayList<File>();
+                for (String module : compileTestConfiguration.getModules()) {
+
+                    File moduleFile = moduleToJarMap.get(module);
+                    if (moduleFile != null) {
+                        files.add(moduleFile);
+                    }
+
+                }
+                StandardJavaFileManagerBridge.setLocation(stdJavaFileManager, (JavaFileManager.Location) StandardLocation.valueOf("MODULE_PATH"), files);
+
+
+
+                System.out.println("SET ADD_MODULES : " + compileTestConfiguration.getModules().toString());
                 Method method = JavaCompiler.CompilationTask.class.getMethod("addModules", Iterable.class);
                 method.invoke(compilationTask, compileTestConfiguration.getModules());
 

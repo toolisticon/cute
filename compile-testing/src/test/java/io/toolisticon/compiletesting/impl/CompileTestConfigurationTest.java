@@ -294,6 +294,17 @@ public class CompileTestConfigurationTest {
     }
 
     @Test
+    public void useModulesChecks() {
+        unit.addModules("A", "B", "C");
+        unit.addModules("D");
+
+
+        // do assertion
+        MatcherAssert.assertThat(unit.getModules(), Matchers.containsInAnyOrder("A", "B", "C", "D"));
+    }
+
+
+    @Test
     public void cloneConfiguration_cloneConfiguration() {
 
         sourceFiles_addAndGet();
@@ -307,6 +318,7 @@ public class CompileTestConfigurationTest {
         errorMessageCheck_setAndGet();
         generatedJavaFileObjectChecks_addAndGet();
         generatedFileObjectChecks_addAndGet();
+        modules_addAndGet();
 
         CompileTestConfiguration clonedConfiguration = CompileTestConfiguration.cloneConfiguration(unit);
 
@@ -321,6 +333,7 @@ public class CompileTestConfigurationTest {
         assertMessages(clonedConfiguration.getErrorMessageCheck());
         assertGeneratedJavaFileObjectChecks(clonedConfiguration);
         assertGeneratedFileObjectChecks(clonedConfiguration);
+        assertModules(clonedConfiguration);
 
     }
 
