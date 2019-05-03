@@ -12,9 +12,10 @@ jdk:
 - oraclejdk9
 - oraclejdk11
 - openjdk10
-install: mvn install -DskipTests=true -q
+
+install: ./mvnw install -DskipTests=true -q
 script: 
-- mvn verify -B -q
+- ./mvnw verify -B -q
 
 after_success: 
 - bash <(curl -s https://codecov.io/bash)
