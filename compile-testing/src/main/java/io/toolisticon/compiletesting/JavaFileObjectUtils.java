@@ -1,5 +1,7 @@
 package io.toolisticon.compiletesting;
 
+import io.toolisticon.compiletesting.impl.CommonUtilities;
+
 import javax.tools.SimpleJavaFileObject;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -10,7 +12,6 @@ import java.io.StringBufferInputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.Random;
 
 /**
  * Utility class to create JavaFileObjects and therefore also FileObjects.
@@ -63,6 +64,8 @@ public class JavaFileObjectUtils {
      */
     public static class JavaSourceFromResource extends SimpleJavaFileObject {
 
+        private final static String JAVA_COMPATIBILTY_FILE_ENDING_SUFFIX = ".ct";
+
         private final Class<?> relativeLocationRoot;
         private final String location;
 
@@ -74,7 +77,7 @@ public class JavaFileObjectUtils {
 
         private JavaSourceFromResource(String location, Class<?> relativeLocationRoot) {
 
-            super(URI.create("resource:///" + location), Kind.SOURCE);
+            super(URI.create("resource:///" + (location.endsWith(".java" + JAVA_COMPATIBILTY_FILE_ENDING_SUFFIX) ? location.substring(0, location.length() - JAVA_COMPATIBILTY_FILE_ENDING_SUFFIX.length()) : location)), Kind.SOURCE);
             this.relativeLocationRoot = relativeLocationRoot;
             this.location = location;
 
@@ -136,7 +139,12 @@ public class JavaFileObjectUtils {
 
 
     /**
-     * Read a java source file from resurces.
+     * Read a java source file from resources.
+     * <p>
+     * Some IDEs like Eclipse don't like resource files ending with *.java.
+     * In this case extend the file name by ".ct" suffix (f.e. "JavaClass.java.ct").
+     * The suffix will be ignored for looking up files via the compile test file manager.
+     * *
      *
      * @param location             the location
      * @param relativeLocationRoot relative location root class
@@ -153,7 +161,11 @@ public class JavaFileObjectUtils {
 
     /**
      * Read a java source file from resources.
-     * Passed location will be handled as absolute path
+     * Passed location will be handled as absolute path and will be used to both read resource and as location in compile test file manager.
+     * <p>
+     * Some IDEs like Eclipse don't like resource files ending with *.java.
+     * In this case extend the file name by ".ct" suffix (f.e. "JavaClass.java.ct").
+     * The suffix will be ignored for looking up files via the compile test file manager.
      *
      * @param location the location
      * @return The SimpleJavaFileObject for resource
@@ -198,24 +210,11 @@ public class JavaFileObjectUtils {
     public static SimpleJavaFileObject readFromString(String content) {
 
         // create a random location
-        String location = "string_" + getRandomString(6);
+        String location = "string_" + CommonUtilities.getRandomString(6);
 
         return readFromString(location, content);
     }
 
-    protected static String getRandomString(int length) {
-
-        int leftLimit = 97; // letter 'a'
-        int rightLimit = 122; // letter 'z'
-        Random random = new Random();
-        StringBuilder buffer = new StringBuilder(length);
-        for (int i = 0; i < length; i++) {
-            int randomLimitedInt = leftLimit + (int)
-                    (random.nextFloat() * (rightLimit - leftLimit + 1));
-            buffer.append((char) randomLimitedInt);
-        }
-        return buffer.toString();
-    }
 
     /**
      * Read a java source file from resurces.
