@@ -55,6 +55,26 @@ public class CompileTestBuilder {
             return createNextInstance(nextConfiguration);
         }
 
+        /**
+         * Defines modules used during compilation.
+         * This configuration will be ignored for Java versions < 9.
+         *
+         * @param modules The modules to use during compilation
+         * @return the next builder instance
+         */
+        public T useModules(String... modules) {
+
+            CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
+
+            if (modules != null) {
+
+                nextConfiguration.addModules(modules);
+
+            }
+
+            return createNextInstance(nextConfiguration);
+        }
+
 
         /**
          * Adds some warning checks.
@@ -123,8 +143,8 @@ public class CompileTestBuilder {
         /**
          * Adds a check if a specific generated FileObject exists.
          *
-         * @param location the location (usually a {@link javax.tools.StandardLocation})
-         * @param packageName the package name
+         * @param location     the location (usually a {@link javax.tools.StandardLocation})
+         * @param packageName  the package name
          * @param relativeName the relative name to the passed package
          * @return the next builder instance
          */
@@ -136,9 +156,9 @@ public class CompileTestBuilder {
          * Adds a check if a specific generated FileObject exists.
          * Additionally checks if files are equal if passed expectedFileObject is not null.
          *
-         * @param location the location (usually from javax.tools.StandardLocation)
-         * @param packageName the package name
-         * @param relativeName the package relative name
+         * @param location           the location (usually from javax.tools.StandardLocation)
+         * @param packageName        the package name
+         * @param relativeName       the package relative name
          * @param expectedFileObject the file used for comparision of content
          * @return the next builder instance
          */
@@ -158,9 +178,9 @@ public class CompileTestBuilder {
          * Adds a check if a specific generated FileObject exists.
          * Additionally checks if file object matches with passed matcher.
          *
-         * @param location the location (usually from javax.tools.StandardLocation)
-         * @param packageName the package name
-         * @param relativeName the package relative name
+         * @param location                   the location (usually from javax.tools.StandardLocation)
+         * @param packageName                the package name
+         * @param relativeName               the package relative name
          * @param generatedFileObjectMatcher the matcher to use
          * @return the next builder instance
          */
@@ -179,9 +199,9 @@ public class CompileTestBuilder {
         /**
          * Adds a check if a specific generated JavaFileObject exists.
          *
-         * @param location the location (usually from javax.tools.StandardLocation)
+         * @param location  the location (usually from javax.tools.StandardLocation)
          * @param className the class name
-         * @param kind the kind of the JavaFileObject
+         * @param kind      the kind of the JavaFileObject
          * @return the next builder instance
          */
         public T expectedJavaFileObjectExists(JavaFileManager.Location location, String className, JavaFileObject.Kind kind) {
@@ -192,9 +212,9 @@ public class CompileTestBuilder {
          * Adds a check if a specific generated JavaFileObject exists.
          * Additionally checks if files are equal if passed expectedJavaFileObject is not null.
          *
-         * @param location the location (usually from javax.tools.StandardLocation)
-         * @param className the class name
-         * @param kind the kind of the JavaFileObject
+         * @param location               the location (usually from javax.tools.StandardLocation)
+         * @param className              the class name
+         * @param kind                   the kind of the JavaFileObject
          * @param expectedJavaFileObject the file used for comparision of content
          * @return the next builder instance
          */
@@ -214,9 +234,9 @@ public class CompileTestBuilder {
          * Adds a check if a specific generated JavaFileObject exists.
          * Additionally checks if java file object matches with passed matcher.
          *
-         * @param location the location (usually a {@link javax.tools.StandardLocation})
-         * @param className the class name
-         * @param kind the kind of the JavaFileObject
+         * @param location                     the location (usually a {@link javax.tools.StandardLocation})
+         * @param className                    the class name
+         * @param kind                         the kind of the JavaFileObject
          * @param generatedJavaFileObjectCheck the matcher to use
          * @return the next builder instance
          */

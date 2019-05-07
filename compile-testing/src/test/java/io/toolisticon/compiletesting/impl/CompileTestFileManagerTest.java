@@ -1,6 +1,5 @@
 package io.toolisticon.compiletesting.impl;
 
-import io.toolisticon.compiletesting.impl.CompileTestFileManager;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
 import org.junit.Test;
@@ -10,7 +9,6 @@ import javax.tools.FileObject;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.StandardLocation;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Writer;
 import java.net.URI;
@@ -75,7 +73,7 @@ public class CompileTestFileManagerTest {
     public void test_InMemoryOutputJavaFileObject_setContent() throws IOException, URISyntaxException {
 
         CompileTestFileManager compileTestFileManager = new CompileTestFileManager(standardJavaFileManager);
-        CompileTestFileManager.InMemoryOutputJavaFileObject unit = new CompileTestFileManager. InMemoryOutputJavaFileObject(new URI("string://abc"), JavaFileObject.Kind.OTHER);
+        CompileTestFileManager.InMemoryOutputJavaFileObject unit = new CompileTestFileManager.InMemoryOutputJavaFileObject(new URI("string://abc"), JavaFileObject.Kind.OTHER);
 
         unit.setContent("ABC".getBytes());
 
@@ -87,7 +85,7 @@ public class CompileTestFileManagerTest {
     public void test_InMemoryOutputJavaFileObject_openReader() throws IOException, URISyntaxException {
 
         CompileTestFileManager compileTestFileManager = new CompileTestFileManager(standardJavaFileManager);
-        CompileTestFileManager.InMemoryOutputJavaFileObject unit = new CompileTestFileManager. InMemoryOutputJavaFileObject(new URI("string://abc"), JavaFileObject.Kind.OTHER);
+        CompileTestFileManager.InMemoryOutputJavaFileObject unit = new CompileTestFileManager.InMemoryOutputJavaFileObject(new URI("string://abc"), JavaFileObject.Kind.OTHER);
 
         unit.setContent("ABC".getBytes());
 
@@ -163,7 +161,7 @@ public class CompileTestFileManagerTest {
 
     }
 
-    @Test(expected = FileNotFoundException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void test_CompileTestFileManager_getFileForInput_nonExistingFile() throws IOException {
 
         CompileTestFileManager unit = new CompileTestFileManager(standardJavaFileManager);
@@ -193,7 +191,7 @@ public class CompileTestFileManagerTest {
     }
 
 
-    @Test(expected = FileNotFoundException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void test_CompileTestFileManager_getJavaFileForInput_nonExistingFile() throws IOException {
 
         CompileTestFileManager unit = new CompileTestFileManager(standardJavaFileManager);
@@ -222,7 +220,6 @@ public class CompileTestFileManagerTest {
 
 
     }
-
 
 
 }

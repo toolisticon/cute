@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>extension-parent</artifactId>
@@ -10,7 +11,7 @@
         <version>0.4.2-SNAPSHOT</version>
     </parent>
 
-    <name>example-parent</name>
+    <name>extension-parent</name>
 
     <modules>
         <module>api</module>
@@ -25,11 +26,22 @@
         <profile>
             <id>java-8</id>
             <activation>
-                <jdk>1.8</jdk>
+                <jdk>[1.8,)</jdk>
             </activation>
 
             <modules>
                 <module>junit5</module>
+            </modules>
+
+        </profile>
+        <profile>
+            <id>java-9</id>
+            <activation>
+                <jdk>[9,)</jdk>
+            </activation>
+
+            <modules>
+                <module>modulesupport</module>
             </modules>
 
         </profile>

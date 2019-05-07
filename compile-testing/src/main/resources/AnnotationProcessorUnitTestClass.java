@@ -1,4 +1,4 @@
-package io.toolisticon.compiletesting;
+package io.toolisticon.compiletesting.test;
 
 import io.toolisticon.compiletesting.TestAnnotation;
 

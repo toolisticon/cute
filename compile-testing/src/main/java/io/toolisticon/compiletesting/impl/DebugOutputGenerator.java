@@ -1,5 +1,7 @@
 package io.toolisticon.compiletesting.impl;
 
+import io.toolisticon.compiletesting.extension.api.ModuleSupportSpiServiceLocator;
+
 import javax.tools.Diagnostic;
 import javax.tools.FileObject;
 import java.io.File;
@@ -9,7 +11,6 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.List;
-import java.util.Random;
 import java.util.Set;
 
 /**
@@ -56,6 +57,14 @@ final class DebugOutputGenerator {
 
         // Compile test configuration
         stringBuilder.append(getDebugOutputHeader("COMPILE TEST CONFIGURATION")).append(compileTestConfiguration.toString());
+
+        if (!Java9SupportCheck.UNSUPPORTED_JAVA_VERSION && compileTestConfiguration.getModules() != null) {
+
+            stringBuilder.append(getDebugOutputHeader("MODULE PATH"));
+            ModuleSupportSpiServiceLocator.locate().writeModuleDebugOutput(stringBuilder);
+
+        }
+
 
         return stringBuilder.toString();
 
@@ -104,9 +113,6 @@ final class DebugOutputGenerator {
         return stringBuilder.toString();
 
     }
-
-
-
 
 
     private static <FILE_OBJECT extends FileObject> String createGeneratedFileObjectOverview(List<FILE_OBJECT> fileObjects) {

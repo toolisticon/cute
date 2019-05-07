@@ -2,16 +2,16 @@ package io.toolisticon.compiletesting.impl;
 
 import io.toolisticon.compiletesting.InvalidTestConfigurationException;
 import io.toolisticon.compiletesting.extension.api.AssertionSpiServiceLocator;
+import io.toolisticon.compiletesting.extension.api.ModuleSupportSpiServiceLocator;
 
 import javax.tools.Diagnostic;
 import javax.tools.DiagnosticCollector;
 import javax.tools.FileObject;
 import javax.tools.JavaCompiler;
 import javax.tools.JavaFileObject;
+import javax.tools.StandardJavaFileManager;
 import javax.tools.ToolProvider;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.Set;
 
 /**
@@ -211,14 +211,24 @@ public class CompileTest {
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
         DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<JavaFileObject>();
 
-        CompileTestFileManager javaFileManager = new CompileTestFileManager(compiler.getStandardFileManager(diagnostics, null, null));
+        StandardJavaFileManager stdJavaFileManager = compiler.getStandardFileManager(diagnostics, null, null);
+
+
+        // Configure java compilation task
+        CompileTestFileManager javaFileManager = new CompileTestFileManager(stdJavaFileManager);
 
         JavaCompiler.CompilationTask compilationTask = compiler.getTask(null, javaFileManager, diagnostics, null, null, compileTestConfiguration.getSourceFiles());
-
         compilationTask.setProcessors(compileTestConfiguration.getWrappedProcessors());
+
+        // handle java 9 module support via SPI to be backward compatible with older Java versions prior to java 9
+        if (!Java9SupportCheck.UNSUPPORTED_JAVA_VERSION) {
+            ModuleSupportSpiServiceLocator.locate().applyModulePath(stdJavaFileManager, compilationTask, compileTestConfiguration.getModules());
+        }
+
         Boolean compilationSucceeded = compilationTask.call();
 
         return new CompilationResult(compilationSucceeded, diagnostics, javaFileManager);
+
     }
 
     /**

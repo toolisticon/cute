@@ -13,7 +13,7 @@ jdk:
 - oraclejdk11
 - openjdk10
 
-install: ./mvnw install -DskipTests=true -q
+install: ./mvnw clean install -DskipTests=true -q
 script: 
 - ./mvnw verify -B -q
 

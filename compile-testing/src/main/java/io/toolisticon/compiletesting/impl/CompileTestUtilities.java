@@ -1,5 +1,6 @@
 package io.toolisticon.compiletesting.impl;
 
+
 import javax.annotation.processing.Processor;
 import javax.tools.Diagnostic;
 import javax.tools.DiagnosticCollector;
@@ -82,5 +83,6 @@ final class CompileTestUtilities {
         return filteredDiagnostics;
 
     }
+
 
 }

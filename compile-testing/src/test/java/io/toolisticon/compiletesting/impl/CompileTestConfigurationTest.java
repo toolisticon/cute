@@ -136,6 +136,22 @@ public class CompileTestConfigurationTest {
     }
 
     @Test
+    public void modules_addAndGet() {
+
+        unit.addModules("spiap.api", "java.compiler");
+        unit.addModules("java.base");
+
+
+        // do assertion
+        assertModules(unit);
+
+    }
+
+    private void assertModules(CompileTestConfiguration configuration) {
+        MatcherAssert.assertThat(configuration.getModules(), Matchers.containsInAnyOrder("spiap.api", "java.compiler", "java.base"));
+    }
+
+    @Test
     public void expectedThrownException_setAndGet() {
 
         unit.setExpectedThrownException(expectedThrownException);
@@ -278,6 +294,17 @@ public class CompileTestConfigurationTest {
     }
 
     @Test
+    public void useModulesChecks() {
+        unit.addModules("A", "B", "C");
+        unit.addModules("D");
+
+
+        // do assertion
+        MatcherAssert.assertThat(unit.getModules(), Matchers.containsInAnyOrder("A", "B", "C", "D"));
+    }
+
+
+    @Test
     public void cloneConfiguration_cloneConfiguration() {
 
         sourceFiles_addAndGet();
@@ -291,6 +318,7 @@ public class CompileTestConfigurationTest {
         errorMessageCheck_setAndGet();
         generatedJavaFileObjectChecks_addAndGet();
         generatedFileObjectChecks_addAndGet();
+        modules_addAndGet();
 
         CompileTestConfiguration clonedConfiguration = CompileTestConfiguration.cloneConfiguration(unit);
 
@@ -305,6 +333,7 @@ public class CompileTestConfigurationTest {
         assertMessages(clonedConfiguration.getErrorMessageCheck());
         assertGeneratedJavaFileObjectChecks(clonedConfiguration);
         assertGeneratedFileObjectChecks(clonedConfiguration);
+        assertModules(clonedConfiguration);
 
     }
 
@@ -358,6 +387,21 @@ public class CompileTestConfigurationTest {
         Set<AnnotationProcessorWrapper> currentCache = unit.getWrappedProcessors();
 
         MatcherAssert.assertThat("Subsequent calls to get wrapped processors should return same cache set!!!", currentCache == previousCache);
+
+    }
+
+    @Test
+    public void wrappedModulesCacheIsResetCorrectly_addProcessors() {
+
+        processorTypes_addAndGet();
+
+        Set<AnnotationProcessorWrapper> previousCache = unit.getWrappedProcessors();
+
+        processors_addAndGet();
+
+        Set<AnnotationProcessorWrapper> currentCache = unit.getWrappedProcessors();
+        MatcherAssert.assertThat("Cache instances must not match!!!", currentCache != previousCache);
+
 
     }
 
