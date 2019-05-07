@@ -25,18 +25,6 @@ public class IntegrationTest {
 
     }
 
-    @Test
-    public void testBindRegularJavaModule_WithoutUseModule() {
-
-        CompileTestBuilder
-                .compilationTest()
-                .addSources(
-                        JavaFileObjectUtils.readFromResource("/testcases/bindRegularJavaModule/Test.java"),
-                        JavaFileObjectUtils.readFromResource("/testcases/bindRegularJavaModule/module-info.java"))
-                .compilationShouldSucceed()
-                .testCompilation();
-
-    }
 
     @Test
     public void testBindRegularJavaModule_accessNotExportedClass() {
