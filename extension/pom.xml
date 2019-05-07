@@ -11,7 +11,7 @@
         <version>0.4.2-SNAPSHOT</version>
     </parent>
 
-    <name>example-parent</name>
+    <name>extension-parent</name>
 
     <modules>
         <module>api</module>
