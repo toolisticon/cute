@@ -1,6 +1,6 @@
 package io.toolisticon.compiletesting.impl;
 
-import io.toolisticon.compiletesting.impl.java9.ModuleFinderWrapper;
+import io.toolisticon.compiletesting.extension.api.ModuleSupportSpiServiceLocator;
 
 import javax.tools.Diagnostic;
 import javax.tools.FileObject;
@@ -11,7 +11,6 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.List;
-import java.util.Random;
 import java.util.Set;
 
 /**
@@ -59,19 +58,10 @@ final class DebugOutputGenerator {
         // Compile test configuration
         stringBuilder.append(getDebugOutputHeader("COMPILE TEST CONFIGURATION")).append(compileTestConfiguration.toString());
 
-        if (compileTestConfiguration.getModules() != null) {
-            stringBuilder.append(getDebugOutputHeader("MODULE PATH"));
+        if (!Java9SupportCheck.UNSUPPORTED_JAVA_VERSION && compileTestConfiguration.getModules() != null) {
 
-            int i = 0;
-            for (File file : CompileTestUtilities.getJarsFromClasspath()) {
-                stringBuilder.append("[")
-                        .append(i++)
-                        .append("|")
-                        .append(ModuleFinderWrapper.getModuleForJarFile(file))
-                        .append("] := '")
-                        .append(file.getAbsolutePath())
-                        .append("'\n");
-            }
+            stringBuilder.append(getDebugOutputHeader("MODULE PATH"));
+            ModuleSupportSpiServiceLocator.locate().writeModuleDebugOutput(stringBuilder);
 
         }
 
@@ -123,9 +113,6 @@ final class DebugOutputGenerator {
         return stringBuilder.toString();
 
     }
-
-
-
 
 
     private static <FILE_OBJECT extends FileObject> String createGeneratedFileObjectOverview(List<FILE_OBJECT> fileObjects) {

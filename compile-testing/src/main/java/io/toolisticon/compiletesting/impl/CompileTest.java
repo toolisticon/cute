@@ -2,25 +2,16 @@ package io.toolisticon.compiletesting.impl;
 
 import io.toolisticon.compiletesting.InvalidTestConfigurationException;
 import io.toolisticon.compiletesting.extension.api.AssertionSpiServiceLocator;
-import io.toolisticon.compiletesting.impl.java9.ModuleFinderWrapper;
-import io.toolisticon.compiletesting.impl.java9.StandardJavaFileManagerBridge;
+import io.toolisticon.compiletesting.extension.api.ModuleSupportSpiServiceLocator;
 
 import javax.tools.Diagnostic;
 import javax.tools.DiagnosticCollector;
 import javax.tools.FileObject;
 import javax.tools.JavaCompiler;
-import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
-import javax.tools.StandardLocation;
 import javax.tools.ToolProvider;
-import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -223,63 +214,15 @@ public class CompileTest {
         StandardJavaFileManager stdJavaFileManager = compiler.getStandardFileManager(diagnostics, null, null);
 
 
-        // get a map for lookup of jar files by module name
-        Map<String, File> moduleToJarMap = new HashMap<String, File>();
-        if (compileTestConfiguration.getModules() != null) {
-            try {
-
-
-                List<File> files = CompileTestUtilities.getJarsFromClasspath();
-
-                for (File file : files) {
-
-                    String moduleName = ModuleFinderWrapper.getModuleForJarFile(file);
-
-                    if (moduleName != null) {
-                        moduleToJarMap.put(moduleName, file);
-                    }
-
-                }
-
-
-            } catch (Exception e) {
-                // ignore => only thrown for java <9
-                e.printStackTrace();
-            }
-
-
-        }
-
-
         // Configure java compilation task
         CompileTestFileManager javaFileManager = new CompileTestFileManager(stdJavaFileManager);
 
         JavaCompiler.CompilationTask compilationTask = compiler.getTask(null, javaFileManager, diagnostics, null, null, compileTestConfiguration.getSourceFiles());
         compilationTask.setProcessors(compileTestConfiguration.getWrappedProcessors());
 
-        // handle java 9 modules via reflection to maintain backward compatibility
-        if (compileTestConfiguration.getModules() != null) {
-            try {
-
-                List<File> files = new ArrayList<File>();
-                for (String module : compileTestConfiguration.getModules()) {
-
-                    File moduleFile = moduleToJarMap.get(module);
-                    if (moduleFile != null) {
-                        files.add(moduleFile);
-                    }
-
-                }
-                StandardJavaFileManagerBridge.setLocation(stdJavaFileManager, (JavaFileManager.Location) StandardLocation.valueOf("MODULE_PATH"), files);
-
-                Method method = JavaCompiler.CompilationTask.class.getMethod("addModules", Iterable.class);
-                method.invoke(compilationTask, compileTestConfiguration.getModules());
-
-            } catch (Exception e) {
-                // method not found or access issues ==> java version <9
-                // ignore => only thrown for java <9
-                e.printStackTrace();
-            }
+        // handle java 9 module support via SPI to be backward compatible with older Java versions prior to java 9
+        if (!Java9SupportCheck.UNSUPPORTED_JAVA_VERSION) {
+            ModuleSupportSpiServiceLocator.locate().applyModulePath(stdJavaFileManager, compilationTask, compileTestConfiguration.getModules());
         }
 
         Boolean compilationSucceeded = compilationTask.call();

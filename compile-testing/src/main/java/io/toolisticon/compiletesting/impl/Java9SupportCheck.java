@@ -1,4 +1,4 @@
-package io.toolisticon.compiletesting.impl.java9;
+package io.toolisticon.compiletesting.impl;
 
 /**
  * Utility class to check if java 9 api is unsupported.
@@ -8,7 +8,7 @@ public final class Java9SupportCheck {
     /**
      * Constant to check if JAVA 9 API is unsupported.
      */
-    final static boolean UNSUPPORTED_JAVA_VERSION;
+    public final static boolean UNSUPPORTED_JAVA_VERSION;
 
     static {
 

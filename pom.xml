@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>io.toolisticon.compiletesting</groupId>
@@ -52,7 +53,7 @@
     <inceptionYear>2018</inceptionYear>
 
     <prerequisites>
-        <maven>3.0.4</maven>
+        <maven>3.6.0</maven>
     </prerequisites>
 
 
@@ -359,6 +360,13 @@
                         <artifactId>animal-sniffer-maven-plugin</artifactId>
                         <version>${animal-sniffer-maven-plugin.version}</version>
 
+                        <configuration>
+                            <excludeDependencies>
+                                <excludeDependency>io.toolisticon.compiletesting:extension-modulesupport:*
+                                </excludeDependency>
+                            </excludeDependencies>
+                        </configuration>
+
 
                         <executions>
 
@@ -410,11 +418,17 @@
                         <artifactId>animal-sniffer-maven-plugin</artifactId>
                         <version>1.16</version>
 
+                        <configuration>
+                            <excludeDependencies>
+                                <excludeDependency>io.toolisticon.compiletesting:extension-modulesupport:*
+                                </excludeDependency>
+                            </excludeDependencies>
+                        </configuration>
 
                         <executions>
 
                             <execution>
-                                <id>check_biggerThanJava17</id>
+                                <id>check_biggerThanJava18</id>
 
                                 <phase>test</phase>
 
@@ -429,6 +443,7 @@
                                         <artifactId>java16</artifactId>
                                         <version>1.0</version>
                                     </signature>
+
 
                                 </configuration>
 
