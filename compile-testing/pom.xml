@@ -137,7 +137,6 @@
                 <dependency>
                     <groupId>io.toolisticon.compiletesting</groupId>
                     <artifactId>extension-modulesupport</artifactId>
-                    <version>${project.version}</version>
                 </dependency>
             </dependencies>
 

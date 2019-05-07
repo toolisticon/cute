@@ -33,8 +33,22 @@ public class IntegrationTest {
                 .addSources(
                         JavaFileObjectUtils.readFromResource("/testcases/bindRegularJavaModule/Test.java"),
                         JavaFileObjectUtils.readFromResource("/testcases/bindRegularJavaModule/module-info.java"))
-                .useModules("io.toolisticon.compiletesting.integrationtest.java9.regularmodule")
                 .compilationShouldSucceed()
+                .testCompilation();
+
+    }
+
+    @Test
+    public void testBindRegularJavaModule_accessNotExportedClass() {
+
+        CompileTestBuilder
+                .compilationTest()
+                .addSources(
+                        JavaFileObjectUtils.readFromResource("/testcases/accessNotExportedClass/Test.java"),
+                        JavaFileObjectUtils.readFromResource("/testcases/accessNotExportedClass/module-info.java"))
+                .useModules("io.toolisticon.compiletesting.integrationtest.java9.regularmodule")
+                .compilationShouldFail()
+                .expectedErrorMessages("io.toolisticon.compiletesting.integrationtest.java9.regularmodule.notexported", "is not visible")
                 .testCompilation();
 
     }
