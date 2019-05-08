@@ -221,6 +221,8 @@ public class JavaFileObjectUtils {
      *
      * @param url the location
      * @return The SimpleJavaFileObject for passed URL
+     * @throws URISyntaxException       if passed url cannot be converted into URI
+     * @throws IllegalArgumentException if passed url is null
      */
     public static SimpleJavaFileObject readFromUrl(URL url) throws URISyntaxException {
 

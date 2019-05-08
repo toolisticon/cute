@@ -442,6 +442,7 @@ public class CompileTestConfiguration {
 
     /**
      * Clone constructor.
+     * @param source the source configuration to clone froms
      */
     protected CompileTestConfiguration(CompileTestConfiguration source) {
 
@@ -489,7 +490,7 @@ public class CompileTestConfiguration {
      * This method should only be used for unit compile tests.
      * Sharing instance between test runs can cause undeterministic behavior.
      *
-     * @param processors
+     * @param processors the processors to use
      */
     public void addProcessors(Processor... processors) {
 

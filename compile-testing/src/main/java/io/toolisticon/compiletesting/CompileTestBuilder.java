@@ -57,7 +57,7 @@ public class CompileTestBuilder {
 
         /**
          * Defines modules used during compilation.
-         * This configuration will be ignored for Java versions < 9.
+         * This configuration will be ignored for Java versions &lt; 9.
          *
          * @param modules The modules to use during compilation
          * @return the next builder instance
@@ -306,7 +306,7 @@ public class CompileTestBuilder {
          * Adds processors.
          *
          * @param processorTypes the processor types to use, processors must have a noarg constructor
-         * @@return the CompilationTestBuilder instance
+         * @return the CompilationTestBuilder instance
          */
         public CompilationTestBuilder addProcessors(Class<? extends Processor>... processorTypes) {
 
@@ -445,6 +445,9 @@ public class CompileTestBuilder {
 
         /**
          * Sets an expected exception thrown in the unit test case.
+         *
+         * @param expectedException the exceptions expected to be thrown
+         * @return the UnitTestBuilder instance
          */
         public UnitTestBuilder expectedThrownException(Class<? extends Throwable> expectedException) {
 

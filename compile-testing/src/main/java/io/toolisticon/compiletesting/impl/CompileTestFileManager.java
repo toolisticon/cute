@@ -134,10 +134,10 @@ public class CompileTestFileManager extends ForwardingJavaFileManager<StandardJa
     /**
      * Checks if JavaFileObject for passed parameters exists.
      *
-     * @param location
-     * @param className
-     * @param kind
-     * @return
+     * @param location  the location to search in
+     * @param className the classname
+     * @param kind      the kind of java file object
+     * @return true if JavaFileObject exists, otherwise false
      */
     public boolean existsExpectedJavaFileObject(JavaFileManager.Location location, String className, JavaFileObject.Kind kind) {
 
@@ -148,10 +148,10 @@ public class CompileTestFileManager extends ForwardingJavaFileManager<StandardJa
     /**
      * Checks if JavaFileObject for passed parameters exists.
      *
-     * @param location
-     * @param packageName
-     * @param relativeName
-     * @return
+     * @param location     the location to search in
+     * @param packageName  The package name
+     * @param relativeName The name relative to the passed packageName to check for
+     * @return true if FileObject exists, otherwise false
      */
     public boolean existsExpectedFileObject(JavaFileManager.Location location, String packageName, String relativeName) {
 
