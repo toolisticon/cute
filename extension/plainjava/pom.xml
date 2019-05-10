@@ -43,7 +43,7 @@
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
-                        <Export-Package>io.toolisticon.compiletesting.extension.junit4</Export-Package>
+                        <Export-Package>io.toolisticon.compiletesting.extension.plainjava</Export-Package>
                     </instructions>
                 </configuration>
             </plugin>
