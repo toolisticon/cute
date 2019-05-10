@@ -7,7 +7,7 @@
     <parent>
         <groupId>io.toolisticon.compiletesting</groupId>
         <artifactId>integration-test-java9-parent</artifactId>
-        <version>0.5.0</version>
+        <version>0.5.1-SNAPSHOT</version>
     </parent>
 
     <name>integration-test-java9-unnamedAutomaticModule</name>
