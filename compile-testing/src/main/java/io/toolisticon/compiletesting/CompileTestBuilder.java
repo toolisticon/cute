@@ -2,6 +2,7 @@ package io.toolisticon.compiletesting;
 
 import io.toolisticon.compiletesting.impl.CompileTest;
 import io.toolisticon.compiletesting.impl.CompileTestConfiguration;
+import io.toolisticon.compiletesting.impl.UnitTestAnnotationProcessorClassForTestingAnnotationProcessors;
 import io.toolisticon.compiletesting.impl.UnitTestAnnotationProcessorClass;
 
 import javax.annotation.processing.Processor;
@@ -413,6 +414,42 @@ public class CompileTestBuilder {
             // remove existing processor
             nextConfiguration.getProcessors().clear();
             nextConfiguration.addProcessors(new UnitTestAnnotationProcessorClass(unitTestProcessor));
+
+            return createNextInstance(nextConfiguration);
+        }
+
+        /**
+         * Sets the processor to use.
+         * The processor should support {@link TestAnnotation} annotation processing if no custom source file is defined.
+         * If custom source is used make sure {@link TestAnnotation} is used somewhere in the custom source file to make sure if annotation processor is used.
+         *
+         * @param processorUnderTestClass
+         * @param unitTestProcessorForTestingAnnotationProcessors the processor to use
+         * @param <PROCESSOR_UNDER_TEST>       The processor type under test
+         * @return the UnitTestBuilder instance
+         * @throws IllegalArgumentException if passed processor is null.
+         */
+
+        public <PROCESSOR_UNDER_TEST extends Processor> UnitTestBuilder useProcessor(Class<PROCESSOR_UNDER_TEST> processorUnderTestClass, UnitTestProcessorForTestingAnnotationProcessors<PROCESSOR_UNDER_TEST> unitTestProcessorForTestingAnnotationProcessors) {
+
+            if (unitTestProcessorForTestingAnnotationProcessors == null) {
+                throw new IllegalArgumentException("passed unitTestProcessorForTestingAnnotationProcessors must not be null!");
+            }
+
+            CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
+
+            PROCESSOR_UNDER_TEST processorUnderTest = null;
+
+            try {
+                processorUnderTest = processorUnderTestClass.getDeclaredConstructor().newInstance();
+            } catch (Exception e) {
+                throw new IllegalArgumentException("useProcessor: Passed processor class under test " + (processorUnderTestClass == null ? "<NULL>" : processorUnderTestClass.getCanonicalName()) + " cannot be instanciated.");
+            }
+
+
+            // remove existing processor
+            nextConfiguration.getProcessors().clear();
+            nextConfiguration.addProcessors(new UnitTestAnnotationProcessorClassForTestingAnnotationProcessors<PROCESSOR_UNDER_TEST>(processorUnderTest, unitTestProcessorForTestingAnnotationProcessors));
 
             return createNextInstance(nextConfiguration);
         }

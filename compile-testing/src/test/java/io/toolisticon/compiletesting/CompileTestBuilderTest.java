@@ -3,7 +3,6 @@ package io.toolisticon.compiletesting;
 import io.toolisticon.compiletesting.common.SimpleTestProcessor1;
 import io.toolisticon.compiletesting.common.SimpleTestProcessor2;
 import io.toolisticon.compiletesting.impl.CompileTestConfiguration;
-import io.toolisticon.compiletesting.impl.UnitTestAnnotationProcessorClass;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
 import org.junit.Test;
@@ -57,6 +56,26 @@ public class CompileTestBuilderTest {
                 .expectedWarningMessages("WARNING")
                 .expectedMandatoryWarningMessages("MANDATORY_WARNING")
                 .expectedNoteMessages("NOTE")
+                .compilationShouldSucceed()
+                .testCompilation();
+
+
+    }
+
+
+    @Test
+    public void test_UnitTest_successfullCompilation_withInitializedProcessorUnderTest_build() {
+
+        CompileTestBuilder
+                .unitTest()
+                .useProcessor(SimpleTestProcessor1.class, new UnitTestProcessorForTestingAnnotationProcessors<SimpleTestProcessor1>() {
+                    @Override
+                    public void unitTest(SimpleTestProcessor1 unit, ProcessingEnvironment processingEnvironment, TypeElement typeElement) {
+
+                        MatcherAssert.assertThat(unit.getProcessingEnvironment(), Matchers.equalTo(processingEnvironment));
+
+                    }
+                })
                 .compilationShouldSucceed()
                 .testCompilation();
 
@@ -322,6 +341,39 @@ public class CompileTestBuilderTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
+    public void test_useProcessor_nonInstantiableConstructorForProcessorUnderTest() {
+
+
+        CompileTestBuilder.UnitTestBuilder builder = CompileTestBuilder
+                .unitTest()
+                .useProcessor(AbstractProcessor.class, new UnitTestProcessorForTestingAnnotationProcessors<AbstractProcessor>() {
+                    @Override
+                    public void unitTest(AbstractProcessor unit, ProcessingEnvironment processingEnvironment, TypeElement typeElement) {
+
+                    }
+                });
+
+
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void test_useProcessor_nullProcessorUnderTestClass() {
+
+
+        CompileTestBuilder.UnitTestBuilder builder = CompileTestBuilder
+                .unitTest()
+                .useProcessor(null, new UnitTestProcessorForTestingAnnotationProcessors<AbstractProcessor>() {
+                    @Override
+                    public void unitTest(AbstractProcessor unit, ProcessingEnvironment processingEnvironment, TypeElement typeElement) {
+
+                    }
+                });
+
+
+    }
+
+
+    @Test(expected = IllegalArgumentException.class)
     public void test_CompileTimeTestBuilder_useProcessorAndExpectException_addNullValuedProcessor() {
 
         CompileTestBuilder
@@ -349,36 +401,34 @@ public class CompileTestBuilderTest {
     }
 
 /**
-    public static class ModuleAP extends UnitTestAnnotationProcessorClass {
-        public ModuleAP() {
-            super(new UnitTestProcessor() {
-                @Override
-                public void unitTest(ProcessingEnvironment processingEnvironment, TypeElement typeElement) {
+ public static class ModuleAP extends UnitTestAnnotationProcessorClass {
+ public ModuleAP() {
+ super(new UnitTestProcessor() {
+@Override public void unitTest(ProcessingEnvironment processingEnvironment, TypeElement typeElement) {
 
-                }
-            });
-        }
-    }
-
-
-    @Test
-    public void testCompilationOfModuleInfo() {
+}
+});
+ }
+ }
 
 
-        CompileTestBuilder.compilationTest()
-                .addSources(JavaFileObjectUtils.readFromString("module-info", "module compiletestingtest {\n" +
-                                "    exports io.toolisticon.compiletesting;\n" +
-                                "    requires java.compiler;\n" +
-                                "}")
-                        , JavaFileObjectUtils.readFromString("io/toolisticon/compiletesting/test/WTF", "package io.toolisticon.compiletesting.test;\n public class WTF{}")
-                        , JavaFileObjectUtils.readFromResource("AnnotationProcessorUnitTestClass.java")
-                )
-                .addProcessors(ModuleAP.class)
-                .useModules("java.compiler")
-                .compilationShouldSucceed()
-                .testCompilation();
+ @Test public void testCompilationOfModuleInfo() {
 
-    }
-*/
+
+ CompileTestBuilder.compilationTest()
+ .addSources(JavaFileObjectUtils.readFromString("module-info", "module compiletestingtest {\n" +
+ "    exports io.toolisticon.compiletesting;\n" +
+ "    requires java.compiler;\n" +
+ "}")
+ , JavaFileObjectUtils.readFromString("io/toolisticon/compiletesting/test/WTF", "package io.toolisticon.compiletesting.test;\n public class WTF{}")
+ , JavaFileObjectUtils.readFromResource("AnnotationProcessorUnitTestClass.java")
+ )
+ .addProcessors(ModuleAP.class)
+ .useModules("java.compiler")
+ .compilationShouldSucceed()
+ .testCompilation();
+
+ }
+ */
 
 }
