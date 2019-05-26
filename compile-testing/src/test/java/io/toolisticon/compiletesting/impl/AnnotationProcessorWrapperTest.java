@@ -298,7 +298,7 @@ public class AnnotationProcessorWrapperTest {
                     }))
                     .expectedThrownException(IllegalArgumentException.class)
                     .testCompilation();
-        } catch (Exception e) {
+        } catch (Throwable e) {
             MatcherAssert.assertThat(e.getMessage(), Matchers.containsString("Expected exception of type 'java.lang.IllegalArgumentException' but exception of type 'java.lang.IllegalStateException' was thrown instead"));
         }
 
@@ -316,7 +316,7 @@ public class AnnotationProcessorWrapperTest {
                         }
                     }))
                     .testCompilation();
-        } catch (Exception e) {
+        } catch (Throwable e) {
             MatcherAssert.assertThat(e.getMessage(), Matchers.containsString("An unexpected exception of type 'java.lang.IllegalStateException'"));
         }
 
