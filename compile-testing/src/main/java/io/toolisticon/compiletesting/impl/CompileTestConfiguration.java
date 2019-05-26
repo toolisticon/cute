@@ -199,7 +199,7 @@ public class CompileTestConfiguration {
                     }
                 }
 
-                // compare generatedFileObjectMatcher
+                // compare generatedFileObjectMatchers
                 if ((this.getGeneratedFileObjectMatcher() == null && otherObj.getGeneratedFileObjectMatcher() != null)
                         || (this.getGeneratedFileObjectMatcher() != null && otherObj.getGeneratedFileObjectMatcher() == null)) {
 
@@ -225,7 +225,7 @@ public class CompileTestConfiguration {
                     ",\n\t\t className='" + className + '\'' +
                     ",\n\t\t kind=" + kind +
                     ",\n\t\t expectedJavaFileObject=" + expectedJavaFileObject +
-                    ",\n\t\t generatedFileObjectMatcher=" + generatedFileObjectMatcher +
+                    ",\n\t\t generatedFileObjectMatchers=" + generatedFileObjectMatcher +
                     "\n\t" +
                     '}';
         }
@@ -237,18 +237,18 @@ public class CompileTestConfiguration {
         private final String packageName;
         private final String relativeName;
 
-        // either expectedFileObject or generatedFileObjectMatcher may be set not null
+        // either expectedFileObject or generatedFileObjectMatchers may be set not null
         private final FileObject expectedFileObject;
-        private final GeneratedFileObjectMatcher<FileObject> generatedFileObjectMatcher;
+        private final GeneratedFileObjectMatcher<FileObject>[] generatedFileObjectMatchers;
 
-        private GeneratedFileObjectCheck(JavaFileManager.Location location, String packageName, String relativeName, FileObject expectedFileObject, GeneratedFileObjectMatcher<FileObject> generatedFileObjectMatcher) {
+        private GeneratedFileObjectCheck(JavaFileManager.Location location, String packageName, String relativeName, FileObject expectedFileObject, GeneratedFileObjectMatcher<FileObject>[] generatedFileObjectMatchers) {
 
             this.location = location;
             this.packageName = packageName;
             this.relativeName = relativeName;
 
             this.expectedFileObject = expectedFileObject;
-            this.generatedFileObjectMatcher = generatedFileObjectMatcher;
+            this.generatedFileObjectMatchers = generatedFileObjectMatchers;
 
         }
 
@@ -257,8 +257,8 @@ public class CompileTestConfiguration {
             this(location, packageName, relativeName, expectedFileObject, null);
         }
 
-        public GeneratedFileObjectCheck(JavaFileManager.Location location, String packageName, String relativeName, GeneratedFileObjectMatcher<FileObject> generatedFileObjectMatcher) {
-            this(location, packageName, relativeName, null, generatedFileObjectMatcher);
+        public GeneratedFileObjectCheck(JavaFileManager.Location location, String packageName, String relativeName, GeneratedFileObjectMatcher<FileObject>[] generatedFileObjectMatchers) {
+            this(location, packageName, relativeName, null, generatedFileObjectMatchers);
         }
 
 
@@ -278,8 +278,8 @@ public class CompileTestConfiguration {
             return expectedFileObject;
         }
 
-        public GeneratedFileObjectMatcher<FileObject> getGeneratedFileObjectMatcher() {
-            return generatedFileObjectMatcher;
+        public GeneratedFileObjectMatcher<FileObject>[] getGeneratedFileObjectMatchers() {
+            return generatedFileObjectMatchers;
         }
 
         @Override
@@ -288,7 +288,7 @@ public class CompileTestConfiguration {
                     + (packageName != null ? packageName.hashCode() : 0)
                     + (relativeName != null ? relativeName.hashCode() : 0)
                     + (expectedFileObject != null ? expectedFileObject.hashCode() : 0)
-                    + (generatedFileObjectMatcher != null ? generatedFileObjectMatcher.hashCode() : 0);
+                    + (generatedFileObjectMatchers != null ? generatedFileObjectMatchers.hashCode() : 0);
         }
 
         @Override
@@ -346,14 +346,14 @@ public class CompileTestConfiguration {
                     }
                 }
 
-                // compare generatedFileObjectMatcher
-                if ((this.getGeneratedFileObjectMatcher() == null && otherObj.getGeneratedFileObjectMatcher() != null)
-                        || (this.getGeneratedFileObjectMatcher() != null && otherObj.getGeneratedFileObjectMatcher() == null)) {
+                // compare generatedFileObjectMatchers
+                if ((this.getGeneratedFileObjectMatchers() == null && otherObj.getGeneratedFileObjectMatchers() != null)
+                        || (this.getGeneratedFileObjectMatchers() != null && otherObj.getGeneratedFileObjectMatchers() == null)) {
 
                     return false;
 
-                } else if ((this.getGeneratedFileObjectMatcher() != null && otherObj.getGeneratedFileObjectMatcher() != null)) {
-                    if (!this.getGeneratedFileObjectMatcher().equals(otherObj.getGeneratedFileObjectMatcher())) {
+                } else if ((this.getGeneratedFileObjectMatchers() != null && otherObj.getGeneratedFileObjectMatchers() != null)) {
+                    if (!this.getGeneratedFileObjectMatchers().equals(otherObj.getGeneratedFileObjectMatchers())) {
                         return false;
                     }
                 }
@@ -371,7 +371,7 @@ public class CompileTestConfiguration {
                     ",\n\t\t packageName='" + packageName + '\'' +
                     ",\n\t\t relativeName='" + relativeName + '\'' +
                     ",\n\t\t expectedFileObject=" + expectedFileObject +
-                    ",\n\t\t generatedFileObjectMatcher=" + generatedFileObjectMatcher +
+                    ",\n\t\t generatedFileObjectMatchers=" + generatedFileObjectMatchers +
                     "\n\t" +
                     '}';
         }
@@ -442,9 +442,10 @@ public class CompileTestConfiguration {
 
     /**
      * Clone constructor.
+     *
      * @param source the source configuration to clone froms
      */
-    protected CompileTestConfiguration(CompileTestConfiguration source) {
+    CompileTestConfiguration(CompileTestConfiguration source) {
 
         this.sourceFiles.addAll(source.getSourceFiles());
         this.processors.addAll(source.getProcessors());
@@ -577,7 +578,7 @@ public class CompileTestConfiguration {
         this.generatedFileObjectChecks.add(new GeneratedFileObjectCheck(location, packageName, relativeName, javaFileObject));
     }
 
-    public void addGeneratedFileObjectCheck(JavaFileManager.Location location, String packageName, String relativeName, GeneratedFileObjectMatcher<FileObject> generatedFileObjectMatcher) {
+    public void addGeneratedFileObjectCheck(JavaFileManager.Location location, String packageName, String relativeName, GeneratedFileObjectMatcher<FileObject>... generatedFileObjectMatcher) {
         this.generatedFileObjectChecks.add(new GeneratedFileObjectCheck(location, packageName, relativeName, generatedFileObjectMatcher));
     }
 

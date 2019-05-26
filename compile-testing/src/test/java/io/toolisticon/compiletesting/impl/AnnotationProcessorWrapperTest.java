@@ -279,7 +279,7 @@ public class AnnotationProcessorWrapperTest {
                     }))
                     .expectedThrownException(IllegalArgumentException.class)
                     .testCompilation();
-        } catch (Throwable e) {
+        } catch (Exception e) {
             MatcherAssert.assertThat(e.getMessage(), Matchers.containsString("Expected exception of type 'java.lang.IllegalArgumentException'"));
         }
 

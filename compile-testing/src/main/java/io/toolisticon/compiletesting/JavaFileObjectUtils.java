@@ -12,6 +12,8 @@ import java.io.StringBufferInputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Utility class to create JavaFileObjects and therefore also FileObjects.
@@ -36,7 +38,7 @@ public class JavaFileObjectUtils {
          * @param content the source content for the compilation unit represented by this file object
          */
         private JavaSourceFromString(String name, String content) {
-            super(URI.create("string:///" + name.replace('.', '/') + Kind.SOURCE.extension),
+            super(URI.create("string://" + name.replace('.', '/') + Kind.SOURCE.extension),
                     Kind.SOURCE);
             this.content = content;
         }
@@ -77,7 +79,7 @@ public class JavaFileObjectUtils {
 
         private JavaSourceFromResource(String location, Class<?> relativeLocationRoot) {
 
-            super(URI.create("resource:///" + (location.endsWith(".java" + JAVA_COMPATIBILTY_FILE_ENDING_SUFFIX) ? location.substring(0, location.length() - JAVA_COMPATIBILTY_FILE_ENDING_SUFFIX.length()) : location)), Kind.SOURCE);
+            super(URI.create("resource://" + (location.endsWith(".java" + JAVA_COMPATIBILTY_FILE_ENDING_SUFFIX) ? location.substring(0, location.length() - JAVA_COMPATIBILTY_FILE_ENDING_SUFFIX.length()) : location)), Kind.SOURCE);
             this.relativeLocationRoot = relativeLocationRoot;
             this.location = location;
 
@@ -179,6 +181,27 @@ public class JavaFileObjectUtils {
         return new JavaSourceFromResource((!location.startsWith("/") ? "/" : "") + location, null);
     }
 
+    /**
+     * Reads multiple java source files from resources.
+     * Passed locations will be handled as absolute path and will be used to both read resource and as location in compile test file manager.
+     * <p>
+     * Some IDEs like Eclipse don't like resource files ending with *.java.
+     * In this case extend the file name by ".ct" suffix (f.e. "JavaClass.java.ct").
+     * The suffix will be ignored for looking up files via the compile test file manager.
+     *
+     * @param locations the location
+     * @return The SimpleJavaFileObject for resource
+     */
+    public static SimpleJavaFileObject[] readFromResources(String... locations) {
+
+        List<SimpleJavaFileObject> resourceFiles = new ArrayList<SimpleJavaFileObject>();
+
+        for (String location : locations) {
+            resourceFiles.add(readFromResource(location));
+        }
+
+        return resourceFiles.toArray(new SimpleJavaFileObject[resourceFiles.size()]);
+    }
 
     /**
      * Read a java source file from string.

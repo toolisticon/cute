@@ -66,10 +66,14 @@ public class CompileTestConfigurationTest {
     private final CompileTestConfiguration.GeneratedFileObjectCheck generatedFileObjectChecks2 = new CompileTestConfiguration.GeneratedFileObjectCheck(StandardLocation.CLASS_OUTPUT,
             "package2", "relativeName1", Mockito.mock(JavaFileObject.class));
     private final CompileTestConfiguration.GeneratedFileObjectCheck generatedFileObjectChecks3 = new CompileTestConfiguration.GeneratedFileObjectCheck(StandardLocation.SOURCE_OUTPUT,
-            "package3", "relativeName3", Mockito.mock(GeneratedFileObjectMatcher.class));
+            "package3", "relativeName3", toArray(Mockito.mock(GeneratedFileObjectMatcher.class)));
     private final CompileTestConfiguration.GeneratedFileObjectCheck generatedFileObjectChecks4 = new CompileTestConfiguration.GeneratedFileObjectCheck(StandardLocation.CLASS_OUTPUT,
-            "package4", "relativeName4", Mockito.mock(GeneratedFileObjectMatcher.class));
+            "package4", "relativeName4", toArray(Mockito.mock(GeneratedFileObjectMatcher.class)));
 
+
+    private static <ARRAY_TYPE> ARRAY_TYPE[] toArray (ARRAY_TYPE ... elements) {
+        return elements;
+    }
 
     @Before
     public void init() {
@@ -281,8 +285,8 @@ public class CompileTestConfigurationTest {
         unit.addGeneratedFileObjectCheck(generatedFileObjectChecks1.getLocation(), generatedFileObjectChecks1.getPackageName(), generatedFileObjectChecks1.getRelativeName(), generatedFileObjectChecks1.getExpectedFileObject());
         unit.addGeneratedFileObjectCheck(generatedFileObjectChecks2.getLocation(), generatedFileObjectChecks2.getPackageName(), generatedFileObjectChecks2.getRelativeName(), generatedFileObjectChecks2.getExpectedFileObject());
 
-        unit.addGeneratedFileObjectCheck(generatedFileObjectChecks3.getLocation(), generatedFileObjectChecks3.getPackageName(), generatedFileObjectChecks3.getRelativeName(), generatedFileObjectChecks3.getGeneratedFileObjectMatcher());
-        unit.addGeneratedFileObjectCheck(generatedFileObjectChecks4.getLocation(), generatedFileObjectChecks4.getPackageName(), generatedFileObjectChecks4.getRelativeName(), generatedFileObjectChecks4.getGeneratedFileObjectMatcher());
+        unit.addGeneratedFileObjectCheck(generatedFileObjectChecks3.getLocation(), generatedFileObjectChecks3.getPackageName(), generatedFileObjectChecks3.getRelativeName(), generatedFileObjectChecks3.getGeneratedFileObjectMatchers());
+        unit.addGeneratedFileObjectCheck(generatedFileObjectChecks4.getLocation(), generatedFileObjectChecks4.getPackageName(), generatedFileObjectChecks4.getRelativeName(), generatedFileObjectChecks4.getGeneratedFileObjectMatchers());
 
 
         // do assertion
@@ -604,27 +608,27 @@ public class CompileTestConfigurationTest {
         JavaFileManager.Location alternativeLocation = StandardLocation.SOURCE_PATH;
         MatcherAssert.assertThat("PRECONDITION locations must not match", alternativeLocation != generatedFileObjectChecks3.getLocation());
         generatedFileObjectCheck_notMatchingSingleField_withGeneratedFileObjectMatcher_singleTest(generatedFileObjectChecks3, alternativeLocation,
-                generatedFileObjectChecks3.getPackageName(), generatedFileObjectChecks3.getRelativeName(), generatedFileObjectChecks3.getGeneratedFileObjectMatcher());
+                generatedFileObjectChecks3.getPackageName(), generatedFileObjectChecks3.getRelativeName(), generatedFileObjectChecks3.getGeneratedFileObjectMatchers());
 
         // packageName differs
         String alternativePackageName = "XXX";
         MatcherAssert.assertThat("PRECONDITION locations must not match", !alternativePackageName.equals(generatedFileObjectChecks3.getPackageName()));
         generatedFileObjectCheck_notMatchingSingleField_withGeneratedFileObjectMatcher_singleTest(generatedFileObjectChecks3, generatedFileObjectChecks3.getLocation(),
-                alternativePackageName, generatedFileObjectChecks3.getRelativeName(), generatedFileObjectChecks3.getGeneratedFileObjectMatcher());
+                alternativePackageName, generatedFileObjectChecks3.getRelativeName(), generatedFileObjectChecks3.getGeneratedFileObjectMatchers());
 
         // relativeName differs
         String alternativeRelativeName = "XXX";
         MatcherAssert.assertThat("PRECONDITION locations must not match", !alternativeRelativeName.equals(generatedFileObjectChecks3.getRelativeName()));
         generatedFileObjectCheck_notMatchingSingleField_withGeneratedFileObjectMatcher_singleTest(generatedFileObjectChecks3, generatedFileObjectChecks3.getLocation(),
-                generatedFileObjectChecks3.getPackageName(), alternativeRelativeName, generatedFileObjectChecks3.getGeneratedFileObjectMatcher());
+                generatedFileObjectChecks3.getPackageName(), alternativeRelativeName, generatedFileObjectChecks3.getGeneratedFileObjectMatchers());
 
         // expectedFileObject differs
         generatedFileObjectCheck_notMatchingSingleField_withGeneratedFileObjectMatcher_singleTest(generatedFileObjectChecks3, generatedFileObjectChecks3.getLocation(),
-                generatedFileObjectChecks3.getPackageName(), generatedFileObjectChecks3.getRelativeName(), Mockito.mock(GeneratedFileObjectMatcher.class));
+                generatedFileObjectChecks3.getPackageName(), generatedFileObjectChecks3.getRelativeName(), toArray(Mockito.mock(GeneratedFileObjectMatcher.class)));
 
     }
 
-    private void generatedFileObjectCheck_notMatchingSingleField_withGeneratedFileObjectMatcher_singleTest(CompileTestConfiguration.GeneratedFileObjectCheck unit, JavaFileManager.Location location, String packageName, String relativeName, GeneratedFileObjectMatcher<FileObject> generatedFileObjectMatcher) {
+    private void generatedFileObjectCheck_notMatchingSingleField_withGeneratedFileObjectMatcher_singleTest(CompileTestConfiguration.GeneratedFileObjectCheck unit, JavaFileManager.Location location, String packageName, String relativeName, GeneratedFileObjectMatcher<FileObject>[] generatedFileObjectMatcher) {
 
         CompileTestConfiguration.GeneratedFileObjectCheck otherObj = new CompileTestConfiguration.GeneratedFileObjectCheck(location,
                 packageName, packageName, generatedFileObjectMatcher);

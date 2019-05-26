@@ -3,6 +3,7 @@ package io.toolisticon.compiletesting;
 import io.toolisticon.compiletesting.impl.CompileTest;
 import io.toolisticon.compiletesting.impl.CompileTestConfiguration;
 import io.toolisticon.compiletesting.impl.UnitTestAnnotationProcessorClass;
+import io.toolisticon.compiletesting.impl.UnitTestAnnotationProcessorClassForTestingAnnotationProcessors;
 
 import javax.annotation.processing.Processor;
 import javax.tools.FileObject;
@@ -27,9 +28,9 @@ public class CompileTestBuilder {
         /**
          * the current immutable CompileTestConfiguration
          */
-        protected final CompileTestConfiguration compileTestConfiguration;
+        final CompileTestConfiguration compileTestConfiguration;
 
-        protected BasicBuilder(CompileTestConfiguration compileTestConfiguration) {
+        BasicBuilder(CompileTestConfiguration compileTestConfiguration) {
             this.compileTestConfiguration = compileTestConfiguration;
         }
 
@@ -188,7 +189,7 @@ public class CompileTestBuilder {
                 JavaFileManager.Location location,
                 String packageName,
                 String relativeName,
-                GeneratedFileObjectMatcher<FileObject> generatedFileObjectMatcher) {
+                GeneratedFileObjectMatcher<FileObject>... generatedFileObjectMatcher) {
 
             CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
             nextConfiguration.addGeneratedFileObjectCheck(location, packageName, relativeName, generatedFileObjectMatcher);
@@ -257,7 +258,7 @@ public class CompileTestBuilder {
          *
          * @return the configuration instance
          */
-        protected CompileTestConfiguration createCompileTestConfiguration() {
+        CompileTestConfiguration createCompileTestConfiguration() {
             return CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
         }
 
@@ -343,7 +344,7 @@ public class CompileTestBuilder {
         }
 
         /**
-         * Adds source files to compile to compilation test
+         * Adds source files to compile to compilation test.
          *
          * @param sources the sources to use
          * @return the CompilationTestBuilder instance
@@ -355,6 +356,19 @@ public class CompileTestBuilder {
                 nextConfiguration.addSourceFiles(sources);
             }
             return createNextInstance(nextConfiguration);
+
+        }
+
+        /**
+         * Adds source files to compile to compilation test.
+         * Sources will be read from resources.
+         *
+         * @param sources the sources to use
+         * @return the CompilationTestBuilder instance
+         */
+        public CompilationTestBuilder addSources(String... sources) {
+
+            return addSources(JavaFileObjectUtils.readFromResources(sources));
 
         }
 
@@ -413,6 +427,42 @@ public class CompileTestBuilder {
             // remove existing processor
             nextConfiguration.getProcessors().clear();
             nextConfiguration.addProcessors(new UnitTestAnnotationProcessorClass(unitTestProcessor));
+
+            return createNextInstance(nextConfiguration);
+        }
+
+        /**
+         * Sets the processor to use.
+         * The processor should support {@link TestAnnotation} annotation processing if no custom source file is defined.
+         * If custom source is used make sure {@link TestAnnotation} is used somewhere in the custom source file to make sure if annotation processor is used.
+         *
+         * @param processorUnderTestClass                         the Processor which should be provided as a
+         * @param unitTestProcessorForTestingAnnotationProcessors the processor to use
+         * @param <PROCESSOR_UNDER_TEST>                          The processor type under test
+         * @return the UnitTestBuilder instance
+         * @throws IllegalArgumentException if passed processor is null.
+         */
+
+        public <PROCESSOR_UNDER_TEST extends Processor> UnitTestBuilder useProcessor(Class<PROCESSOR_UNDER_TEST> processorUnderTestClass, UnitTestProcessorForTestingAnnotationProcessors<PROCESSOR_UNDER_TEST> unitTestProcessorForTestingAnnotationProcessors) {
+
+            if (unitTestProcessorForTestingAnnotationProcessors == null) {
+                throw new IllegalArgumentException("passed unitTestProcessorForTestingAnnotationProcessors must not be null!");
+            }
+
+            CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
+
+            PROCESSOR_UNDER_TEST processorUnderTest = null;
+
+            try {
+                processorUnderTest = processorUnderTestClass.getDeclaredConstructor().newInstance();
+            } catch (Exception e) {
+                throw new IllegalArgumentException("useProcessor: Passed processor class under test " + (processorUnderTestClass == null ? "<NULL>" : processorUnderTestClass.getCanonicalName()) + " cannot be instanciated.");
+            }
+
+
+            // remove existing processor
+            nextConfiguration.getProcessors().clear();
+            nextConfiguration.addProcessors(new UnitTestAnnotationProcessorClassForTestingAnnotationProcessors<PROCESSOR_UNDER_TEST>(processorUnderTest, unitTestProcessorForTestingAnnotationProcessors));
 
             return createNextInstance(nextConfiguration);
         }

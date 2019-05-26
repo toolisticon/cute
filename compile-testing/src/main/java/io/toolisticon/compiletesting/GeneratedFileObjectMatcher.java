@@ -15,7 +15,8 @@ public interface GeneratedFileObjectMatcher<T extends FileObject> {
      *
      * @param fileObject the file object to check
      * @return true if check is done successfully, otherwise false
-     * @throws IOException might be thrown during access of passed fileObject
+     * @throws IOException               might be thrown during access of passed fileObject
+     * @throws FailingAssertionException can be thrown to provide a detailed assertion message in case of a failing assertion.
      */
     boolean check(T fileObject) throws IOException;
 
