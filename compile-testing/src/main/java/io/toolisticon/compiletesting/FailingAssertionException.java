@@ -1,4 +1,4 @@
-package io.toolisticon.compiletesting.impl;
+package io.toolisticon.compiletesting;
 
 /**
  * Exception to signal failing Assertion

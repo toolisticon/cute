@@ -1,6 +1,6 @@
 package io.toolisticon.compiletesting.impl;
 
-import io.toolisticon.compiletesting.extension.api.AssertionSpiServiceLocator;
+import io.toolisticon.compiletesting.FailingAssertionException;
 
 import javax.annotation.processing.Completion;
 import javax.annotation.processing.Messager;

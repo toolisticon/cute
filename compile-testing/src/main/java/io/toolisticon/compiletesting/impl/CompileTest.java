@@ -1,5 +1,7 @@
 package io.toolisticon.compiletesting.impl;
 
+import io.toolisticon.compiletesting.FailingAssertionException;
+import io.toolisticon.compiletesting.GeneratedFileObjectMatcher;
 import io.toolisticon.compiletesting.InvalidTestConfigurationException;
 import io.toolisticon.compiletesting.extension.api.AssertionSpiServiceLocator;
 import io.toolisticon.compiletesting.extension.api.ModuleSupportSpiServiceLocator;
@@ -34,6 +36,8 @@ public class CompileTest {
 
     public final static String MESSAGE_PROCESSOR_HASNT_BEEN_APPLIED = "Annotation processor %s hasn't been applied on a class";
     public final static String MESSAGE_HAVENT_FOUND_MESSSAGE = "Haven't found expected message string '%s' of kind %s. Got messages %s";
+
+    public final static String MESSAGE_TECHNICAL_ERROR = "TECHNICAL ERROR : %s";
 
     private final CompileTestConfiguration compileTestConfiguration;
 
@@ -153,16 +157,18 @@ public class CompileTest {
                         }
 
                         // check with passed matcher
-                        if (generatedFileObjectCheck.getGeneratedFileObjectMatcher() != null) {
+                        if (generatedFileObjectCheck.getGeneratedFileObjectMatchers() != null) {
 
-                            if (!generatedFileObjectCheck.getGeneratedFileObjectMatcher().check(foundFileObject)) {
-                                throw new FailingAssertionException(String.format(MESSAGE_FO_EXISTS_BUT_DOESNT_MATCH_MATCHER, getFileObjectInfoString(generatedFileObjectCheck)));
+                            for (GeneratedFileObjectMatcher<FileObject> matcher : generatedFileObjectCheck.getGeneratedFileObjectMatchers()) {
+                                if (!matcher.check(foundFileObject)) {
+                                    throw new FailingAssertionException(String.format(MESSAGE_FO_EXISTS_BUT_DOESNT_MATCH_MATCHER, getFileObjectInfoString(generatedFileObjectCheck)));
+                                }
                             }
 
                         }
 
                     } catch (IOException e) {
-                        // ignore
+                        throw new FailingAssertionException(String.format(MESSAGE_TECHNICAL_ERROR, e.getMessage()));
                     }
 
 

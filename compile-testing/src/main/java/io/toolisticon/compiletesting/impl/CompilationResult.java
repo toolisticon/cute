@@ -4,29 +4,34 @@ import javax.tools.DiagnosticCollector;
 
 /**
  * Compilation result.
- *
+ * <p>
  * Allows access to DiagnosticCollector and FileManager used during compilation test.
- *
  */
-public class CompilationResult {
+class CompilationResult {
 
-    /** Compilation succeeded? */
+    /**
+     * Compilation succeeded?
+     */
     private final Boolean compilationSucceeded;
-    /** Diagnostics instance - allows checks for specific compilation messages */
+    /**
+     * Diagnostics instance - allows checks for specific compilation messages
+     */
     private final DiagnosticCollector diagnostics;
-    /** The file manager used during the compilation - allows comparing of generated files */
+    /**
+     * The file manager used during the compilation - allows comparing of generated files
+     */
     private final CompileTestFileManager compileTestFileManager;
 
     /**
      * Constructor.
      *
-     * @param compilationSucceeded should compilation succeed
-     * @param diagnostics the DiagnosticsController instance to use
+     * @param compilationSucceeded   should compilation succeed
+     * @param diagnostics            the DiagnosticsController instance to use
      * @param compileTestFileManager the file manager used during compilation
      */
-    public CompilationResult(Boolean compilationSucceeded,
-                             DiagnosticCollector diagnostics,
-                             CompileTestFileManager compileTestFileManager) {
+    CompilationResult(Boolean compilationSucceeded,
+                      DiagnosticCollector diagnostics,
+                      CompileTestFileManager compileTestFileManager) {
 
         this.compilationSucceeded = compilationSucceeded;
         this.diagnostics = diagnostics;
@@ -34,15 +39,15 @@ public class CompilationResult {
 
     }
 
-    public Boolean getCompilationSucceeded() {
+    Boolean getCompilationSucceeded() {
         return compilationSucceeded;
     }
 
-    public DiagnosticCollector getDiagnostics() {
+    DiagnosticCollector getDiagnostics() {
         return diagnostics;
     }
 
-    public CompileTestFileManager getCompileTestFileManager() {
+    CompileTestFileManager getCompileTestFileManager() {
         return compileTestFileManager;
     }
 }

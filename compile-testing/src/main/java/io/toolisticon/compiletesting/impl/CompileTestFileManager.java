@@ -190,7 +190,7 @@ public class CompileTestFileManager extends ForwardingJavaFileManager<StandardJa
 
 
     private static URI uriForFileObject(Location location, String packageName, String relativeName) {
-        StringBuilder uri = new StringBuilder("mem:///").append(location.getName()).append('/');
+        StringBuilder uri = new StringBuilder("mem://").append(location.getName()).append('/');
         if (!packageName.isEmpty()) {
             uri.append(packageName.replace('.', '/')).append('/');
         }
@@ -200,7 +200,7 @@ public class CompileTestFileManager extends ForwardingJavaFileManager<StandardJa
 
     private static URI uriForJavaFileObject(Location location, String className, JavaFileObject.Kind kind) {
         return URI.create(
-                "mem:///" + location.getName() + '/' + className.replace('.', '/') + kind.extension);
+                "mem://" + location.getName() + '/' + className.replace('.', '/') + kind.extension);
     }
 
 

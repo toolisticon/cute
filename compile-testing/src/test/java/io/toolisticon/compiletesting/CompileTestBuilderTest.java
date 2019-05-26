@@ -243,6 +243,19 @@ public class CompileTestBuilderTest {
 
     }
 
+    @Test
+    public void test_addSourceFromResources() {
+
+        final String resource = "/compiletests/TestClass.java";
+
+        CompileTestBuilder.CompilationTestBuilder builder = CompileTestBuilder
+                .compilationTest()
+                .addSources(resource);
+
+        MatcherAssert.assertThat(builder.createCompileTestConfiguration().getSourceFiles().iterator().next().getName().toString(), Matchers.is(resource));
+
+
+    }
 
     @Test
     public void test_useProcessors() {
