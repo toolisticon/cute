@@ -494,6 +494,18 @@ public class CompileTestBuilder {
         }
 
         /**
+         * Sets the source file used to apply processor on.
+         * The referenced resource file must contain an annotation that is processed by the processor.
+         *
+         * @param resource The resource file to use
+         * @return the UnitTestBuilder instance
+         * @throws IllegalArgumentException if passed source is null.
+         */
+        public UnitTestBuilder useSource(String resource) {
+            return useSource(JavaFileObjectUtils.readFromResource(resource));
+        }
+
+        /**
          * Sets an expected exception thrown in the unit test case.
          *
          * @param expectedException the exceptions expected to be thrown
