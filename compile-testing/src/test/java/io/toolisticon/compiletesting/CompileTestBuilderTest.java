@@ -321,12 +321,23 @@ public class CompileTestBuilderTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void test_useSource_addNullValuedSource() {
+    public void test_useSource_addNullValuedSource_asJavaFileObject() {
 
 
         CompileTestBuilder.UnitTestBuilder builder = CompileTestBuilder
                 .unitTest()
-                .useSource(null);
+                .useSource((JavaFileObject) null);
+
+
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void test_useSource_addNullValuedSource_asString() {
+
+
+        CompileTestBuilder.UnitTestBuilder builder = CompileTestBuilder
+                .unitTest()
+                .useSource((String) null);
 
 
     }

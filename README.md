@@ -36,7 +36,7 @@ Simply add the following dependencies to your project to be able to use this tes
    <!-- Compile testing framework -->
        <dependency>
        <groupId>io.toolisticon.compiletesting</groupId>
-       <artifactId>compile-testing</artifactId>
+       <artifactId>compiletesting</artifactId>
        <version>${currentVersion}</version>
        <scope>test</scope>
    </dependency>
