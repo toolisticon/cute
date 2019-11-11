@@ -1,7 +1,7 @@
 package io.toolisticon.compiletesting.impl;
 
-import io.toolisticon.compiletesting.UnitTestProcessorForTestingAnnotationProcessors;
 import io.toolisticon.compiletesting.TestAnnotation;
+import io.toolisticon.compiletesting.UnitTestProcessorForTestingAnnotationProcessors;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.ProcessingEnvironment;
@@ -59,8 +59,11 @@ public class UnitTestAnnotationProcessorClassForTestingAnnotationProcessors<UNIT
 
             if (set.size() == 1) {
 
-                processorUnderTest.init(processingEnv);
                 unitTestProcessorForTestingAnnotationProcessors.unitTest(processorUnderTest, this.processingEnv, (TypeElement) set.iterator().next());
+
+            } else {
+
+                throw new AssertionError("PRECONDITION: Expected to find exactly one element annotated with TestAnnotation in unit test");
 
             }
 
