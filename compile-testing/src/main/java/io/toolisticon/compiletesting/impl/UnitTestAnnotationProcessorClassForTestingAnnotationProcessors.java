@@ -39,6 +39,9 @@ public class UnitTestAnnotationProcessorClassForTestingAnnotationProcessors<UNIT
     @Override
     public synchronized void init(ProcessingEnvironment processingEnv) {
         super.init(processingEnv);
+
+        // call init method of annotation processor under test
+        processorUnderTest.init(processingEnv);
     }
 
     @Override
