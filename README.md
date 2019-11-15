@@ -109,26 +109,22 @@ Your unit test code can be declared via the fluent api:
 @Test
 public void exampleUnitTest() {
 
-   CompileTestBuilder.unitTest().useProcessor(
-           new UnitTestProcessor() {
-               @Override
-               public void unitTest(ProcessingEnvironment processingEnvironment, TypeElement typeElement) {
+    CompileTestBuilder.unitTest().useProcessor(SampleProcesssor.class, new UnitTestProcessorForTestingAnnotationProcessors<SampleProcesssor>() {
+        @Override
+        public void unitTest(SampleProcesssor unit, ProcessingEnvironment processingEnvironment, TypeElement typeElement) {
 
-                   // Your unit test code
-                   SampleProcesssor sampleProcesssor = new SampleProcesssor();
-                   sampleProcesssor.init(processingEnvironment);
+            // AbstractProcessor.init() method was called by compiletesting framework                    
+            String result = unit.yourMethodToTest("ABC");
 
-                   String result = sampleProcesssor.yourMethodToTest("ABC");
+            // AssertionErrors will be passed through your external unit test function
+            MatcherAssert.assertThat(result, Matchers.is("EXPECTED RESULT"));
 
-                   // AssertionErrors will be passed through your external unit test function
-                   MatcherAssert.assertThat(result, Matchers.is("EXPECTED RESULT"));
-
-               }
-           })
-           .compilationShouldSucceed()
-           .expectedWarningMessages("WARNING SNIPPET(will check if a warning exists that contains passed string)")
-           .testCompilation();
-
+        }
+    })
+    .compilationShouldSucceed()
+    .expectedWarningMessages("WARNING SNIPPET(will check if a warning exists that contains passed string)")
+    .testCompilation();
+    
 }
 ```
  
