@@ -76,7 +76,7 @@ Compilation test allow you to define testcase source files and to apply your pro
 public void exampleCompilationTest() {
 
    CompileTestBuilder.compilationTest()
-           .addSources(JavaFileObjectUtils.readFromResource("/exampletestcase/Testcase1.java"))
+           .addSources("/exampletestcase/Testcase1.java")
            .addProcessors(YourProcessorUnderTest.class)
            .compilationShouldSucceed()
            .expectedWarningMessages("WARNING SNIPPET(will check if a warning exists that contains passed string)")
