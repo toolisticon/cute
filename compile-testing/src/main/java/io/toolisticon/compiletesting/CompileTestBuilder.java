@@ -362,6 +362,7 @@ public class CompileTestBuilder {
         /**
          * Adds source files to compile to compilation test.
          * Sources will be read from resources.
+         * Source file names must either end with ".java" or ".java.ct".
          *
          * @param sources the sources to use
          * @return the CompilationTestBuilder instance
@@ -496,6 +497,7 @@ public class CompileTestBuilder {
         /**
          * Sets the source file used to apply processor on.
          * The referenced resource file must contain an annotation that is processed by the processor.
+         * The source file name must either end with ".java" or ".java.ct".
          *
          * @param resource The resource file to use
          * @return the UnitTestBuilder instance
