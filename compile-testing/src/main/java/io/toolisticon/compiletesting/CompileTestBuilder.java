@@ -2,8 +2,6 @@ package io.toolisticon.compiletesting;
 
 import io.toolisticon.compiletesting.impl.CompileTest;
 import io.toolisticon.compiletesting.impl.CompileTestConfiguration;
-import io.toolisticon.compiletesting.impl.UnitTestAnnotationProcessorClass;
-import io.toolisticon.compiletesting.impl.UnitTestAnnotationProcessorClassForTestingAnnotationProcessors;
 
 import javax.annotation.processing.Processor;
 import javax.tools.FileObject;

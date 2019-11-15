@@ -1,7 +1,4 @@
-package io.toolisticon.compiletesting.impl;
-
-import io.toolisticon.compiletesting.TestAnnotation;
-import io.toolisticon.compiletesting.UnitTestProcessorForTestingAnnotationProcessors;
+package io.toolisticon.compiletesting;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.ProcessingEnvironment;
@@ -16,7 +13,7 @@ import java.util.Set;
 /**
  * Base annotation processor for unit testing of initialized annotation processors.
  */
-public class UnitTestAnnotationProcessorClassForTestingAnnotationProcessors<UNIT_PROCESSOR extends Processor> extends AbstractProcessor {
+class UnitTestAnnotationProcessorClassForTestingAnnotationProcessors<UNIT_PROCESSOR extends Processor> extends AbstractProcessor {
 
     private static final Set<String> SUPPORTED_ANNOTATION_TYPES = new HashSet<String>();
 

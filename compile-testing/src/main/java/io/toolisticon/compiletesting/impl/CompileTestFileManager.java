@@ -26,7 +26,7 @@ import java.util.Map;
 /**
  * Forwarding file manager to be able to test for generated sources and resources
  */
-public class CompileTestFileManager extends ForwardingJavaFileManager<StandardJavaFileManager> {
+class CompileTestFileManager extends ForwardingJavaFileManager<StandardJavaFileManager> {
 
 
     public static class FileObjectCache<T extends FileObject> {

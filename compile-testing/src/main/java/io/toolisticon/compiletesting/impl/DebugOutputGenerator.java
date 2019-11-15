@@ -1,5 +1,6 @@
 package io.toolisticon.compiletesting.impl;
 
+import io.toolisticon.compiletesting.impl.CommonUtilities;
 import io.toolisticon.compiletesting.FailingAssertionException;
 import io.toolisticon.compiletesting.extension.api.ModuleSupportSpiServiceLocator;
 

@@ -18,7 +18,7 @@ import java.util.Set;
 /**
  * Wrapper class for {@link Processor}. Allows generic creation of generic unit tests.
  */
-public final class AnnotationProcessorWrapper implements Processor {
+final class AnnotationProcessorWrapper implements Processor {
 
     private final Processor wrappedProcessor;
     private final Class<? extends Throwable> expectedThrownException;

@@ -5,6 +5,7 @@ import javax.lang.model.element.TypeElement;
 
 /**
  * Interface that is used during unit test creation. It allows setting up a unit test without the need to create a valid annotation processor.
+ * Please use {@link UnitTestProcessorForTestingAnnotationProcessors} if you want to unit test annotation processor methods.
  */
 public interface UnitTestProcessor {
 
