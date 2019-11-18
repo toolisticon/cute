@@ -24,7 +24,7 @@ import java.util.Set;
 public class CompileTestBuilderTest {
 
     @Test
-    public void test_UnitTest_successfullCompilation_build() {
+    public void test_UnitTest_successfulCompilation_build() {
 
         JavaFileObject testSource = Mockito.mock(JavaFileObject.class);
         JavaFileObject expectedGeneratedSource = JavaFileObjectUtils.readFromString("Jupp.txt", "TATA!");
@@ -64,7 +64,7 @@ public class CompileTestBuilderTest {
 
 
     @Test
-    public void test_UnitTest_successfullCompilation_withInitializedProcessorUnderTest_build() {
+    public void test_UnitTest_successfulCompilation_withInitializedProcessorUnderTest_build() {
 
         CompileTestBuilder
                 .unitTest()
@@ -216,7 +216,7 @@ public class CompileTestBuilderTest {
     }
 
     @Test
-    public void test_compilationShouldSucceeed() {
+    public void test_compilationShouldSucceed() {
 
         CompileTestBuilder.CompilationTestBuilder builder = CompileTestBuilder
                 .compilationTest();
