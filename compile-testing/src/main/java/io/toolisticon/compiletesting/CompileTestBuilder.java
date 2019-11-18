@@ -183,7 +183,8 @@ public class CompileTestBuilder {
          * @param generatedFileObjectMatcher the matcher to use
          * @return the next builder instance
          */
-        public T expectedFileObjectExists(
+        @SafeVarargs
+        public final T expectedFileObjectExists(
                 JavaFileManager.Location location,
                 String packageName,
                 String relativeName,
@@ -399,7 +400,8 @@ public class CompileTestBuilder {
          * @param processorTypes the processor types to use, processors must have a noarg constructor
          * @return the CompilationTestBuilder instance
          */
-        public CompilationTestBuilder addProcessors(Class<? extends Processor>... processorTypes) {
+        @SafeVarargs
+        public final CompilationTestBuilder addProcessors(Class<? extends Processor>... processorTypes) {
 
             CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
             if (processorTypes != null) {

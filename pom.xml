@@ -75,8 +75,8 @@
 
         <java.version>1.6</java.version>
 
-        <java.compile.source.version>1.6</java.compile.source.version>
-        <java.compile.target.version>1.6</java.compile.target.version>
+        <java.compile.source.version>1.7</java.compile.source.version>
+        <java.compile.target.version>1.7</java.compile.target.version>
 
         <!-- dependencies: compile and runtime -->
         <spiap.version>0.7.0</spiap.version>
