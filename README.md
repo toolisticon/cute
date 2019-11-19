@@ -16,7 +16,7 @@ This compile testing framework allows you to to do this and additionally support
 # Features
 
 - allows compile time tests supporting the most relevant test frameworks (junit4, junit5, testng, ...)
-- simple, but powerful fluent api
+- simple, but powerful fluent api (immutable)
 - supports all Java versions >=7 (including support for java 9 modules)
 - Enables you to debug annotation processors during compilation tests
 - provides useful information for analysis of failing tests:
@@ -66,6 +66,9 @@ For both test types you can test
 - if certain messages have been created during compilation
 - if certain java files (sources and classes) or resource files have been created
 - if your annotation processor really has been applied (this is implicitly done)
+
+The CompileTestBuilder always returns immutable CompileTestBuilder instances. 
+So it's safe to initialize a base CompileTestBuilder instance once in a testclass and to refine it further in the testcases.
 
 ## Compilation tests
 
