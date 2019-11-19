@@ -56,6 +56,21 @@ public class CompileTestBuilder {
         }
 
         /**
+         * Use compiler options.
+         * Options with parameters can, but must not be split over two consecutive Strings.
+         * Those options can be put in one single String (e.g. "-source 1.7" or "-target 1.7").
+         *
+         * @param compilerOptions the options to use
+         * @return the next builder instance
+         */
+        public T useCompilerOptions(String... compilerOptions) {
+            CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
+            nextConfiguration.addCompilerOptions(compilerOptions);
+            return createNextInstance(nextConfiguration);
+        }
+
+
+        /**
          * Defines modules used during compilation.
          * This configuration will be ignored for Java versions &lt; 9.
          *
@@ -242,7 +257,7 @@ public class CompileTestBuilder {
         /**
          * Adds a check if a specific class file exists.
          *
-         * @param className                    the class name
+         * @param className the class name
          * @return the next builder instance
          */
         public T expectedClassFileExists(String className) {
@@ -441,7 +456,7 @@ public class CompileTestBuilder {
          * @param sources the sources to use
          * @return the CompilationTestBuilder instance
          */
-        public CompilationTestBuilder addSources(JavaFileObject... sources) {
+        public final CompilationTestBuilder addSources(JavaFileObject... sources) {
 
             CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
             if (sources != null) {
@@ -459,7 +474,7 @@ public class CompileTestBuilder {
          * @param sources the sources to use
          * @return the CompilationTestBuilder instance
          */
-        public CompilationTestBuilder addSources(String... sources) {
+        public final CompilationTestBuilder addSources(String... sources) {
 
             return addSources(JavaFileObjectUtils.readFromResources(sources));
 

@@ -1,6 +1,7 @@
 package io.toolisticon.compiletesting.impl;
 
 import javax.tools.DiagnosticCollector;
+import javax.tools.JavaFileObject;
 
 /**
  * Compilation result.
@@ -16,7 +17,7 @@ class CompilationResult {
     /**
      * Diagnostics instance - allows checks for specific compilation messages
      */
-    private final DiagnosticCollector diagnostics;
+    private final DiagnosticCollector<JavaFileObject> diagnostics;
     /**
      * The file manager used during the compilation - allows comparing of generated files
      */
@@ -30,7 +31,7 @@ class CompilationResult {
      * @param compileTestFileManager the file manager used during compilation
      */
     CompilationResult(Boolean compilationSucceeded,
-                      DiagnosticCollector diagnostics,
+                      DiagnosticCollector<JavaFileObject> diagnostics,
                       CompileTestFileManager compileTestFileManager) {
 
         this.compilationSucceeded = compilationSucceeded;
@@ -43,7 +44,7 @@ class CompilationResult {
         return compilationSucceeded;
     }
 
-    DiagnosticCollector getDiagnostics() {
+    DiagnosticCollector<JavaFileObject> getDiagnostics() {
         return diagnostics;
     }
 

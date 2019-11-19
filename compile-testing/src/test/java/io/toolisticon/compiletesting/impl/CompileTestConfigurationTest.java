@@ -24,6 +24,11 @@ public class CompileTestConfigurationTest {
 
     private CompileTestConfiguration unit;
 
+    // compiler options
+    private final String compilerOption1 = "verbose";
+    private final String compilerOption2 = "source 1.7";
+
+
     // source files
     private final JavaFileObject sourceJavaFileObject1 = Mockito.mock(JavaFileObject.class);
     private final JavaFileObject sourceJavaFileObject2 = Mockito.mock(JavaFileObject.class);
@@ -71,6 +76,7 @@ public class CompileTestConfigurationTest {
             "package4", "relativeName4", toArray(Mockito.mock(GeneratedFileObjectMatcher.class)));
 
 
+    @SafeVarargs
     private static <ARRAY_TYPE> ARRAY_TYPE[] toArray(ARRAY_TYPE... elements) {
         return elements;
     }
@@ -78,6 +84,21 @@ public class CompileTestConfigurationTest {
     @Before
     public void init() {
         unit = new CompileTestConfiguration();
+    }
+
+
+    @Test
+    public void compilerOptions_addAndGet() {
+
+        unit.addCompilerOptions(compilerOption1, compilerOption2);
+
+        // do assertion
+        assertCompilerOptions(unit);
+
+    }
+
+    private void assertCompilerOptions(CompileTestConfiguration configuration) {
+        MatcherAssert.assertThat(configuration.getCompilerOptions(), Matchers.containsInAnyOrder(compilerOption1, compilerOption2));
     }
 
     @Test
@@ -120,7 +141,7 @@ public class CompileTestConfigurationTest {
     }
 
     private void assertProcessorTypes(CompileTestConfiguration configuration) {
-        MatcherAssert.assertThat(configuration.getProcessorTypes(), Matchers.containsInAnyOrder((Class<? extends Processor>) SimpleTestProcessor1.class, (Class<? extends Processor>) SimpleTestProcessor2.class, (Class<? extends Processor>) SimpleTestProcessor3.class));
+        MatcherAssert.assertThat(configuration.getProcessorTypes(), Matchers.containsInAnyOrder(SimpleTestProcessor1.class, (Class<? extends Processor>) SimpleTestProcessor2.class, SimpleTestProcessor3.class));
     }
 
     @Test
@@ -178,7 +199,7 @@ public class CompileTestConfigurationTest {
     }
 
     private void assertExpectedThrownException(CompileTestConfiguration configuration, Class<? extends Throwable> expectedThrownException) {
-        MatcherAssert.assertThat((Class) configuration.getExpectedThrownException(), Matchers.equalTo((Class) expectedThrownException));
+        MatcherAssert.assertThat(configuration.getExpectedThrownException(), Matchers.equalTo((Class) expectedThrownException));
     }
 
 

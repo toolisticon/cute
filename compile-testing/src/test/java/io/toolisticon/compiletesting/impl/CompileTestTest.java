@@ -41,13 +41,13 @@ public class CompileTestTest {
                                 writer.close();
 
 
-                            } catch (IOException e) {
+                            } catch (IOException ignored) {
 
                             }
 
                         }
                     })
-
+                    .useCompilerOptions("-verbose  ", " -source    1.6   ", "-target 1.6")
                     .compilationShouldSucceed()
 
                     .expectedFileObjectExists(StandardLocation.SOURCE_OUTPUT, "root", "Jupp.txt")
@@ -82,7 +82,7 @@ public class CompileTestTest {
                                 writer.close();
 
 
-                            } catch (IOException e) {
+                            } catch (IOException ignored) {
 
                             }
 
@@ -140,7 +140,7 @@ public class CompileTestTest {
                     }
                 })
                 .expectedGeneratedSourceFileExists("io.toolisticon.compiletesting.CheckTest")
-                .expectedGeneratedSourceFileExists("io.toolisticon.compiletesting.CheckTest",JavaFileObjectUtils.readFromString("xyz", "package io.toolisticon.compiletesting;\npublic class CheckTest{}"))
+                .expectedGeneratedSourceFileExists("io.toolisticon.compiletesting.CheckTest", JavaFileObjectUtils.readFromString("xyz", "package io.toolisticon.compiletesting;\npublic class CheckTest{}"))
                 .expectedGeneratedSourceFileExists("io.toolisticon.compiletesting.CheckTest", new GeneratedFileObjectMatcher<JavaFileObject>() {
                     @Override
                     public boolean check(JavaFileObject fileObject) throws IOException {
@@ -215,12 +215,6 @@ public class CompileTestTest {
 
 
     }
-
-
-
-
-
-
 
 
 }

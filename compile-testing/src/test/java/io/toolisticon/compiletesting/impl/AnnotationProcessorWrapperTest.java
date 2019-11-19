@@ -180,7 +180,7 @@ public class AnnotationProcessorWrapperTest {
         ProcessingEnvironment processingEnvironment = Mockito.spy(ProcessingEnvironment.class);
         Mockito.when(processingEnvironment.getMessager()).thenReturn(messager);
 
-        Processor unit = AnnotationProcessorWrapper.wrapProcessor(processorSpy);
+        AnnotationProcessorWrapper unit = AnnotationProcessorWrapper.wrapProcessor(processorSpy);
         unit.init(processingEnvironment);
 
 
@@ -190,7 +190,7 @@ public class AnnotationProcessorWrapperTest {
 
         unit.process(set, roundEnvironment);
 
-        Mockito.verify(messager).printMessage(Diagnostic.Kind.NOTE, ((AnnotationProcessorWrapper) unit).getProcessorWasAppliedMessage());
+        Mockito.verify(messager).printMessage(Diagnostic.Kind.NOTE, unit.getProcessorWasAppliedMessage());
         Mockito.verify(processorSpy).process(set, roundEnvironment);
 
     }

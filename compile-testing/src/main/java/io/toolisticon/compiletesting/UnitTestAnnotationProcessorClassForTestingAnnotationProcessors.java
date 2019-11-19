@@ -15,7 +15,7 @@ import java.util.Set;
  */
 class UnitTestAnnotationProcessorClassForTestingAnnotationProcessors<UNIT_PROCESSOR extends Processor> extends AbstractProcessor {
 
-    private static final Set<String> SUPPORTED_ANNOTATION_TYPES = new HashSet<String>();
+    private static final Set<String> SUPPORTED_ANNOTATION_TYPES = new HashSet<>();
 
     static {
         SUPPORTED_ANNOTATION_TYPES.add(TestAnnotation.class.getCanonicalName());

@@ -231,7 +231,7 @@ public class CompileTest {
     public static CompilationResult compile(CompileTestConfiguration compileTestConfiguration) {
 
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-        DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<JavaFileObject>();
+        DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
 
         StandardJavaFileManager stdJavaFileManager = compiler.getStandardFileManager(diagnostics, null, null);
 
@@ -239,7 +239,14 @@ public class CompileTest {
         // Configure java compilation task
         CompileTestFileManager javaFileManager = new CompileTestFileManager(stdJavaFileManager);
 
-        JavaCompiler.CompilationTask compilationTask = compiler.getTask(null, javaFileManager, diagnostics, null, null, compileTestConfiguration.getSourceFiles());
+        JavaCompiler.CompilationTask compilationTask = compiler.getTask(
+                null,
+                javaFileManager,
+                diagnostics,
+                compileTestConfiguration.getCompilerOptions().isEmpty() ? null : compileTestConfiguration.getNormalizedCompilerOptions(),
+                null,
+                compileTestConfiguration.getSourceFiles());
+
         compilationTask.setProcessors(compileTestConfiguration.getWrappedProcessors());
 
         // handle java 9 module support via SPI to be backward compatible with older Java versions prior to java 9

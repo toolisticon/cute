@@ -66,7 +66,7 @@ final class DebugOutputGenerator {
             ModuleSupportSpi moduleSupportSpi = ModuleSupportSpiServiceLocator.locate();
             if (moduleSupportSpi != null) {
                 stringBuilder.append(getDebugOutputHeader("MODULE PATH"));
-                ModuleSupportSpiServiceLocator.locate().writeModuleDebugOutput(stringBuilder);
+                moduleSupportSpi.writeModuleDebugOutput(stringBuilder);
             }
 
         }
@@ -82,7 +82,7 @@ final class DebugOutputGenerator {
 
     /**
      * Used to determine the build folder.
-     *
+     * <p>
      * Maybe "target" for Maven builds and a folder containing "build" in it's name for gradle.
      * Defaults to "target".
      *
@@ -138,19 +138,13 @@ final class DebugOutputGenerator {
 
     private static String getGeneratedFileOverview(CompilationResult compilationResult) {
 
-        StringBuilder stringBuilder = new StringBuilder();
-
-
-        stringBuilder
-                .append("{\n")
-                .append("  'GENERATED JAVA FILE OBJECTS' : ")
-                .append(createGeneratedFileObjectOverview(compilationResult.getCompileTestFileManager().getGeneratedJavaFileObjects()))
-                .append(",\n  'GENERATED FILE OBJECTS' :")
-                .append(createGeneratedFileObjectOverview(compilationResult.getCompileTestFileManager().getGeneratedFileObjects()))
-                .append("\n}");
-
-
-        return stringBuilder.toString();
+        String stringBuilder = "{\n" +
+                "  'GENERATED JAVA FILE OBJECTS' : " +
+                createGeneratedFileObjectOverview(compilationResult.getCompileTestFileManager().getGeneratedJavaFileObjects()) +
+                ",\n  'GENERATED FILE OBJECTS' :" +
+                createGeneratedFileObjectOverview(compilationResult.getCompileTestFileManager().getGeneratedFileObjects()) +
+                "\n}";
+        return stringBuilder;
 
     }
 
@@ -169,7 +163,7 @@ final class DebugOutputGenerator {
 
             for (FILE_OBJECT fileObject : fileObjects) {
 
-                stringBuilder.append("    '" + fileObject.toUri().toString() + "'").append(" := '").append(writeFile(prefix, fileObject)).append("', \n");
+                stringBuilder.append("    '").append(fileObject.toUri().toString()).append("'").append(" := '").append(writeFile(prefix, fileObject)).append("', \n");
 
             }
 

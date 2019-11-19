@@ -55,7 +55,7 @@ public class CompileTestFileManagerTest {
     // -- test InMemoryOutputJavaFileObject
     // ---------------------------------------------
 
-    StandardJavaFileManager standardJavaFileManager = Mockito.mock(StandardJavaFileManager.class);
+    private StandardJavaFileManager standardJavaFileManager = Mockito.mock(StandardJavaFileManager.class);
 
     @Test
     public void test_InMemoryOutputJavaFileObject_setContent_nullValued() throws IOException, URISyntaxException {
