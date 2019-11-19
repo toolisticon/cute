@@ -4,6 +4,7 @@ import io.toolisticon.compiletesting.FailingAssertionException;
 import io.toolisticon.compiletesting.GeneratedFileObjectMatcher;
 import io.toolisticon.compiletesting.InvalidTestConfigurationException;
 import io.toolisticon.compiletesting.extension.api.AssertionSpiServiceLocator;
+import io.toolisticon.compiletesting.extension.api.ModuleSupportSpi;
 import io.toolisticon.compiletesting.extension.api.ModuleSupportSpiServiceLocator;
 
 import javax.tools.Diagnostic;
@@ -27,10 +28,14 @@ public class CompileTest {
     public final static String MESSAGE_COMPILATION_SHOULD_HAVE_FAILED_BUT_SUCCEEDED = "Compilation should have failed but succeeded";
 
     public final static String MESSAGE_JFO_DOESNT_EXIST = "Expected generated JavaFileObject (%s) doesn't exist.";
+    public final static String MESSAGE_JFO_EXISTS_BUT_SHOULD_BE_NON_EXISTENT = "Expected JavaFileObject (%s) to be non existent.";
+
     public final static String MESSAGE_JFO_EXISTS_BUT_DOESNT_MATCH_FO = "Expected generated JavaFileObject (%s) exists but doesn't match expected JavaFileObject.";
     public final static String MESSAGE_JFO_EXISTS_BUT_DOESNT_MATCH_MATCHER = "Expected generated JavaFileObject (%s) exists but doesn't match passed GeneratedFileObjectMatcher.";
 
     public final static String MESSAGE_FO_DOESNT_EXIST = "Expected generated FileObject (%s) doesn't exist.";
+    public final static String MESSAGE_FO_EXISTS_BUT_SHOULD_BE_NON_EXISTENT = "Expected FileObject (%s) to be non existent.";
+
     public final static String MESSAGE_FO_EXISTS_BUT_DOESNT_MATCH_FO = "Expected generated FileObject (%s) exists but doesn't match expected FileObject.";
     public final static String MESSAGE_FO_EXISTS_BUT_DOESNT_MATCH_MATCHER = "Expected generated FileObject (%s) exists but doesn't match passed GeneratedFileObjectMatcher.";
 
@@ -91,43 +96,48 @@ public class CompileTest {
 
 
             for (CompileTestConfiguration.GeneratedJavaFileObjectCheck generatedJavaFileObjectCheck : this.compileTestConfiguration.getGeneratedJavaFileObjectChecks()) {
+                if (CompileTestConfiguration.FileObjectCheckType.EXISTS.equals(generatedJavaFileObjectCheck.getCheckType())) {
+                    if (!compilationResult.getCompileTestFileManager().existsExpectedJavaFileObject(generatedJavaFileObjectCheck.getLocation(), generatedJavaFileObjectCheck.getClassName(), generatedJavaFileObjectCheck.getKind())) {
+                        throw new FailingAssertionException(String.format(MESSAGE_JFO_DOESNT_EXIST, getJavaFileObjectInfoString(generatedJavaFileObjectCheck)));
+                    } else {
 
-                if (!compilationResult.getCompileTestFileManager().existsExpectedJavaFileObject(generatedJavaFileObjectCheck.getLocation(), generatedJavaFileObjectCheck.getClassName(), generatedJavaFileObjectCheck.getKind())) {
-                    throw new FailingAssertionException(String.format(MESSAGE_JFO_DOESNT_EXIST, getJavaFileObjectInfoString(generatedJavaFileObjectCheck)));
-                } else {
+                        try {
 
-                    try {
+                            JavaFileObject foundJavaFileObject = compilationResult.getCompileTestFileManager().getJavaFileForInput(generatedJavaFileObjectCheck.getLocation(), generatedJavaFileObjectCheck.getClassName(), generatedJavaFileObjectCheck.getKind());
 
-                        JavaFileObject foundJavaFileObject = compilationResult.getCompileTestFileManager().getJavaFileForInput(generatedJavaFileObjectCheck.getLocation(), generatedJavaFileObjectCheck.getClassName(), generatedJavaFileObjectCheck.getKind());
+                            // check for equality
+                            if (generatedJavaFileObjectCheck.getExpectedJavaFileObject() != null) {
 
-                        // check for equality
-                        if (generatedJavaFileObjectCheck.getExpectedJavaFileObject() != null) {
-
-                            if (!CompileTestFileManager.contentEquals(
-                                    foundJavaFileObject.openInputStream(),
-                                    generatedJavaFileObjectCheck.getExpectedJavaFileObject().openInputStream())) {
+                                if (!CompileTestFileManager.contentEquals(
+                                        foundJavaFileObject.openInputStream(),
+                                        generatedJavaFileObjectCheck.getExpectedJavaFileObject().openInputStream())) {
 
 
-                                throw new FailingAssertionException(String.format(MESSAGE_JFO_EXISTS_BUT_DOESNT_MATCH_FO, getJavaFileObjectInfoString(generatedJavaFileObjectCheck)));
+                                    throw new FailingAssertionException(String.format(MESSAGE_JFO_EXISTS_BUT_DOESNT_MATCH_FO, getJavaFileObjectInfoString(generatedJavaFileObjectCheck)));
+
+                                }
 
                             }
 
-                        }
+                            // check with passed matcher
+                            if (generatedJavaFileObjectCheck.getGeneratedFileObjectMatcher() != null) {
 
-                        // check with passed matcher
-                        if (generatedJavaFileObjectCheck.getGeneratedFileObjectMatcher() != null) {
+                                if (!generatedJavaFileObjectCheck.getGeneratedFileObjectMatcher().check(foundJavaFileObject)) {
+                                    throw new FailingAssertionException(String.format(MESSAGE_JFO_EXISTS_BUT_DOESNT_MATCH_MATCHER, getJavaFileObjectInfoString(generatedJavaFileObjectCheck)));
+                                }
 
-                            if (!generatedJavaFileObjectCheck.getGeneratedFileObjectMatcher().check(foundJavaFileObject)) {
-                                throw new FailingAssertionException(String.format(MESSAGE_JFO_EXISTS_BUT_DOESNT_MATCH_MATCHER, getJavaFileObjectInfoString(generatedJavaFileObjectCheck)));
                             }
 
+                        } catch (IOException e) {
+                            // ignore
                         }
 
-                    } catch (IOException e) {
-                        // ignore
+
                     }
-
-
+                } else {
+                    if (compilationResult.getCompileTestFileManager().existsExpectedJavaFileObject(generatedJavaFileObjectCheck.getLocation(), generatedJavaFileObjectCheck.getClassName(), generatedJavaFileObjectCheck.getKind())) {
+                        throw new FailingAssertionException(String.format(MESSAGE_JFO_EXISTS_BUT_SHOULD_BE_NON_EXISTENT, getJavaFileObjectInfoString(generatedJavaFileObjectCheck)));
+                    }
                 }
 
 
@@ -135,45 +145,51 @@ public class CompileTest {
 
             for (CompileTestConfiguration.GeneratedFileObjectCheck generatedFileObjectCheck : this.compileTestConfiguration.getGeneratedFileObjectChecks()) {
 
-                if (!compilationResult.getCompileTestFileManager().existsExpectedFileObject(generatedFileObjectCheck.getLocation(), generatedFileObjectCheck.getPackageName(), generatedFileObjectCheck.getRelativeName())) {
-                    throw new FailingAssertionException(String.format(MESSAGE_FO_DOESNT_EXIST, getFileObjectInfoString(generatedFileObjectCheck)));
-                } else {
+                if (CompileTestConfiguration.FileObjectCheckType.EXISTS.equals(generatedFileObjectCheck.getCheckType())) {
 
-                    try {
+                    if (!compilationResult.getCompileTestFileManager().existsExpectedFileObject(generatedFileObjectCheck.getLocation(), generatedFileObjectCheck.getPackageName(), generatedFileObjectCheck.getRelativeName())) {
+                        throw new FailingAssertionException(String.format(MESSAGE_FO_DOESNT_EXIST, getFileObjectInfoString(generatedFileObjectCheck)));
+                    } else {
 
-                        FileObject foundFileObject = compilationResult.getCompileTestFileManager().getFileForInput(generatedFileObjectCheck.getLocation(), generatedFileObjectCheck.getPackageName(), generatedFileObjectCheck.getRelativeName());
+                        try {
 
-                        // check for equality
-                        if (generatedFileObjectCheck.getExpectedFileObject() != null) {
+                            FileObject foundFileObject = compilationResult.getCompileTestFileManager().getFileForInput(generatedFileObjectCheck.getLocation(), generatedFileObjectCheck.getPackageName(), generatedFileObjectCheck.getRelativeName());
 
-                            if (!CompileTestFileManager.contentEquals(
-                                    foundFileObject.openInputStream(),
-                                    generatedFileObjectCheck.getExpectedFileObject().openInputStream())) {
+                            // check for equality
+                            if (generatedFileObjectCheck.getExpectedFileObject() != null) {
 
-                                throw new FailingAssertionException(String.format(MESSAGE_FO_EXISTS_BUT_DOESNT_MATCH_FO, getFileObjectInfoString(generatedFileObjectCheck)));
+                                if (!CompileTestFileManager.contentEquals(
+                                        foundFileObject.openInputStream(),
+                                        generatedFileObjectCheck.getExpectedFileObject().openInputStream())) {
 
-                            }
+                                    throw new FailingAssertionException(String.format(MESSAGE_FO_EXISTS_BUT_DOESNT_MATCH_FO, getFileObjectInfoString(generatedFileObjectCheck)));
 
-                        }
-
-                        // check with passed matcher
-                        if (generatedFileObjectCheck.getGeneratedFileObjectMatchers() != null) {
-
-                            for (GeneratedFileObjectMatcher<FileObject> matcher : generatedFileObjectCheck.getGeneratedFileObjectMatchers()) {
-                                if (!matcher.check(foundFileObject)) {
-                                    throw new FailingAssertionException(String.format(MESSAGE_FO_EXISTS_BUT_DOESNT_MATCH_MATCHER, getFileObjectInfoString(generatedFileObjectCheck)));
                                 }
+
                             }
 
+                            // check with passed matcher
+                            if (generatedFileObjectCheck.getGeneratedFileObjectMatchers() != null) {
+
+                                for (GeneratedFileObjectMatcher<FileObject> matcher : generatedFileObjectCheck.getGeneratedFileObjectMatchers()) {
+                                    if (!matcher.check(foundFileObject)) {
+                                        throw new FailingAssertionException(String.format(MESSAGE_FO_EXISTS_BUT_DOESNT_MATCH_MATCHER, getFileObjectInfoString(generatedFileObjectCheck)));
+                                    }
+                                }
+
+                            }
+
+                        } catch (IOException e) {
+                            throw new FailingAssertionException(String.format(MESSAGE_TECHNICAL_ERROR, e.getMessage()));
                         }
 
-                    } catch (IOException e) {
-                        throw new FailingAssertionException(String.format(MESSAGE_TECHNICAL_ERROR, e.getMessage()));
+
                     }
-
-
+                } else {
+                    if (compilationResult.getCompileTestFileManager().existsExpectedFileObject(generatedFileObjectCheck.getLocation(), generatedFileObjectCheck.getPackageName(), generatedFileObjectCheck.getRelativeName())) {
+                        throw new FailingAssertionException(String.format(MESSAGE_FO_EXISTS_BUT_SHOULD_BE_NON_EXISTENT, getFileObjectInfoString(generatedFileObjectCheck)));
+                    }
                 }
-
 
             }
 
@@ -215,7 +231,7 @@ public class CompileTest {
     public static CompilationResult compile(CompileTestConfiguration compileTestConfiguration) {
 
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-        DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<JavaFileObject>();
+        DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
 
         StandardJavaFileManager stdJavaFileManager = compiler.getStandardFileManager(diagnostics, null, null);
 
@@ -223,12 +239,22 @@ public class CompileTest {
         // Configure java compilation task
         CompileTestFileManager javaFileManager = new CompileTestFileManager(stdJavaFileManager);
 
-        JavaCompiler.CompilationTask compilationTask = compiler.getTask(null, javaFileManager, diagnostics, null, null, compileTestConfiguration.getSourceFiles());
+        JavaCompiler.CompilationTask compilationTask = compiler.getTask(
+                null,
+                javaFileManager,
+                diagnostics,
+                compileTestConfiguration.getCompilerOptions().isEmpty() ? null : compileTestConfiguration.getNormalizedCompilerOptions(),
+                null,
+                compileTestConfiguration.getSourceFiles());
+
         compilationTask.setProcessors(compileTestConfiguration.getWrappedProcessors());
 
         // handle java 9 module support via SPI to be backward compatible with older Java versions prior to java 9
         if (!Java9SupportCheck.UNSUPPORTED_JAVA_VERSION) {
-            ModuleSupportSpiServiceLocator.locate().applyModulePath(stdJavaFileManager, compilationTask, compileTestConfiguration.getModules());
+            ModuleSupportSpi moduleService = ModuleSupportSpiServiceLocator.locate();
+            if (moduleService != null) {
+                moduleService.applyModulePath(stdJavaFileManager, compilationTask, compileTestConfiguration.getModules());
+            }
         }
 
         Boolean compilationSucceeded = compilationTask.call();

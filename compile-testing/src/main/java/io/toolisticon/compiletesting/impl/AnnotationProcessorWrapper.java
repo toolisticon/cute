@@ -70,7 +70,7 @@ final class AnnotationProcessorWrapper implements Processor {
             firstRound = false;
         }
 
-        boolean returnValue = false;
+        boolean returnValue;
 
         try {
 

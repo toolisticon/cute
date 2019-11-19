@@ -6,8 +6,10 @@ import javax.annotation.processing.Processor;
 import javax.tools.FileObject;
 import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -86,7 +88,14 @@ public class CompileTestConfiguration {
         }
     }
 
+    public enum FileObjectCheckType {
+        EXISTS,
+        DOESNT_EXIST
+    }
+
     public static class GeneratedJavaFileObjectCheck {
+
+        private final FileObjectCheckType checkType;
         private final JavaFileManager.Location location;
         private final String className;
         private final JavaFileObject.Kind kind;
@@ -94,8 +103,9 @@ public class CompileTestConfiguration {
         private final JavaFileObject expectedJavaFileObject;
         private final GeneratedFileObjectMatcher<JavaFileObject> generatedFileObjectMatcher;
 
-        private GeneratedJavaFileObjectCheck(JavaFileManager.Location location, String className, JavaFileObject.Kind kind, JavaFileObject expectedJavaFileObject, GeneratedFileObjectMatcher<JavaFileObject> generatedFileObjectMatcher) {
+        private GeneratedJavaFileObjectCheck(FileObjectCheckType checkType, JavaFileManager.Location location, String className, JavaFileObject.Kind kind, JavaFileObject expectedJavaFileObject, GeneratedFileObjectMatcher<JavaFileObject> generatedFileObjectMatcher) {
 
+            this.checkType = checkType;
             this.location = location;
             this.className = className;
             this.kind = kind;
@@ -106,14 +116,17 @@ public class CompileTestConfiguration {
         }
 
 
-        public GeneratedJavaFileObjectCheck(JavaFileManager.Location location, String className, JavaFileObject.Kind kind, JavaFileObject expectedJavaFileObject) {
-            this(location, className, kind, expectedJavaFileObject, null);
+        public GeneratedJavaFileObjectCheck(FileObjectCheckType checkType, JavaFileManager.Location location, String className, JavaFileObject.Kind kind, JavaFileObject expectedJavaFileObject) {
+            this(checkType, location, className, kind, expectedJavaFileObject, null);
         }
 
-        public GeneratedJavaFileObjectCheck(JavaFileManager.Location location, String className, JavaFileObject.Kind kind, GeneratedFileObjectMatcher<JavaFileObject> generatedFileObjectMatcher) {
-            this(location, className, kind, null, generatedFileObjectMatcher);
+        public GeneratedJavaFileObjectCheck(FileObjectCheckType checkType, JavaFileManager.Location location, String className, JavaFileObject.Kind kind, GeneratedFileObjectMatcher<JavaFileObject> generatedFileObjectMatcher) {
+            this(checkType, location, className, kind, null, generatedFileObjectMatcher);
         }
 
+        public FileObjectCheckType getCheckType() {
+            return checkType;
+        }
 
         public JavaFileManager.Location getLocation() {
             return location;
@@ -137,7 +150,8 @@ public class CompileTestConfiguration {
 
         @Override
         public int hashCode() {
-            return (this.location != null ? this.location.hashCode() : 0)
+            return (checkType != null ? checkType.hashCode() : 0)
+                    + (location != null ? location.hashCode() : 0)
                     + (className != null ? className.hashCode() : 0)
                     + (kind != null ? kind.hashCode() : 0)
                     + (expectedJavaFileObject != null ? expectedJavaFileObject.hashCode() : 0)
@@ -150,6 +164,18 @@ public class CompileTestConfiguration {
             if (obj != null && GeneratedJavaFileObjectCheck.class.isAssignableFrom(obj.getClass())) {
 
                 GeneratedJavaFileObjectCheck otherObj = (GeneratedJavaFileObjectCheck) obj;
+
+                // compare checkType
+                if ((this.getCheckType() == null && otherObj.getCheckType() != null)
+                        || (this.getCheckType() != null && otherObj.getCheckType() == null)) {
+
+                    return false;
+
+                } else if ((this.getCheckType() != null && otherObj.getCheckType() != null)) {
+                    if (!this.getCheckType().equals(otherObj.getCheckType())) {
+                        return false;
+                    }
+                }
 
                 // compare location
                 if ((this.getLocation() == null && otherObj.getLocation() != null)
@@ -221,7 +247,8 @@ public class CompileTestConfiguration {
         @Override
         public String toString() {
             return "GeneratedJavaFileObjectCheck{" +
-                    "\n\t\tlocation=" + location +
+                    "\n\t\tcheckType=" + checkType.name() +
+                    ",\n\t\tlocation=" + location +
                     ",\n\t\t className='" + className + '\'' +
                     ",\n\t\t kind=" + kind +
                     ",\n\t\t expectedJavaFileObject=" + expectedJavaFileObject +
@@ -233,6 +260,8 @@ public class CompileTestConfiguration {
 
 
     public static class GeneratedFileObjectCheck {
+
+        private final FileObjectCheckType checkType;
         private final JavaFileManager.Location location;
         private final String packageName;
         private final String relativeName;
@@ -241,8 +270,9 @@ public class CompileTestConfiguration {
         private final FileObject expectedFileObject;
         private final GeneratedFileObjectMatcher<FileObject>[] generatedFileObjectMatchers;
 
-        private GeneratedFileObjectCheck(JavaFileManager.Location location, String packageName, String relativeName, FileObject expectedFileObject, GeneratedFileObjectMatcher<FileObject>[] generatedFileObjectMatchers) {
+        private GeneratedFileObjectCheck(FileObjectCheckType checkType, JavaFileManager.Location location, String packageName, String relativeName, FileObject expectedFileObject, GeneratedFileObjectMatcher<FileObject>[] generatedFileObjectMatchers) {
 
+            this.checkType = checkType;
             this.location = location;
             this.packageName = packageName;
             this.relativeName = relativeName;
@@ -253,14 +283,17 @@ public class CompileTestConfiguration {
         }
 
 
-        public GeneratedFileObjectCheck(JavaFileManager.Location location, String packageName, String relativeName, FileObject expectedFileObject) {
-            this(location, packageName, relativeName, expectedFileObject, null);
+        public GeneratedFileObjectCheck(FileObjectCheckType checkType, JavaFileManager.Location location, String packageName, String relativeName, FileObject expectedFileObject) {
+            this(checkType, location, packageName, relativeName, expectedFileObject, null);
         }
 
-        public GeneratedFileObjectCheck(JavaFileManager.Location location, String packageName, String relativeName, GeneratedFileObjectMatcher<FileObject>[] generatedFileObjectMatchers) {
-            this(location, packageName, relativeName, null, generatedFileObjectMatchers);
+        public GeneratedFileObjectCheck(FileObjectCheckType checkType, JavaFileManager.Location location, String packageName, String relativeName, GeneratedFileObjectMatcher<FileObject>[] generatedFileObjectMatchers) {
+            this(checkType, location, packageName, relativeName, null, generatedFileObjectMatchers);
         }
 
+        public FileObjectCheckType getCheckType() {
+            return checkType;
+        }
 
         public JavaFileManager.Location getLocation() {
             return location;
@@ -284,7 +317,8 @@ public class CompileTestConfiguration {
 
         @Override
         public int hashCode() {
-            return (this.location != null ? this.location.hashCode() : 0)
+            return (checkType != null ? checkType.hashCode() : 0)
+                    + (location != null ? location.hashCode() : 0)
                     + (packageName != null ? packageName.hashCode() : 0)
                     + (relativeName != null ? relativeName.hashCode() : 0)
                     + (expectedFileObject != null ? expectedFileObject.hashCode() : 0)
@@ -297,6 +331,18 @@ public class CompileTestConfiguration {
             if (obj != null && GeneratedFileObjectCheck.class.isAssignableFrom(obj.getClass())) {
 
                 GeneratedFileObjectCheck otherObj = (GeneratedFileObjectCheck) obj;
+
+                // compare checkType
+                if ((this.getCheckType() == null && otherObj.getCheckType() != null)
+                        || (this.getCheckType() != null && otherObj.getCheckType() == null)) {
+
+                    return false;
+
+                } else if ((this.getCheckType() != null && otherObj.getCheckType() != null)) {
+                    if (!this.getCheckType().equals(otherObj.getCheckType())) {
+                        return false;
+                    }
+                }
 
                 // compare location
                 if ((this.getLocation() == null && otherObj.getLocation() != null)
@@ -367,7 +413,8 @@ public class CompileTestConfiguration {
         @Override
         public String toString() {
             return "GeneratedFileObjectCheck{" +
-                    "\n\t\tlocation=" + location +
+                    "\n\t\tcheckType=" + checkType.name() +
+                    ",\n\t\tlocation=" + location +
                     ",\n\t\t packageName='" + packageName + '\'' +
                     ",\n\t\t relativeName='" + relativeName + '\'' +
                     ",\n\t\t expectedFileObject=" + expectedFileObject +
@@ -378,24 +425,29 @@ public class CompileTestConfiguration {
     }
 
     /**
+     * The compiler options to use.
+     */
+    private final List<String> compilerOptions = new ArrayList<>();
+
+    /**
      * The source files to use.
      */
-    private final Set<JavaFileObject> sourceFiles = new HashSet<JavaFileObject>();
+    private final Set<JavaFileObject> sourceFiles = new HashSet<>();
 
     /**
      * The processors to use.
      */
-    private final Set<Processor> processors = new HashSet<Processor>();
+    private final Set<Processor> processors = new HashSet<>();
 
     /**
      * The processor types to use.
      */
-    private final Set<Class<? extends Processor>> processorTypes = new HashSet<Class<? extends Processor>>();
+    private final Set<Class<? extends Processor>> processorTypes = new HashSet<>();
 
     /**
      * The processors to use with an expected exception raised by this specific processor.
      */
-    private final Set<ProcessorWithExpectedException> processorsWithExpectedExceptions = new HashSet<ProcessorWithExpectedException>();
+    private final Set<ProcessorWithExpectedException> processorsWithExpectedExceptions = new HashSet<>();
 
     /**
      * This is a cache for all wrapped processors and must be reset after processors are added.
@@ -418,20 +470,20 @@ public class CompileTestConfiguration {
     private Boolean compilationShouldSucceed;
 
     // message checks by severity
-    private final Set<String> noteMessageCheck = new HashSet<String>();
-    private final Set<String> warningMessageCheck = new HashSet<String>();
-    private final Set<String> mandatoryWarningMessageCheck = new HashSet<String>();
-    private final Set<String> errorMessageCheck = new HashSet<String>();
+    private final Set<String> noteMessageCheck = new HashSet<>();
+    private final Set<String> warningMessageCheck = new HashSet<>();
+    private final Set<String> mandatoryWarningMessageCheck = new HashSet<>();
+    private final Set<String> errorMessageCheck = new HashSet<>();
 
 
     /**
      * Checks for generated JavaFileObjects.
      */
-    private final Set<GeneratedJavaFileObjectCheck> generatedJavaFileObjectChecks = new HashSet<GeneratedJavaFileObjectCheck>();
+    private final Set<GeneratedJavaFileObjectCheck> generatedJavaFileObjectChecks = new HashSet<>();
     /**
      * Checks for generated FileObjects.
      */
-    private final Set<GeneratedFileObjectCheck> generatedFileObjectChecks = new HashSet<GeneratedFileObjectCheck>();
+    private final Set<GeneratedFileObjectCheck> generatedFileObjectChecks = new HashSet<>();
 
     /**
      * Noarg constructor.
@@ -447,6 +499,7 @@ public class CompileTestConfiguration {
      */
     CompileTestConfiguration(CompileTestConfiguration source) {
 
+        this.compilerOptions.addAll(source.getCompilerOptions());
         this.sourceFiles.addAll(source.getSourceFiles());
         this.processors.addAll(source.getProcessors());
         this.processorTypes.addAll(source.getProcessorTypes());
@@ -454,7 +507,7 @@ public class CompileTestConfiguration {
         this.expectedThrownException = source.getExpectedThrownException();
 
         if (source.getModules() != null) {
-            this.modules = new HashSet<String>();
+            this.modules = new HashSet<>();
             this.modules.addAll(source.getModules());
         } else {
             this.modules = null;
@@ -480,6 +533,13 @@ public class CompileTestConfiguration {
         this.compilationShouldSucceed = compilationShouldSucceed;
     }
 
+    public void addCompilerOptions(String... compilerOptions) {
+        if (compilerOptions != null) {
+            this.compilerOptions.addAll(Arrays.asList(compilerOptions));
+        }
+    }
+
+
     public void addSourceFiles(JavaFileObject... sourceFiles) {
         if (sourceFiles != null) {
             this.sourceFiles.addAll(Arrays.asList(sourceFiles));
@@ -489,7 +549,7 @@ public class CompileTestConfiguration {
 
     /**
      * This method should only be used for unit compile tests.
-     * Sharing instance between test runs can cause undeterministic behavior.
+     * Sharing instance between test runs can cause nondeterministic behavior.
      *
      * @param processors the processors to use
      */
@@ -504,7 +564,8 @@ public class CompileTestConfiguration {
         }
     }
 
-    public void addProcessorTypes(Class<? extends Processor>... processorTypes) {
+    @SafeVarargs
+    public final void addProcessorTypes(Class<? extends Processor>... processorTypes) {
 
         // reset cache
         this.wrappedProcessors = null;
@@ -528,7 +589,7 @@ public class CompileTestConfiguration {
     public void addModules(String... modules) {
         if (modules != null) {
             if (this.modules == null) {
-                this.modules = new HashSet<String>();
+                this.modules = new HashSet<>();
             }
             this.modules.addAll(Arrays.asList(modules));
             this.modules.remove(null);
@@ -566,24 +627,48 @@ public class CompileTestConfiguration {
     }
 
 
-    public void addGeneratedJavaFileObjectCheck(JavaFileManager.Location location, String className, JavaFileObject.Kind kind, JavaFileObject javaFileObject) {
-        this.generatedJavaFileObjectChecks.add(new GeneratedJavaFileObjectCheck(location, className, kind, javaFileObject));
+    public void addGeneratedJavaFileObjectCheck(FileObjectCheckType checkType, JavaFileManager.Location location, String className, JavaFileObject.Kind kind, JavaFileObject javaFileObject) {
+        this.generatedJavaFileObjectChecks.add(new GeneratedJavaFileObjectCheck(checkType, location, className, kind, javaFileObject));
     }
 
-    public void addGeneratedJavaFileObjectCheck(JavaFileManager.Location location, String className, JavaFileObject.Kind kind, GeneratedFileObjectMatcher<JavaFileObject> generatedFileObjectMatcher) {
-        this.generatedJavaFileObjectChecks.add(new GeneratedJavaFileObjectCheck(location, className, kind, generatedFileObjectMatcher));
+    public void addGeneratedJavaFileObjectCheck(FileObjectCheckType checkType, JavaFileManager.Location location, String className, JavaFileObject.Kind kind, GeneratedFileObjectMatcher<JavaFileObject> generatedFileObjectMatcher) {
+        this.generatedJavaFileObjectChecks.add(new GeneratedJavaFileObjectCheck(checkType, location, className, kind, generatedFileObjectMatcher));
     }
 
-    public void addGeneratedFileObjectCheck(JavaFileManager.Location location, String packageName, String relativeName, FileObject javaFileObject) {
-        this.generatedFileObjectChecks.add(new GeneratedFileObjectCheck(location, packageName, relativeName, javaFileObject));
+    public void addGeneratedFileObjectCheck(FileObjectCheckType checkType, JavaFileManager.Location location, String packageName, String relativeName, FileObject javaFileObject) {
+        this.generatedFileObjectChecks.add(new GeneratedFileObjectCheck(checkType, location, packageName, relativeName, javaFileObject));
     }
 
-    public void addGeneratedFileObjectCheck(JavaFileManager.Location location, String packageName, String relativeName, GeneratedFileObjectMatcher<FileObject>... generatedFileObjectMatcher) {
-        this.generatedFileObjectChecks.add(new GeneratedFileObjectCheck(location, packageName, relativeName, generatedFileObjectMatcher));
+    @SafeVarargs
+    public final void addGeneratedFileObjectCheck(FileObjectCheckType checkType, JavaFileManager.Location location, String packageName, String relativeName, GeneratedFileObjectMatcher<FileObject>... generatedFileObjectMatcher) {
+        this.generatedFileObjectChecks.add(new GeneratedFileObjectCheck(checkType, location, packageName, relativeName, generatedFileObjectMatcher));
     }
 
     public void setExpectedThrownException(Class<? extends Throwable> expectedThrownException) {
         this.expectedThrownException = expectedThrownException;
+    }
+
+    public List<String> getCompilerOptions() {
+        return compilerOptions;
+    }
+
+    public List<String> getNormalizedCompilerOptions() {
+
+        List<String> normalizedCompilerOptions = new ArrayList<>();
+
+        for (String compilerOption : getCompilerOptions()) {
+
+            if (compilerOption != null) {
+                for (String tokenizedCompilerOption : compilerOption.split("[ ]+")) {
+                    if (!tokenizedCompilerOption.isEmpty()) {
+                        normalizedCompilerOptions.add(tokenizedCompilerOption);
+                    }
+                }
+            }
+        }
+
+        return normalizedCompilerOptions;
+
     }
 
     public Set<JavaFileObject> getSourceFiles() {
@@ -611,15 +696,11 @@ public class CompileTestConfiguration {
         }
 
 
-        Set<AnnotationProcessorWrapper> wrappedProcessors = new HashSet<AnnotationProcessorWrapper>();
+        Set<AnnotationProcessorWrapper> wrappedProcessors = new HashSet<>();
 
         for (Processor processor : this.processors) {
 
-            if (this.expectedThrownException != null) {
-                wrappedProcessors.add(AnnotationProcessorWrapper.wrapProcessor(processor, expectedThrownException));
-            } else {
-                wrappedProcessors.add(AnnotationProcessorWrapper.wrapProcessor(processor, expectedThrownException));
-            }
+            wrappedProcessors.add(AnnotationProcessorWrapper.wrapProcessor(processor, expectedThrownException));
 
         }
 
@@ -628,11 +709,8 @@ public class CompileTestConfiguration {
             try {
                 Processor processor = (Processor) processorType.getDeclaredConstructor().newInstance();
 
-                if (this.expectedThrownException != null) {
-                    wrappedProcessors.add(AnnotationProcessorWrapper.wrapProcessor(processor, expectedThrownException));
-                } else {
-                    wrappedProcessors.add(AnnotationProcessorWrapper.wrapProcessor(processor, expectedThrownException));
-                }
+                wrappedProcessors.add(AnnotationProcessorWrapper.wrapProcessor(processor, expectedThrownException));
+
             } catch (Exception e) {
                 throw new IllegalArgumentException("Passed processor " + processorType.getCanonicalName() + " cannot be instantiated.", e);
             }
@@ -691,7 +769,8 @@ public class CompileTestConfiguration {
     @Override
     public String toString() {
         return "CompileTestConfiguration{\n" +
-                "\n\tsourceFiles=" + sourceFiles +
+                "\n\tcompilerOptions=" + compilerOptions +
+                ",\n\tsourceFiles=" + sourceFiles +
                 ",\n\t processors=" + processors +
                 ",\n\t processorTypes=" + processorTypes +
                 ",\n\t processorsWithExpectedExceptions=" + processorsWithExpectedExceptions +

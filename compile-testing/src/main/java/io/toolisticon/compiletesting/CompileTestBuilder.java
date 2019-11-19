@@ -7,6 +7,7 @@ import javax.annotation.processing.Processor;
 import javax.tools.FileObject;
 import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
+import javax.tools.StandardLocation;
 
 /**
  * Compile test builder.
@@ -53,6 +54,21 @@ public class CompileTestBuilder {
             nextConfiguration.setCompilationShouldSucceed(false);
             return createNextInstance(nextConfiguration);
         }
+
+        /**
+         * Use compiler options.
+         * Options with parameters can, but must not be split over two consecutive Strings.
+         * Those options can be put in one single String (e.g. "-source 1.7" or "-target 1.7").
+         *
+         * @param compilerOptions the options to use
+         * @return the next builder instance
+         */
+        public T useCompilerOptions(String... compilerOptions) {
+            CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
+            nextConfiguration.addCompilerOptions(compilerOptions);
+            return createNextInstance(nextConfiguration);
+        }
+
 
         /**
          * Defines modules used during compilation.
@@ -138,7 +154,6 @@ public class CompileTestBuilder {
 
         }
 
-
         /**
          * Adds a check if a specific generated FileObject exists.
          *
@@ -168,7 +183,7 @@ public class CompileTestBuilder {
                 FileObject expectedFileObject) {
 
             CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
-            nextConfiguration.addGeneratedFileObjectCheck(location, packageName, relativeName, expectedFileObject);
+            nextConfiguration.addGeneratedFileObjectCheck(CompileTestConfiguration.FileObjectCheckType.EXISTS, location, packageName, relativeName, expectedFileObject);
             return createNextInstance(nextConfiguration);
 
         }
@@ -183,20 +198,96 @@ public class CompileTestBuilder {
          * @param generatedFileObjectMatcher the matcher to use
          * @return the next builder instance
          */
-        public T expectedFileObjectExists(
+        @SafeVarargs
+        public final T expectedFileObjectExists(
                 JavaFileManager.Location location,
                 String packageName,
                 String relativeName,
                 GeneratedFileObjectMatcher<FileObject>... generatedFileObjectMatcher) {
 
             CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
-            nextConfiguration.addGeneratedFileObjectCheck(location, packageName, relativeName, generatedFileObjectMatcher);
+            nextConfiguration.addGeneratedFileObjectCheck(CompileTestConfiguration.FileObjectCheckType.EXISTS, location, packageName, relativeName, generatedFileObjectMatcher);
             return createNextInstance(nextConfiguration);
 
         }
 
+
         /**
-         * Adds a check if a specific generated JavaFileObject exists.
+         * Adds a check if a specific generated FileObject doesn't exists.
+         *
+         * @param location     the location (usually from javax.tools.StandardLocation)
+         * @param packageName  the package name
+         * @param relativeName the package relative name
+         * @return the next builder instance
+         */
+        public T expectFileObjectNotToExist(
+                JavaFileManager.Location location,
+                String packageName,
+                String relativeName) {
+
+            CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
+            nextConfiguration.addGeneratedFileObjectCheck(CompileTestConfiguration.FileObjectCheckType.DOESNT_EXIST, location, packageName, relativeName, (FileObject) null);
+            return createNextInstance(nextConfiguration);
+
+        }
+
+
+        /**
+         * Checks if a generated source file exists.
+         *
+         * @param className the full qualified name of the class
+         * @return the next builder instance
+         */
+        public T expectedGeneratedSourceFileExists(String className) {
+            return expectedJavaFileObjectExists(StandardLocation.SOURCE_OUTPUT, className, JavaFileObject.Kind.SOURCE);
+        }
+
+        /**
+         * Checks if a generated source file exists.
+         * Additionally checks if files are equal if passed expectedJavaFileObject is not null.
+         *
+         * @param className              the full qualified name of the class
+         * @param expectedJavaFileObject the file used for comparision of content
+         * @return the next builder instance
+         */
+        public T expectedGeneratedSourceFileExists(String className, JavaFileObject expectedJavaFileObject) {
+            return expectedJavaFileObjectExists(StandardLocation.SOURCE_OUTPUT, className, JavaFileObject.Kind.SOURCE, expectedJavaFileObject);
+        }
+
+        /**
+         * Adds a check if a specific class file exists.
+         *
+         * @param className the class name
+         * @return the next builder instance
+         */
+        public T expectedClassFileExists(String className) {
+            return expectedJavaFileObjectExists(StandardLocation.CLASS_OUTPUT, className, JavaFileObject.Kind.CLASS);
+        }
+
+        /**
+         * Adds a check if a specific generated source file exists.
+         * Additionally checks if java file object matches with passed matcher.
+         *
+         * @param className                    the class name
+         * @param generatedJavaFileObjectCheck the matcher to use
+         * @return the next builder instance
+         */
+        public T expectedGeneratedSourceFileExists(String className, GeneratedFileObjectMatcher<JavaFileObject> generatedJavaFileObjectCheck) {
+            return expectedJavaFileObjectExists(StandardLocation.SOURCE_OUTPUT, className, JavaFileObject.Kind.SOURCE, generatedJavaFileObjectCheck);
+        }
+
+        /**
+         * Adds a check if a specific JavaFileObject doesn't exist.
+         *
+         * @param className the class name
+         * @return the next builder instance
+         */
+        public T expectGeneratedSourceFileNotToExist(String className) {
+            return expectJavaFileObjectNotToExist(StandardLocation.SOURCE_OUTPUT, className, JavaFileObject.Kind.SOURCE);
+        }
+
+        /**
+         * Adds a check if a specific JavaFileObject exists.
          *
          * @param location  the location (usually from javax.tools.StandardLocation)
          * @param className the class name
@@ -206,6 +297,7 @@ public class CompileTestBuilder {
         public T expectedJavaFileObjectExists(JavaFileManager.Location location, String className, JavaFileObject.Kind kind) {
             return expectedJavaFileObjectExists(location, className, kind, (JavaFileObject) null);
         }
+
 
         /**
          * Adds a check if a specific generated JavaFileObject exists.
@@ -224,7 +316,7 @@ public class CompileTestBuilder {
                 JavaFileObject expectedJavaFileObject) {
 
             CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
-            nextConfiguration.addGeneratedJavaFileObjectCheck(location, className, kind, expectedJavaFileObject);
+            nextConfiguration.addGeneratedJavaFileObjectCheck(CompileTestConfiguration.FileObjectCheckType.EXISTS, location, className, kind, expectedJavaFileObject);
             return createNextInstance(nextConfiguration);
 
         }
@@ -246,9 +338,25 @@ public class CompileTestBuilder {
                 GeneratedFileObjectMatcher<JavaFileObject> generatedJavaFileObjectCheck) {
 
             CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
-            nextConfiguration.addGeneratedJavaFileObjectCheck(location, className, kind, generatedJavaFileObjectCheck);
+            nextConfiguration.addGeneratedJavaFileObjectCheck(CompileTestConfiguration.FileObjectCheckType.EXISTS, location, className, kind, generatedJavaFileObjectCheck);
             return createNextInstance(nextConfiguration);
 
+        }
+
+        /**
+         * Adds a check if a specific JavaFileObject doesn't exist.
+         *
+         * @param location  the location (usually from javax.tools.StandardLocation)
+         * @param className the class name
+         * @param kind      the kind of the JavaFileObject
+         * @return the next builder instance
+         */
+        public T expectJavaFileObjectNotToExist(JavaFileManager.Location location, String className, JavaFileObject.Kind kind) {
+
+            CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
+            nextConfiguration.addGeneratedJavaFileObjectCheck(CompileTestConfiguration.FileObjectCheckType.DOESNT_EXIST, location, className, kind, (JavaFileObject) null);
+
+            return createNextInstance(nextConfiguration);
         }
 
         /**
@@ -307,7 +415,8 @@ public class CompileTestBuilder {
          * @param processorTypes the processor types to use, processors must have a noarg constructor
          * @return the CompilationTestBuilder instance
          */
-        public CompilationTestBuilder addProcessors(Class<? extends Processor>... processorTypes) {
+        @SafeVarargs
+        public final CompilationTestBuilder addProcessors(Class<? extends Processor>... processorTypes) {
 
             CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
             if (processorTypes != null) {
@@ -347,7 +456,7 @@ public class CompileTestBuilder {
          * @param sources the sources to use
          * @return the CompilationTestBuilder instance
          */
-        public CompilationTestBuilder addSources(JavaFileObject... sources) {
+        public final CompilationTestBuilder addSources(JavaFileObject... sources) {
 
             CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
             if (sources != null) {
@@ -365,7 +474,7 @@ public class CompileTestBuilder {
          * @param sources the sources to use
          * @return the CompilationTestBuilder instance
          */
-        public CompilationTestBuilder addSources(String... sources) {
+        public final CompilationTestBuilder addSources(String... sources) {
 
             return addSources(JavaFileObjectUtils.readFromResources(sources));
 

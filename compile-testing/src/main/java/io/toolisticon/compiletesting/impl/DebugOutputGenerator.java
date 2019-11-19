@@ -1,12 +1,13 @@
 package io.toolisticon.compiletesting.impl;
 
-import io.toolisticon.compiletesting.impl.CommonUtilities;
 import io.toolisticon.compiletesting.FailingAssertionException;
+import io.toolisticon.compiletesting.extension.api.ModuleSupportSpi;
 import io.toolisticon.compiletesting.extension.api.ModuleSupportSpiServiceLocator;
 
 import javax.tools.Diagnostic;
 import javax.tools.FileObject;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -62,8 +63,11 @@ final class DebugOutputGenerator {
 
         if (!Java9SupportCheck.UNSUPPORTED_JAVA_VERSION && compileTestConfiguration.getModules() != null) {
 
-            stringBuilder.append(getDebugOutputHeader("MODULE PATH"));
-            ModuleSupportSpiServiceLocator.locate().writeModuleDebugOutput(stringBuilder);
+            ModuleSupportSpi moduleSupportSpi = ModuleSupportSpiServiceLocator.locate();
+            if (moduleSupportSpi != null) {
+                stringBuilder.append(getDebugOutputHeader("MODULE PATH"));
+                moduleSupportSpi.writeModuleDebugOutput(stringBuilder);
+            }
 
         }
 
@@ -75,6 +79,40 @@ final class DebugOutputGenerator {
     private static String getDebugOutputHeader(String headerString) {
         return String.format("\n-------------------------------\n-- %s: \n-------------------------------\n", headerString.toUpperCase());
     }
+
+    /**
+     * Used to determine the build folder.
+     * <p>
+     * Maybe "target" for Maven builds and a folder containing "build" in it's name for gradle.
+     * Defaults to "target".
+     *
+     * @return the build folder name
+     */
+    private static String determineBuildFolder() {
+
+        if (new File("target").isDirectory()) {
+            return "target";
+        } else if (new File("build").isDirectory()) {
+            return "build";
+        } else {
+            // a folder containing build in it's name
+            File[] possibleBuildDirectories = new File(".").listFiles(new FileFilter() {
+                @Override
+                public boolean accept(File pathname) {
+                    return pathname.isDirectory() && pathname.getName().contains("build");
+                }
+            });
+
+            if (possibleBuildDirectories.length > 0) {
+                return possibleBuildDirectories[0].getName();
+            }
+        }
+
+        // default => back to target
+        return "target";
+
+    }
+
 
     private static String getDebugMessages(CompilationResult compilationResult, Diagnostic.Kind kind) {
         StringBuilder stringBuilder = new StringBuilder();
@@ -100,26 +138,20 @@ final class DebugOutputGenerator {
 
     private static String getGeneratedFileOverview(CompilationResult compilationResult) {
 
-        StringBuilder stringBuilder = new StringBuilder();
-
-
-        stringBuilder
-                .append("{\n")
-                .append("  'GENERATED JAVA FILE OBJECTS' : ")
-                .append(createGeneratedFileObjectOverview(compilationResult.getCompileTestFileManager().getGeneratedJavaFileObjects()))
-                .append(",\n  'GENERATED FILE OBJECTS' :")
-                .append(createGeneratedFileObjectOverview(compilationResult.getCompileTestFileManager().getGeneratedFileObjects()))
-                .append("\n}");
-
-
-        return stringBuilder.toString();
+        String stringBuilder = "{\n" +
+                "  'GENERATED JAVA FILE OBJECTS' : " +
+                createGeneratedFileObjectOverview(compilationResult.getCompileTestFileManager().getGeneratedJavaFileObjects()) +
+                ",\n  'GENERATED FILE OBJECTS' :" +
+                createGeneratedFileObjectOverview(compilationResult.getCompileTestFileManager().getGeneratedFileObjects()) +
+                "\n}";
+        return stringBuilder;
 
     }
 
 
     private static <FILE_OBJECT extends FileObject> String createGeneratedFileObjectOverview(List<FILE_OBJECT> fileObjects) {
 
-        final String prefix = "target/compileTesting_failingUnitTests/" + CommonUtilities.getRandomString(10);
+        final String prefix = determineBuildFolder() + "/compileTesting_failingUnitTests/" + CommonUtilities.getRandomString(10);
 
         StringBuilder stringBuilder = new StringBuilder();
 
@@ -131,7 +163,7 @@ final class DebugOutputGenerator {
 
             for (FILE_OBJECT fileObject : fileObjects) {
 
-                stringBuilder.append("    '" + fileObject.toUri().toString() + "'").append(" := '").append(writeFile(prefix, fileObject)).append("', \n");
+                stringBuilder.append("    '").append(fileObject.toUri().toString()).append("'").append(" := '").append(writeFile(prefix, fileObject)).append("', \n");
 
             }
 

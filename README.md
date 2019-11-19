@@ -80,10 +80,8 @@ public void exampleCompilationTest() {
            .addProcessors(YourProcessorUnderTest.class)
            .compilationShouldSucceed()
            .expectedWarningMessages("WARNING SNIPPET(will check if a warning exists that contains passed string)")
-           .expectedJavaFileObjectExists(
-                   StandardLocation.SOURCE_OUTPUT,
+           .expectedGeneratedSourceFileExists(
                    "your.test.package.GeneratedFile", 
-                   JavaFileObject.Kind.SOURCE, 
                    JavaFileObjectUtils.readFromString("package your.test.package;\npublic class GeneratedFile{}"))
            .testCompilation();
 }

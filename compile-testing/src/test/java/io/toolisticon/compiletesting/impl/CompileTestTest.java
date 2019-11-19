@@ -41,13 +41,13 @@ public class CompileTestTest {
                                 writer.close();
 
 
-                            } catch (IOException e) {
+                            } catch (IOException ignored) {
 
                             }
 
                         }
                     })
-
+                    .useCompilerOptions("-verbose  ", " -source    1.6   ", "-target 1.6")
                     .compilationShouldSucceed()
 
                     .expectedFileObjectExists(StandardLocation.SOURCE_OUTPUT, "root", "Jupp.txt")
@@ -82,7 +82,7 @@ public class CompileTestTest {
                                 writer.close();
 
 
-                            } catch (IOException e) {
+                            } catch (IOException ignored) {
 
                             }
 
@@ -130,6 +130,7 @@ public class CompileTestTest {
 
                 .compilationShouldSucceed()
                 .expectedJavaFileObjectExists(StandardLocation.CLASS_OUTPUT, "io.toolisticon.compiletesting.CheckTest", JavaFileObject.Kind.CLASS)
+                .expectedClassFileExists("io.toolisticon.compiletesting.CheckTest")
                 .expectedJavaFileObjectExists(StandardLocation.SOURCE_OUTPUT, "io.toolisticon.compiletesting.CheckTest", JavaFileObject.Kind.SOURCE)
                 .expectedJavaFileObjectExists(StandardLocation.SOURCE_OUTPUT, "io.toolisticon.compiletesting.CheckTest", JavaFileObject.Kind.SOURCE, JavaFileObjectUtils.readFromString("xyz", "package io.toolisticon.compiletesting;\npublic class CheckTest{}"))
                 .expectedJavaFileObjectExists(StandardLocation.SOURCE_OUTPUT, "io.toolisticon.compiletesting.CheckTest", JavaFileObject.Kind.SOURCE, new GeneratedFileObjectMatcher<JavaFileObject>() {
@@ -138,6 +139,16 @@ public class CompileTestTest {
                         return fileObject.getCharContent(false).toString().contains("public class CheckTest{}");
                     }
                 })
+                .expectedGeneratedSourceFileExists("io.toolisticon.compiletesting.CheckTest")
+                .expectedGeneratedSourceFileExists("io.toolisticon.compiletesting.CheckTest", JavaFileObjectUtils.readFromString("xyz", "package io.toolisticon.compiletesting;\npublic class CheckTest{}"))
+                .expectedGeneratedSourceFileExists("io.toolisticon.compiletesting.CheckTest", new GeneratedFileObjectMatcher<JavaFileObject>() {
+                    @Override
+                    public boolean check(JavaFileObject fileObject) throws IOException {
+                        return fileObject.getCharContent(false).toString().contains("public class CheckTest{}");
+                    }
+                })
+                .expectGeneratedSourceFileNotToExist("io.toolisticon.compiletesting.CheckTestNotExistent")
+                .expectFileObjectNotToExist(StandardLocation.SOURCE_OUTPUT, "io.toolisticon.compiletesting", "SomethingThatDoesntExist.txt")
                 .testCompilation();
 
     }
@@ -204,12 +215,6 @@ public class CompileTestTest {
 
 
     }
-
-
-
-
-
-
 
 
 }

@@ -31,7 +31,7 @@ class CompileTestFileManager extends ForwardingJavaFileManager<StandardJavaFileM
 
     public static class FileObjectCache<T extends FileObject> {
 
-        final Map<URI, T> fileObjectCache = new HashMap<URI, T>();
+        final Map<URI, T> fileObjectCache = new HashMap<>();
 
 
         public boolean contains(URI uri) {
@@ -58,8 +58,8 @@ class CompileTestFileManager extends ForwardingJavaFileManager<StandardJavaFileM
     }
 
 
-    private final FileObjectCache<JavaFileObject> generatedJavaFileObjectCache = new FileObjectCache<JavaFileObject>();
-    private final FileObjectCache<FileObject> generatedFileObjectCache = new FileObjectCache<FileObject>();
+    private final FileObjectCache<JavaFileObject> generatedJavaFileObjectCache = new FileObjectCache<>();
+    private final FileObjectCache<FileObject> generatedFileObjectCache = new FileObjectCache<>();
 
 
     public CompileTestFileManager(StandardJavaFileManager standardJavaFileManager) {
