@@ -134,12 +134,12 @@ Additionally you have compile time model access for all classes residing in your
  
 # Projects using this toolkit library
 
-- [Annotation processor toolkit](https://github.com/toolisticon/annotation-processor-toolkit) : Toolkit that allows you to build annotation processors in a more confortable way
+- [Annotation processor toolkit](https://github.com/toolisticon/annotation-processor-toolkit) : Toolkit that allows you to build annotation processors in a more comfortable way
 - [SPI-AP](https://github.com/toolisticon/SPI-Annotation-Processor) : Annotation processor for generation of spi service locator files
 
 # Alternatives
 
-- [google compile-testing](https://github.com/google/compile-testing): Another library for testing annotation processor at compile time. It has some drawbacks (binds a lot of common 3rd party libraries which might lead to version conflicts, compatibility issues with different Java versions, almost no documentation) 
+- [google compile-testing](https://github.com/google/compile-testing): Another library for testing annotation processor at compile time. 
 
 # Contributing
 
@@ -147,8 +147,8 @@ We welcome any kind of suggestions and pull requests.
 
 ## Building and developing compile-testing project
 
-The compile-testing is built using Maven (at least version 3.0.0).
-A simple import of the pom in your IDE should get you up and running. To build the compile-testing project on the commandline, just run `mvn` or `mvn clean install`
+The compile-testing is built using Maven via bundled maven wrapper.
+A simple import of the pom in your IDE should get you up and running. To build the compile-testing project on the commandline, just run `mvnw` or `mvnw clean install`
 
 ## Requirements
 
