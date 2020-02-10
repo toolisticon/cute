@@ -1,7 +1,7 @@
 # TOOLISTICON Compile-Testing
 
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.toolisticon.compiletesting/compiletesting/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.toolisticon.compiletesting/compiletesting)
-[![Build Status](https://api.travis-ci.org/toolisticon/compile-testing.svg)](https://travis-ci.org/toolisticon/compile-testing)
+![Build Status](https://github.com/toolisticon/compile-testing/workflows/default/badge.svg)
 [![codecov](https://codecov.io/gh/toolisticon/compile-testing/branch/master/graph/badge.svg)](https://codecov.io/gh/toolisticon/compile-testing)
 
 # Why you should use this project?
