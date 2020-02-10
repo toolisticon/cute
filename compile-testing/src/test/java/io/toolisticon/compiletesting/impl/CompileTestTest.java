@@ -26,42 +26,38 @@ public class CompileTestTest {
     public void test_UnitTest_checkMatchingFileObject() {
 
 
-        try {
-            CompileTestBuilder
-                    .unitTest()
-                    .useProcessor(new UnitTestProcessor() {
-                        @Override
-                        public void unitTest(ProcessingEnvironment processingEnvironment, TypeElement typeElement) {
+        CompileTestBuilder
+                .unitTest()
+                .useProcessor(new UnitTestProcessor() {
+                    @Override
+                    public void unitTest(ProcessingEnvironment processingEnvironment, TypeElement typeElement) {
 
-                            try {
+                        try {
 
-                                FileObject fileObject = processingEnvironment.getFiler().createResource(StandardLocation.SOURCE_OUTPUT, "root", "Jupp.txt", typeElement);
-                                Writer writer = fileObject.openWriter();
-                                writer.write("TATA!");
-                                writer.close();
+                            FileObject fileObject = processingEnvironment.getFiler().createResource(StandardLocation.SOURCE_OUTPUT, "root", "Jupp.txt", typeElement);
+                            Writer writer = fileObject.openWriter();
+                            writer.write("TATA!");
+                            writer.close();
 
 
-                            } catch (IOException ignored) {
-
-                            }
+                        } catch (IOException ignored) {
 
                         }
-                    })
-                    .useCompilerOptions("-verbose  ", " -source    1.6   ", "-target 1.6")
-                    .compilationShouldSucceed()
 
-                    .expectedFileObjectExists(StandardLocation.SOURCE_OUTPUT, "root", "Jupp.txt")
-                    .expectedFileObjectExists(StandardLocation.SOURCE_OUTPUT, "root", "Jupp.txt", JavaFileObjectUtils.readFromString("TATA!"))
-                    .expectedFileObjectExists(StandardLocation.SOURCE_OUTPUT, "root", "Jupp.txt", new GeneratedFileObjectMatcher<FileObject>() {
-                        @Override
-                        public boolean check(FileObject fileObject) throws IOException {
-                            return fileObject.getCharContent(false).toString().contains("TAT");
-                        }
-                    })
-                    .testCompilation();
-        } catch (AssertionError e) {
-            Assert.fail("Should not have thrown an AssertionError");
-        }
+                    }
+                })
+                .useCompilerOptions("-verbose  ", " -source    1.7   ", "-target 1.7")
+                .compilationShouldSucceed()
+
+                .expectedFileObjectExists(StandardLocation.SOURCE_OUTPUT, "root", "Jupp.txt")
+                .expectedFileObjectExists(StandardLocation.SOURCE_OUTPUT, "root", "Jupp.txt", JavaFileObjectUtils.readFromString("TATA!"))
+                .expectedFileObjectExists(StandardLocation.SOURCE_OUTPUT, "root", "Jupp.txt", new GeneratedFileObjectMatcher<FileObject>() {
+                    @Override
+                    public boolean check(FileObject fileObject) throws IOException {
+                        return fileObject.getCharContent(false).toString().contains("TAT");
+                    }
+                })
+                .testCompilation();
 
     }
 
