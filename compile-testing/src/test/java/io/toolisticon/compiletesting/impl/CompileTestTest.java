@@ -97,7 +97,7 @@ public class CompileTestTest {
 
         } catch (AssertionError e) {
 
-            MatcherAssert.assertThat(e.getMessage(), Matchers.containsString("exists but doesn't match expected FileObject" +
+            MatcherAssert.assertThat(e.getMessage(), Matchers.containsString("exists but doesn't match passed GeneratedFileObjectMatcher" +
                     ""));
 
         }
@@ -213,8 +213,6 @@ public class CompileTestTest {
 
         MatcherAssert.assertThat("AssertionError about 'expecting compilation to fail but was successful' should have been thrown", assertionErrorWasThrown);
 
-
     }
-
 
 }

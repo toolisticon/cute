@@ -55,21 +55,19 @@ public class CompileTestConfigurationTest {
     private final String message2 = "MESSAGE2";
     private final String message3 = "MESSAGE3";
 
+    // FileObjects
+    private final JavaFileObject jfo1 = Mockito.mock(JavaFileObject.class);
+    private final JavaFileObject jfo2 = Mockito.mock(JavaFileObject.class);
+    private final FileObject fo1 = Mockito.mock(FileObject.class);
+    private final FileObject fo2 = Mockito.mock(FileObject.class);
+
     // generatedJavaFileObjectChecks
-    private final CompileTestConfiguration.GeneratedJavaFileObjectCheck generatedJavaFileObjectChecks1 = new CompileTestConfiguration.GeneratedJavaFileObjectCheck(CompileTestConfiguration.FileObjectCheckType.EXISTS, StandardLocation.SOURCE_OUTPUT,
-            "className1", JavaFileObject.Kind.SOURCE, Mockito.mock(JavaFileObject.class));
-    private final CompileTestConfiguration.GeneratedJavaFileObjectCheck generatedJavaFileObjectChecks2 = new CompileTestConfiguration.GeneratedJavaFileObjectCheck(CompileTestConfiguration.FileObjectCheckType.EXISTS, StandardLocation.CLASS_OUTPUT,
-            "className2", JavaFileObject.Kind.CLASS, Mockito.mock(JavaFileObject.class));
     private final CompileTestConfiguration.GeneratedJavaFileObjectCheck generatedJavaFileObjectChecks3 = new CompileTestConfiguration.GeneratedJavaFileObjectCheck(CompileTestConfiguration.FileObjectCheckType.EXISTS, StandardLocation.SOURCE_OUTPUT,
             "className3", JavaFileObject.Kind.SOURCE, Mockito.mock(GeneratedFileObjectMatcher.class));
     private final CompileTestConfiguration.GeneratedJavaFileObjectCheck generatedJavaFileObjectChecks4 = new CompileTestConfiguration.GeneratedJavaFileObjectCheck(CompileTestConfiguration.FileObjectCheckType.EXISTS, StandardLocation.CLASS_OUTPUT,
             "className4", JavaFileObject.Kind.CLASS, Mockito.mock(GeneratedFileObjectMatcher.class));
 
     // generatedFileObjectChecks
-    private final CompileTestConfiguration.GeneratedFileObjectCheck generatedFileObjectChecks1 = new CompileTestConfiguration.GeneratedFileObjectCheck(CompileTestConfiguration.FileObjectCheckType.EXISTS, StandardLocation.SOURCE_OUTPUT,
-            "package1", "relativeName1", Mockito.mock(JavaFileObject.class));
-    private final CompileTestConfiguration.GeneratedFileObjectCheck generatedFileObjectChecks2 = new CompileTestConfiguration.GeneratedFileObjectCheck(CompileTestConfiguration.FileObjectCheckType.EXISTS, StandardLocation.CLASS_OUTPUT,
-            "package2", "relativeName1", Mockito.mock(JavaFileObject.class));
     private final CompileTestConfiguration.GeneratedFileObjectCheck generatedFileObjectChecks3 = new CompileTestConfiguration.GeneratedFileObjectCheck(CompileTestConfiguration.FileObjectCheckType.EXISTS, StandardLocation.SOURCE_OUTPUT,
             "package3", "relativeName3", toArray(Mockito.mock(GeneratedFileObjectMatcher.class)));
     private final CompileTestConfiguration.GeneratedFileObjectCheck generatedFileObjectChecks4 = new CompileTestConfiguration.GeneratedFileObjectCheck(CompileTestConfiguration.FileObjectCheckType.EXISTS, StandardLocation.CLASS_OUTPUT,
@@ -284,9 +282,6 @@ public class CompileTestConfigurationTest {
     @Test
     public void generatedJavaFileObjectChecks_addAndGet() {
 
-        unit.addGeneratedJavaFileObjectCheck(CompileTestConfiguration.FileObjectCheckType.EXISTS, generatedJavaFileObjectChecks1.getLocation(), generatedJavaFileObjectChecks1.getClassName(), generatedJavaFileObjectChecks1.getKind(), generatedJavaFileObjectChecks1.getExpectedJavaFileObject());
-        unit.addGeneratedJavaFileObjectCheck(CompileTestConfiguration.FileObjectCheckType.EXISTS, generatedJavaFileObjectChecks2.getLocation(), generatedJavaFileObjectChecks2.getClassName(), generatedJavaFileObjectChecks2.getKind(), generatedJavaFileObjectChecks2.getExpectedJavaFileObject());
-
         unit.addGeneratedJavaFileObjectCheck(CompileTestConfiguration.FileObjectCheckType.EXISTS, generatedJavaFileObjectChecks3.getLocation(), generatedJavaFileObjectChecks3.getClassName(), generatedJavaFileObjectChecks3.getKind(), generatedJavaFileObjectChecks3.getGeneratedFileObjectMatcher());
         unit.addGeneratedJavaFileObjectCheck(CompileTestConfiguration.FileObjectCheckType.EXISTS, generatedJavaFileObjectChecks4.getLocation(), generatedJavaFileObjectChecks4.getClassName(), generatedJavaFileObjectChecks4.getKind(), generatedJavaFileObjectChecks4.getGeneratedFileObjectMatcher());
 
@@ -296,15 +291,12 @@ public class CompileTestConfigurationTest {
     }
 
     private void assertGeneratedJavaFileObjectChecks(CompileTestConfiguration configuration) {
-        MatcherAssert.assertThat(configuration.getGeneratedJavaFileObjectChecks(), Matchers.containsInAnyOrder(generatedJavaFileObjectChecks1, generatedJavaFileObjectChecks2, generatedJavaFileObjectChecks3, generatedJavaFileObjectChecks4));
+        MatcherAssert.assertThat(configuration.getGeneratedJavaFileObjectChecks(), Matchers.containsInAnyOrder(generatedJavaFileObjectChecks3, generatedJavaFileObjectChecks4));
     }
 
 
     @Test
     public void generatedFileObjectChecks_addAndGet() {
-
-        unit.addGeneratedFileObjectCheck(CompileTestConfiguration.FileObjectCheckType.EXISTS, generatedFileObjectChecks1.getLocation(), generatedFileObjectChecks1.getPackageName(), generatedFileObjectChecks1.getRelativeName(), generatedFileObjectChecks1.getExpectedFileObject());
-        unit.addGeneratedFileObjectCheck(CompileTestConfiguration.FileObjectCheckType.EXISTS, generatedFileObjectChecks2.getLocation(), generatedFileObjectChecks2.getPackageName(), generatedFileObjectChecks2.getRelativeName(), generatedFileObjectChecks2.getExpectedFileObject());
 
         unit.addGeneratedFileObjectCheck(CompileTestConfiguration.FileObjectCheckType.EXISTS, generatedFileObjectChecks3.getLocation(), generatedFileObjectChecks3.getPackageName(), generatedFileObjectChecks3.getRelativeName(), generatedFileObjectChecks3.getGeneratedFileObjectMatchers());
         unit.addGeneratedFileObjectCheck(CompileTestConfiguration.FileObjectCheckType.EXISTS, generatedFileObjectChecks4.getLocation(), generatedFileObjectChecks4.getPackageName(), generatedFileObjectChecks4.getRelativeName(), generatedFileObjectChecks4.getGeneratedFileObjectMatchers());
@@ -315,7 +307,7 @@ public class CompileTestConfigurationTest {
     }
 
     private void assertGeneratedFileObjectChecks(CompileTestConfiguration configuration) {
-        MatcherAssert.assertThat(configuration.getGeneratedFileObjectChecks(), Matchers.containsInAnyOrder(generatedFileObjectChecks1, generatedFileObjectChecks2, generatedFileObjectChecks3, generatedFileObjectChecks4));
+        MatcherAssert.assertThat(configuration.getGeneratedFileObjectChecks(), Matchers.containsInAnyOrder(generatedFileObjectChecks3, generatedFileObjectChecks4));
     }
 
     @Test
@@ -561,13 +553,13 @@ public class CompileTestConfigurationTest {
     @Test
     public void generatedFileObjectCheck_matching_withFileObject() {
 
-        CompileTestConfiguration.GeneratedFileObjectCheck otherObj = new CompileTestConfiguration.GeneratedFileObjectCheck(CompileTestConfiguration.FileObjectCheckType.EXISTS, generatedFileObjectChecks1.getLocation(),
-                generatedFileObjectChecks1.getPackageName(), generatedFileObjectChecks1.getRelativeName(), generatedFileObjectChecks1.getExpectedFileObject());
+        CompileTestConfiguration.GeneratedFileObjectCheck otherObj = new CompileTestConfiguration.GeneratedFileObjectCheck(CompileTestConfiguration.FileObjectCheckType.EXISTS, generatedFileObjectChecks3.getLocation(),
+                generatedFileObjectChecks3.getPackageName(), generatedFileObjectChecks3.getRelativeName(), generatedFileObjectChecks3.getGeneratedFileObjectMatchers());
 
-        MatcherAssert.assertThat("Objects should be detected as equal", generatedFileObjectChecks1.equals(otherObj));
-        MatcherAssert.assertThat("Objects should be detected as equal", otherObj.equals(generatedFileObjectChecks1));
+        MatcherAssert.assertThat("Objects should be detected as equal", generatedFileObjectChecks3.equals(otherObj));
+        MatcherAssert.assertThat("Objects should be detected as equal", otherObj.equals(generatedFileObjectChecks3));
 
-        MatcherAssert.assertThat("HashCodes should be identical", generatedFileObjectChecks1.hashCode() == otherObj.hashCode());
+        MatcherAssert.assertThat("HashCodes should be identical", generatedFileObjectChecks3.hashCode() == otherObj.hashCode());
 
     }
 
@@ -575,50 +567,9 @@ public class CompileTestConfigurationTest {
     public void generatedFileObjectCheck_notMatching() {
 
 
-        MatcherAssert.assertThat("Objects should not be detected as equal", !generatedFileObjectChecks1.equals(generatedFileObjectChecks2));
-        MatcherAssert.assertThat("Objects should not be detected as equal", !generatedFileObjectChecks1.equals(generatedFileObjectChecks3));
-        MatcherAssert.assertThat("Objects should not be detected as equal", !generatedFileObjectChecks1.equals(generatedFileObjectChecks4));
+        MatcherAssert.assertThat("Objects should not be detected as equal", !generatedFileObjectChecks3.equals(generatedFileObjectChecks4));
 
-        MatcherAssert.assertThat("Objects should not be detected as equal", !generatedFileObjectChecks2.equals(generatedFileObjectChecks1));
-        MatcherAssert.assertThat("Objects should not be detected as equal", !generatedFileObjectChecks3.equals(generatedFileObjectChecks1));
-        MatcherAssert.assertThat("Objects should not be detected as equal", !generatedFileObjectChecks4.equals(generatedFileObjectChecks1));
-
-    }
-
-    @Test
-    public void generatedFileObjectCheck_notMatchingSingleField_withFileObject() {
-
-        // location differs
-        JavaFileManager.Location alternativeLocation = StandardLocation.SOURCE_PATH;
-        MatcherAssert.assertThat("PRECONDITION locations must not match", alternativeLocation != generatedFileObjectChecks1.getLocation());
-        generatedFileObjectCheck_notMatchingSingleField_withFileObject_singleTest(generatedFileObjectChecks1, alternativeLocation,
-                generatedFileObjectChecks1.getPackageName(), generatedFileObjectChecks1.getRelativeName(), generatedFileObjectChecks1.getExpectedFileObject());
-
-        // packageName differs
-        String alternativePackageName = "XXX";
-        MatcherAssert.assertThat("PRECONDITION locations must not match", !alternativePackageName.equals(generatedFileObjectChecks1.getPackageName()));
-        generatedFileObjectCheck_notMatchingSingleField_withFileObject_singleTest(generatedFileObjectChecks1, generatedFileObjectChecks1.getLocation(),
-                alternativePackageName, generatedFileObjectChecks1.getRelativeName(), generatedFileObjectChecks1.getExpectedFileObject());
-
-        // relativeName differs
-        String alternativeRelativeName = "XXX";
-        MatcherAssert.assertThat("PRECONDITION locations must not match", !alternativeRelativeName.equals(generatedFileObjectChecks1.getRelativeName()));
-        generatedFileObjectCheck_notMatchingSingleField_withFileObject_singleTest(generatedFileObjectChecks1, generatedFileObjectChecks1.getLocation(),
-                generatedFileObjectChecks1.getPackageName(), alternativeRelativeName, generatedFileObjectChecks1.getExpectedFileObject());
-
-        // expectedFileObject differs
-        generatedFileObjectCheck_notMatchingSingleField_withFileObject_singleTest(generatedFileObjectChecks1, generatedFileObjectChecks1.getLocation(),
-                generatedFileObjectChecks1.getPackageName(), generatedFileObjectChecks1.getRelativeName(), Mockito.mock(FileObject.class));
-
-    }
-
-    private void generatedFileObjectCheck_notMatchingSingleField_withFileObject_singleTest(CompileTestConfiguration.GeneratedFileObjectCheck unit, JavaFileManager.Location location, String packageName, String relativeName, FileObject expectedFileObject) {
-
-        CompileTestConfiguration.GeneratedFileObjectCheck otherObj = new CompileTestConfiguration.GeneratedFileObjectCheck(CompileTestConfiguration.FileObjectCheckType.EXISTS, location,
-                packageName, packageName, expectedFileObject);
-
-        MatcherAssert.assertThat("Objects should not be detected as equal", !unit.equals(otherObj));
-        MatcherAssert.assertThat("Objects should not be detected as equal", !otherObj.equals(unit));
+        MatcherAssert.assertThat("Objects should not be detected as equal", !generatedFileObjectChecks4.equals(generatedFileObjectChecks3));
 
     }
 
@@ -663,69 +614,16 @@ public class CompileTestConfigurationTest {
     // -- GeneratedJavaFileObjectCheck
     // -------------------------------------------------------------------
 
-    @Test
-    public void generatedJavaFileObjectCheck_matching_withFileObject() {
-
-        CompileTestConfiguration.GeneratedJavaFileObjectCheck otherObj = new CompileTestConfiguration.GeneratedJavaFileObjectCheck(CompileTestConfiguration.FileObjectCheckType.EXISTS, generatedJavaFileObjectChecks1.getLocation(),
-                generatedJavaFileObjectChecks1.getClassName(), generatedJavaFileObjectChecks1.getKind(), generatedJavaFileObjectChecks1.getExpectedJavaFileObject());
-
-        MatcherAssert.assertThat("Objects should be detected as equal", generatedJavaFileObjectChecks1.equals(otherObj));
-        MatcherAssert.assertThat("Objects should be detected as equal", otherObj.equals(generatedJavaFileObjectChecks1));
-
-        MatcherAssert.assertThat("HashCodes should be identical", generatedJavaFileObjectChecks1.hashCode() == otherObj.hashCode());
-
-    }
 
     @Test
     public void generatedJavaFileObjectCheck_notMatching() {
 
 
-        MatcherAssert.assertThat("Objects should not be detected as equal", !generatedJavaFileObjectChecks1.equals(generatedJavaFileObjectChecks2));
-        MatcherAssert.assertThat("Objects should not be detected as equal", !generatedJavaFileObjectChecks1.equals(generatedJavaFileObjectChecks3));
-        MatcherAssert.assertThat("Objects should not be detected as equal", !generatedJavaFileObjectChecks1.equals(generatedJavaFileObjectChecks4));
-
-        MatcherAssert.assertThat("Objects should not be detected as equal", !generatedJavaFileObjectChecks2.equals(generatedJavaFileObjectChecks1));
-        MatcherAssert.assertThat("Objects should not be detected as equal", !generatedJavaFileObjectChecks3.equals(generatedJavaFileObjectChecks1));
-        MatcherAssert.assertThat("Objects should not be detected as equal", !generatedJavaFileObjectChecks4.equals(generatedJavaFileObjectChecks1));
+        MatcherAssert.assertThat("Objects should not be detected as equal", !generatedJavaFileObjectChecks3.equals(generatedJavaFileObjectChecks4));
+        MatcherAssert.assertThat("Objects should not be detected as equal", !generatedJavaFileObjectChecks4.equals(generatedJavaFileObjectChecks3));
 
     }
 
-    @Test
-    public void generatedJavaFileObjectCheck_notMatchingSingleField_withFileObject() {
-
-        // location differs
-        JavaFileManager.Location alternativeLocation = StandardLocation.SOURCE_PATH;
-        MatcherAssert.assertThat("PRECONDITION locations must not match", alternativeLocation != generatedJavaFileObjectChecks1.getLocation());
-        generatedJavaFileObjectCheck_notMatchingSingleField_withFileObject_singleTest(generatedJavaFileObjectChecks1, alternativeLocation,
-                generatedJavaFileObjectChecks1.getClassName(), generatedJavaFileObjectChecks1.getKind(), generatedJavaFileObjectChecks1.getExpectedJavaFileObject());
-
-        // className differs
-        String alternativeClassName = "XXX";
-        MatcherAssert.assertThat("PRECONDITION locations must not match", !alternativeClassName.equals(generatedJavaFileObjectChecks1.getClassName()));
-        generatedJavaFileObjectCheck_notMatchingSingleField_withFileObject_singleTest(generatedJavaFileObjectChecks1, generatedFileObjectChecks1.getLocation(),
-                alternativeClassName, generatedJavaFileObjectChecks1.getKind(), generatedJavaFileObjectChecks1.getExpectedJavaFileObject());
-
-        // kind differs
-        JavaFileObject.Kind alternativeKind = JavaFileObject.Kind.OTHER;
-        MatcherAssert.assertThat("PRECONDITION locations must not match", !alternativeKind.equals(generatedJavaFileObjectChecks1.getKind()));
-        generatedJavaFileObjectCheck_notMatchingSingleField_withFileObject_singleTest(generatedJavaFileObjectChecks1, generatedJavaFileObjectChecks1.getLocation(),
-                generatedJavaFileObjectChecks1.getClassName(), alternativeKind, generatedJavaFileObjectChecks1.getExpectedJavaFileObject());
-
-        // expectedFileObject differs
-        generatedJavaFileObjectCheck_notMatchingSingleField_withFileObject_singleTest(generatedJavaFileObjectChecks1, generatedJavaFileObjectChecks1.getLocation(),
-                generatedJavaFileObjectChecks1.getClassName(), generatedJavaFileObjectChecks1.getKind(), Mockito.mock(JavaFileObject.class));
-
-    }
-
-    private void generatedJavaFileObjectCheck_notMatchingSingleField_withFileObject_singleTest(CompileTestConfiguration.GeneratedJavaFileObjectCheck unit, JavaFileManager.Location location, String className, JavaFileObject.Kind kind, JavaFileObject expectedJavaFileObject) {
-
-        CompileTestConfiguration.GeneratedJavaFileObjectCheck otherObj = new CompileTestConfiguration.GeneratedJavaFileObjectCheck(CompileTestConfiguration.FileObjectCheckType.EXISTS, location,
-                className, kind, expectedJavaFileObject);
-
-        MatcherAssert.assertThat("Objects should not be detected as equal", !unit.equals(otherObj));
-        MatcherAssert.assertThat("Objects should not be detected as equal", !otherObj.equals(unit));
-
-    }
 
     @Test
     public void generatedJavaFileObjectCheck_notMatchingSingleField_withGeneratedFileObjectMatcher() {

@@ -1,6 +1,7 @@
 package io.toolisticon.compiletesting.impl;
 
 import io.toolisticon.compiletesting.GeneratedFileObjectMatcher;
+import io.toolisticon.compiletesting.matchers.CoreGeneratedFileObjectMatchers;
 
 import javax.annotation.processing.Processor;
 import javax.tools.FileObject;
@@ -17,6 +18,9 @@ import java.util.Set;
  */
 public class CompileTestConfiguration {
 
+    /**
+     * Allows to define a processor and add a check if exception is thrown by this processor.
+     */
     public static class ProcessorWithExpectedException {
 
         private final Class<? extends Processor> processorType;
@@ -100,28 +104,17 @@ public class CompileTestConfiguration {
         private final String className;
         private final JavaFileObject.Kind kind;
 
-        private final JavaFileObject expectedJavaFileObject;
         private final GeneratedFileObjectMatcher<JavaFileObject> generatedFileObjectMatcher;
 
-        private GeneratedJavaFileObjectCheck(FileObjectCheckType checkType, JavaFileManager.Location location, String className, JavaFileObject.Kind kind, JavaFileObject expectedJavaFileObject, GeneratedFileObjectMatcher<JavaFileObject> generatedFileObjectMatcher) {
+        public GeneratedJavaFileObjectCheck(FileObjectCheckType checkType, JavaFileManager.Location location, String className, JavaFileObject.Kind kind, GeneratedFileObjectMatcher<JavaFileObject> generatedFileObjectMatcher) {
 
             this.checkType = checkType;
             this.location = location;
             this.className = className;
             this.kind = kind;
 
-            this.expectedJavaFileObject = expectedJavaFileObject;
             this.generatedFileObjectMatcher = generatedFileObjectMatcher;
 
-        }
-
-
-        public GeneratedJavaFileObjectCheck(FileObjectCheckType checkType, JavaFileManager.Location location, String className, JavaFileObject.Kind kind, JavaFileObject expectedJavaFileObject) {
-            this(checkType, location, className, kind, expectedJavaFileObject, null);
-        }
-
-        public GeneratedJavaFileObjectCheck(FileObjectCheckType checkType, JavaFileManager.Location location, String className, JavaFileObject.Kind kind, GeneratedFileObjectMatcher<JavaFileObject> generatedFileObjectMatcher) {
-            this(checkType, location, className, kind, null, generatedFileObjectMatcher);
         }
 
         public FileObjectCheckType getCheckType() {
@@ -140,9 +133,6 @@ public class CompileTestConfiguration {
             return kind;
         }
 
-        public JavaFileObject getExpectedJavaFileObject() {
-            return expectedJavaFileObject;
-        }
 
         public GeneratedFileObjectMatcher<JavaFileObject> getGeneratedFileObjectMatcher() {
             return generatedFileObjectMatcher;
@@ -154,7 +144,6 @@ public class CompileTestConfiguration {
                     + (location != null ? location.hashCode() : 0)
                     + (className != null ? className.hashCode() : 0)
                     + (kind != null ? kind.hashCode() : 0)
-                    + (expectedJavaFileObject != null ? expectedJavaFileObject.hashCode() : 0)
                     + (generatedFileObjectMatcher != null ? generatedFileObjectMatcher.hashCode() : 0);
         }
 
@@ -213,18 +202,6 @@ public class CompileTestConfiguration {
                     }
                 }
 
-                // compare expectedJavaFileObject
-                if ((this.getExpectedJavaFileObject() == null && otherObj.getExpectedJavaFileObject() != null)
-                        || (this.getExpectedJavaFileObject() != null && otherObj.getExpectedJavaFileObject() == null)) {
-
-                    return false;
-
-                } else if ((this.getExpectedJavaFileObject() != null && otherObj.getExpectedJavaFileObject() != null)) {
-                    if (!this.getExpectedJavaFileObject().equals(otherObj.getExpectedJavaFileObject())) {
-                        return false;
-                    }
-                }
-
                 // compare generatedFileObjectMatchers
                 if ((this.getGeneratedFileObjectMatcher() == null && otherObj.getGeneratedFileObjectMatcher() != null)
                         || (this.getGeneratedFileObjectMatcher() != null && otherObj.getGeneratedFileObjectMatcher() == null)) {
@@ -251,7 +228,6 @@ public class CompileTestConfiguration {
                     ",\n\t\tlocation=" + location +
                     ",\n\t\t className='" + className + '\'' +
                     ",\n\t\t kind=" + kind +
-                    ",\n\t\t expectedJavaFileObject=" + expectedJavaFileObject +
                     ",\n\t\t generatedFileObjectMatchers=" + generatedFileObjectMatcher +
                     "\n\t" +
                     '}';
@@ -266,30 +242,20 @@ public class CompileTestConfiguration {
         private final String packageName;
         private final String relativeName;
 
-        // either expectedFileObject or generatedFileObjectMatchers may be set not null
-        private final FileObject expectedFileObject;
         private final GeneratedFileObjectMatcher<FileObject>[] generatedFileObjectMatchers;
 
-        private GeneratedFileObjectCheck(FileObjectCheckType checkType, JavaFileManager.Location location, String packageName, String relativeName, FileObject expectedFileObject, GeneratedFileObjectMatcher<FileObject>[] generatedFileObjectMatchers) {
+        public GeneratedFileObjectCheck(FileObjectCheckType checkType, JavaFileManager.Location location, String packageName, String relativeName, GeneratedFileObjectMatcher<FileObject>[] generatedFileObjectMatchers) {
 
             this.checkType = checkType;
             this.location = location;
             this.packageName = packageName;
             this.relativeName = relativeName;
 
-            this.expectedFileObject = expectedFileObject;
             this.generatedFileObjectMatchers = generatedFileObjectMatchers;
 
         }
 
 
-        public GeneratedFileObjectCheck(FileObjectCheckType checkType, JavaFileManager.Location location, String packageName, String relativeName, FileObject expectedFileObject) {
-            this(checkType, location, packageName, relativeName, expectedFileObject, null);
-        }
-
-        public GeneratedFileObjectCheck(FileObjectCheckType checkType, JavaFileManager.Location location, String packageName, String relativeName, GeneratedFileObjectMatcher<FileObject>[] generatedFileObjectMatchers) {
-            this(checkType, location, packageName, relativeName, null, generatedFileObjectMatchers);
-        }
 
         public FileObjectCheckType getCheckType() {
             return checkType;
@@ -307,22 +273,27 @@ public class CompileTestConfiguration {
             return relativeName;
         }
 
-        public FileObject getExpectedFileObject() {
-            return expectedFileObject;
-        }
-
         public GeneratedFileObjectMatcher<FileObject>[] getGeneratedFileObjectMatchers() {
             return generatedFileObjectMatchers;
         }
 
         @Override
         public int hashCode() {
+
+            int generatedFileObjectsMatcherHashCode = 0;
+            if (generatedFileObjectMatchers != null) {
+                for (GeneratedFileObjectMatcher<?> gfo : generatedFileObjectMatchers) {
+                    if(gfo != null) {
+                        generatedFileObjectsMatcherHashCode += gfo.hashCode();
+                    }
+                }
+            }
+
             return (checkType != null ? checkType.hashCode() : 0)
                     + (location != null ? location.hashCode() : 0)
                     + (packageName != null ? packageName.hashCode() : 0)
                     + (relativeName != null ? relativeName.hashCode() : 0)
-                    + (expectedFileObject != null ? expectedFileObject.hashCode() : 0)
-                    + (generatedFileObjectMatchers != null ? generatedFileObjectMatchers.hashCode() : 0);
+                    + generatedFileObjectsMatcherHashCode;
         }
 
         @Override
@@ -380,18 +351,6 @@ public class CompileTestConfiguration {
                     }
                 }
 
-                // compare expectedFileObject
-                if ((this.getExpectedFileObject() == null && otherObj.getExpectedFileObject() != null)
-                        || (this.getExpectedFileObject() != null && otherObj.getExpectedFileObject() == null)) {
-
-                    return false;
-
-                } else if ((this.getExpectedFileObject() != null && otherObj.getExpectedFileObject() != null)) {
-                    if (!this.getExpectedFileObject().equals(otherObj.getExpectedFileObject())) {
-                        return false;
-                    }
-                }
-
                 // compare generatedFileObjectMatchers
                 if ((this.getGeneratedFileObjectMatchers() == null && otherObj.getGeneratedFileObjectMatchers() != null)
                         || (this.getGeneratedFileObjectMatchers() != null && otherObj.getGeneratedFileObjectMatchers() == null)) {
@@ -399,9 +358,18 @@ public class CompileTestConfiguration {
                     return false;
 
                 } else if ((this.getGeneratedFileObjectMatchers() != null && otherObj.getGeneratedFileObjectMatchers() != null)) {
-                    if (!this.getGeneratedFileObjectMatchers().equals(otherObj.getGeneratedFileObjectMatchers())) {
+
+
+                    if (this.getGeneratedFileObjectMatchers().length != otherObj.getGeneratedFileObjectMatchers().length) {
                         return false;
                     }
+
+                    for (int i = 0; i < this.getGeneratedFileObjectMatchers().length; i++) {
+                        if (!this.getGeneratedFileObjectMatchers()[i].equals(otherObj.getGeneratedFileObjectMatchers()[i])) {
+                            return false;
+                        }
+                    }
+
                 }
 
                 return true;
@@ -417,7 +385,6 @@ public class CompileTestConfiguration {
                     ",\n\t\tlocation=" + location +
                     ",\n\t\t packageName='" + packageName + '\'' +
                     ",\n\t\t relativeName='" + relativeName + '\'' +
-                    ",\n\t\t expectedFileObject=" + expectedFileObject +
                     ",\n\t\t generatedFileObjectMatchers=" + generatedFileObjectMatchers +
                     "\n\t" +
                     '}';
@@ -626,17 +593,12 @@ public class CompileTestConfiguration {
         }
     }
 
-
-    public void addGeneratedJavaFileObjectCheck(FileObjectCheckType checkType, JavaFileManager.Location location, String className, JavaFileObject.Kind kind, JavaFileObject javaFileObject) {
-        this.generatedJavaFileObjectChecks.add(new GeneratedJavaFileObjectCheck(checkType, location, className, kind, javaFileObject));
-    }
-
     public void addGeneratedJavaFileObjectCheck(FileObjectCheckType checkType, JavaFileManager.Location location, String className, JavaFileObject.Kind kind, GeneratedFileObjectMatcher<JavaFileObject> generatedFileObjectMatcher) {
         this.generatedJavaFileObjectChecks.add(new GeneratedJavaFileObjectCheck(checkType, location, className, kind, generatedFileObjectMatcher));
     }
 
-    public void addGeneratedFileObjectCheck(FileObjectCheckType checkType, JavaFileManager.Location location, String packageName, String relativeName, FileObject javaFileObject) {
-        this.generatedFileObjectChecks.add(new GeneratedFileObjectCheck(checkType, location, packageName, relativeName, javaFileObject));
+    public void addGeneratedJavaFileObjectCheck(FileObjectCheckType checkType, JavaFileManager.Location location, String className, JavaFileObject.Kind kind) {
+        this.generatedJavaFileObjectChecks.add(new GeneratedJavaFileObjectCheck(checkType, location, className, kind, null));
     }
 
     @SafeVarargs

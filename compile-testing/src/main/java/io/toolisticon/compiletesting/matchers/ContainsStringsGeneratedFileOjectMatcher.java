@@ -12,7 +12,7 @@ import java.io.IOException;
 class ContainsStringsGeneratedFileOjectMatcher implements GeneratedFileObjectMatcher<FileObject> {
 
 
-    private String[] stringsToCheck;
+    String[] stringsToCheck;
 
     /**
      * Hidden constructor

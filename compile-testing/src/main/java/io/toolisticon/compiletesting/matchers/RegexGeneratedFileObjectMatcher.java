@@ -13,7 +13,7 @@ import java.util.regex.PatternSyntaxException;
  */
 class RegexGeneratedFileObjectMatcher implements GeneratedFileObjectMatcher<FileObject> {
 
-    private final String patternString;
+    final String patternString;
     private final Pattern pattern;
 
     /**

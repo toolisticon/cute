@@ -396,6 +396,21 @@ public class CompileTestBuilderTest {
 
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void test_useProcessor_nullValued_Processor() {
+        CompileTestBuilder.unitTest().useProcessor((Processor) null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void test_useProcessor_nullValued_UnitTestProcessor() {
+        CompileTestBuilder.unitTest().useProcessor((UnitTestProcessor) null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void test_useProcessor_nullValued_UnitTestProcessor2() {
+        CompileTestBuilder.unitTest().useProcessor(AbstractProcessor.class, null);
+    }
+
 
     @Test(expected = IllegalArgumentException.class)
     public void test_CompileTimeTestBuilder_useProcessorAndExpectException_addNullValuedProcessor() {
@@ -423,6 +438,24 @@ public class CompileTestBuilderTest {
 
 
     }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void test_CompileTimeTestBuilder_testCompilation_noSourceFiles() {
+
+        CompileTestBuilder
+                .compilationTest()
+                .testCompilation();
+
+
+    }
+
+    @Test
+    public void test_useModules() {
+
+        MatcherAssert.assertThat(CompileTestBuilder.compilationTest().useModules("ABC", "DEF").compileTestConfiguration.getModules(), Matchers.contains("ABC", "DEF"));
+
+    }
+
 
 /**
  public static class ModuleAP extends UnitTestAnnotationProcessorClass {

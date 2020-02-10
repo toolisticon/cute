@@ -30,14 +30,14 @@ public class CompileTest {
     public final static String MESSAGE_JFO_DOESNT_EXIST = "Expected generated JavaFileObject (%s) doesn't exist.";
     public final static String MESSAGE_JFO_EXISTS_BUT_SHOULD_BE_NON_EXISTENT = "Expected JavaFileObject (%s) to be non existent.";
 
-    public final static String MESSAGE_JFO_EXISTS_BUT_DOESNT_MATCH_FO = "Expected generated JavaFileObject (%s) exists but doesn't match expected JavaFileObject.";
-    public final static String MESSAGE_JFO_EXISTS_BUT_DOESNT_MATCH_MATCHER = "Expected generated JavaFileObject (%s) exists but doesn't match passed GeneratedFileObjectMatcher.";
+    public final static String MESSAGE_JFO_EXISTS_BUT_DOESNT_MATCH_MATCHER = "Expected generated JavaFileObject (%s) exists but doesn't match passed GeneratedFileObjectMatcher: %s";
+
+    public final static String MESSAGE_FO_COMPARISION_FAILED = "Check with GeneratedFileObjectMatcher %s failed.";
 
     public final static String MESSAGE_FO_DOESNT_EXIST = "Expected generated FileObject (%s) doesn't exist.";
     public final static String MESSAGE_FO_EXISTS_BUT_SHOULD_BE_NON_EXISTENT = "Expected FileObject (%s) to be non existent.";
 
-    public final static String MESSAGE_FO_EXISTS_BUT_DOESNT_MATCH_FO = "Expected generated FileObject (%s) exists but doesn't match expected FileObject.";
-    public final static String MESSAGE_FO_EXISTS_BUT_DOESNT_MATCH_MATCHER = "Expected generated FileObject (%s) exists but doesn't match passed GeneratedFileObjectMatcher.";
+    public final static String MESSAGE_FO_EXISTS_BUT_DOESNT_MATCH_MATCHER = "Expected generated FileObject (%s) exists but doesn't match passed GeneratedFileObjectMatcher: %s";
 
     public final static String MESSAGE_PROCESSOR_HASNT_BEEN_APPLIED = "Annotation processor %s hasn't been applied on a class";
     public final static String MESSAGE_HAVENT_FOUND_MESSSAGE = "Haven't found expected message string '%s' of kind %s. Got messages %s";
@@ -105,25 +105,19 @@ public class CompileTest {
 
                             JavaFileObject foundJavaFileObject = compilationResult.getCompileTestFileManager().getJavaFileForInput(generatedJavaFileObjectCheck.getLocation(), generatedJavaFileObjectCheck.getClassName(), generatedJavaFileObjectCheck.getKind());
 
-                            // check for equality
-                            if (generatedJavaFileObjectCheck.getExpectedJavaFileObject() != null) {
-
-                                if (!CompileTestFileManager.contentEquals(
-                                        foundJavaFileObject.openInputStream(),
-                                        generatedJavaFileObjectCheck.getExpectedJavaFileObject().openInputStream())) {
-
-
-                                    throw new FailingAssertionException(String.format(MESSAGE_JFO_EXISTS_BUT_DOESNT_MATCH_FO, getJavaFileObjectInfoString(generatedJavaFileObjectCheck)));
-
-                                }
-
-                            }
-
                             // check with passed matcher
                             if (generatedJavaFileObjectCheck.getGeneratedFileObjectMatcher() != null) {
 
-                                if (!generatedJavaFileObjectCheck.getGeneratedFileObjectMatcher().check(foundJavaFileObject)) {
-                                    throw new FailingAssertionException(String.format(MESSAGE_JFO_EXISTS_BUT_DOESNT_MATCH_MATCHER, getJavaFileObjectInfoString(generatedJavaFileObjectCheck)));
+                                try {
+                                    if (!generatedJavaFileObjectCheck.getGeneratedFileObjectMatcher().check(foundJavaFileObject)) {
+
+                                        // Throw Exception as fallback if not done by matcher
+                                        throw new FailingAssertionException(String.format(MESSAGE_FO_COMPARISION_FAILED, generatedJavaFileObjectCheck.getGeneratedFileObjectMatcher().getClass().getCanonicalName()));
+
+
+                                    }
+                                } catch (FailingAssertionException e) {
+                                    throw new FailingAssertionException(String.format(MESSAGE_JFO_EXISTS_BUT_DOESNT_MATCH_MATCHER, getJavaFileObjectInfoString(generatedJavaFileObjectCheck),e.getMessage()));
                                 }
 
                             }
@@ -155,26 +149,18 @@ public class CompileTest {
 
                             FileObject foundFileObject = compilationResult.getCompileTestFileManager().getFileForInput(generatedFileObjectCheck.getLocation(), generatedFileObjectCheck.getPackageName(), generatedFileObjectCheck.getRelativeName());
 
-                            // check for equality
-                            if (generatedFileObjectCheck.getExpectedFileObject() != null) {
-
-                                if (!CompileTestFileManager.contentEquals(
-                                        foundFileObject.openInputStream(),
-                                        generatedFileObjectCheck.getExpectedFileObject().openInputStream())) {
-
-                                    throw new FailingAssertionException(String.format(MESSAGE_FO_EXISTS_BUT_DOESNT_MATCH_FO, getFileObjectInfoString(generatedFileObjectCheck)));
-
-                                }
-
-                            }
-
                             // check with passed matcher
                             if (generatedFileObjectCheck.getGeneratedFileObjectMatchers() != null) {
 
-                                for (GeneratedFileObjectMatcher<FileObject> matcher : generatedFileObjectCheck.getGeneratedFileObjectMatchers()) {
-                                    if (!matcher.check(foundFileObject)) {
-                                        throw new FailingAssertionException(String.format(MESSAGE_FO_EXISTS_BUT_DOESNT_MATCH_MATCHER, getFileObjectInfoString(generatedFileObjectCheck)));
+                                try {
+                                    for (GeneratedFileObjectMatcher<FileObject> matcher : generatedFileObjectCheck.getGeneratedFileObjectMatchers()) {
+                                        if (!matcher.check(foundFileObject)) {
+                                            // Throw Exception as fallback if not done by matcher
+                                            throw new FailingAssertionException(String.format(MESSAGE_FO_COMPARISION_FAILED, matcher.getClass().getCanonicalName()));
+                                        }
                                     }
+                                } catch (FailingAssertionException e) {
+                                    throw new FailingAssertionException(String.format(MESSAGE_FO_EXISTS_BUT_DOESNT_MATCH_MATCHER, getFileObjectInfoString(generatedFileObjectCheck), e.getMessage()));
                                 }
 
                             }

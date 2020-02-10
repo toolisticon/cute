@@ -2,6 +2,7 @@ package io.toolisticon.compiletesting;
 
 import io.toolisticon.compiletesting.impl.CompileTest;
 import io.toolisticon.compiletesting.impl.CompileTestConfiguration;
+import io.toolisticon.compiletesting.matchers.CoreGeneratedFileObjectMatchers;
 
 import javax.annotation.processing.Processor;
 import javax.tools.FileObject;
@@ -11,10 +12,43 @@ import javax.tools.StandardLocation;
 
 /**
  * Compile test builder.
- * Implemented with immutable state / configuration, so it's safe to use this instance f.e. in unit test before classes.
+ * Implemented with immutable state / configuration, so it's safe to create a base configuration in test class and to further specify the tests in the unit test method.
  */
 public class CompileTestBuilder {
 
+    /**
+     * Configures how FileObjects should be compared.
+     */
+    public enum ExpectedFileObjectMatcherKind {
+        /**
+         * Does binary comparision.
+         * Be careful: tests using binary comparision may fail because of OS depending line-endings.
+         */
+        BINARY {
+            @Override
+            public <T extends FileObject> GeneratedFileObjectMatcher<T> createMatcher(T expectedFileObject) {
+                return CoreGeneratedFileObjectMatchers.createBinaryMatcher(expectedFileObject);
+            }
+        },
+        /**
+         * Textual comparision line by line by ignoring the OS depending line-endings.
+         */
+        TEXT_IGNORE_LINE_ENDINGS {
+            @Override
+            public <T extends FileObject> GeneratedFileObjectMatcher<T> createMatcher(T expectedFileObject) {
+                return CoreGeneratedFileObjectMatchers.createIgnoreLineEndingsMatcher(expectedFileObject);
+            }
+        };
+
+        /**
+         * Creates a matcher for FileObjects for enum value.
+         *
+         * @param expectedFileObject the expected FileObject
+         * @param <T>                The type of FileObject
+         * @return a GeneratedFileObjectMatcher instance that can be used to compare FileObjects
+         */
+        protected abstract <T extends FileObject> GeneratedFileObjectMatcher<T> createMatcher(T expectedFileObject);
+    }
 
     /**
      * Abstract base builder class.
@@ -167,7 +201,7 @@ public class CompileTestBuilder {
         }
 
         /**
-         * Adds a check if a specific generated FileObject exists.
+         * Adds a check if a specific generated FileObject exists (uses binary comparision).
          * Additionally checks if files are equal if passed expectedFileObject is not null.
          *
          * @param location           the location (usually from javax.tools.StandardLocation)
@@ -182,8 +216,40 @@ public class CompileTestBuilder {
                 String relativeName,
                 FileObject expectedFileObject) {
 
+            return expectedFileObjectExists(location, packageName, relativeName, ExpectedFileObjectMatcherKind.BINARY, expectedFileObject);
+
+        }
+
+        /**
+         * Adds a check if a specific generated FileObject exists.
+         * Additionally checks if files are equal if passed expectedFileObject is not null.
+         * Comparision algorithm can be selected by matcherKind parameter
+         *
+         * @param location           the location (usually from javax.tools.StandardLocation)
+         * @param packageName        the package name
+         * @param relativeName       the package relative name
+         * @param matcherKind        the matcher kind
+         * @param expectedFileObject the file used for comparision of content
+         * @return the next builder instance
+         */
+        public T expectedFileObjectExists(
+                JavaFileManager.Location location,
+                String packageName,
+                String relativeName,
+                ExpectedFileObjectMatcherKind matcherKind,
+                FileObject expectedFileObject) {
+
+            if (matcherKind == null) {
+                throw new IllegalArgumentException("passed matcherKind  ust not be null");
+            }
+
             CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
-            nextConfiguration.addGeneratedFileObjectCheck(CompileTestConfiguration.FileObjectCheckType.EXISTS, location, packageName, relativeName, expectedFileObject);
+            GeneratedFileObjectMatcher<FileObject>[] matchers = null;
+            if (expectedFileObject != null) {
+                matchers = new GeneratedFileObjectMatcher[1];
+                matchers[0] = matcherKind.createMatcher(expectedFileObject);
+            }
+            nextConfiguration.addGeneratedFileObjectCheck(CompileTestConfiguration.FileObjectCheckType.EXISTS, location, packageName, relativeName, matchers);
             return createNextInstance(nextConfiguration);
 
         }
@@ -226,7 +292,7 @@ public class CompileTestBuilder {
                 String relativeName) {
 
             CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
-            nextConfiguration.addGeneratedFileObjectCheck(CompileTestConfiguration.FileObjectCheckType.DOESNT_EXIST, location, packageName, relativeName, (FileObject) null);
+            nextConfiguration.addGeneratedFileObjectCheck(CompileTestConfiguration.FileObjectCheckType.DOESNT_EXIST, location, packageName, relativeName, null);
             return createNextInstance(nextConfiguration);
 
         }
@@ -243,7 +309,7 @@ public class CompileTestBuilder {
         }
 
         /**
-         * Checks if a generated source file exists.
+         * Checks if a generated source file exists and if it matches passed JavaFileObject by using binary comparision.
          * Additionally checks if files are equal if passed expectedJavaFileObject is not null.
          *
          * @param className              the full qualified name of the class
@@ -300,7 +366,7 @@ public class CompileTestBuilder {
 
 
         /**
-         * Adds a check if a specific generated JavaFileObject exists.
+         * Adds a check if a specific generated JavaFileObject exists (uses binary comparision).
          * Additionally checks if files are equal if passed expectedJavaFileObject is not null.
          *
          * @param location               the location (usually from javax.tools.StandardLocation)
@@ -315,8 +381,29 @@ public class CompileTestBuilder {
                 JavaFileObject.Kind kind,
                 JavaFileObject expectedJavaFileObject) {
 
+            return expectedJavaFileObjectExists(location, className, kind, ExpectedFileObjectMatcherKind.BINARY, expectedJavaFileObject);
+
+        }
+
+        /**
+         * Adds a check if a specific generated JavaFileObject exists.
+         * Additionally checks if files are equal if passed expectedJavaFileObject is not null.
+         *
+         * @param location               the location (usually from javax.tools.StandardLocation)
+         * @param className              the class name
+         * @param kind                   the kind of the JavaFileObject
+         * @param expectedJavaFileObject the file used for comparision of content
+         * @return the next builder instance
+         */
+        public T expectedJavaFileObjectExists(
+                JavaFileManager.Location location,
+                String className,
+                JavaFileObject.Kind kind,
+                ExpectedFileObjectMatcherKind expectedFileObjectMatcherKind,
+                JavaFileObject expectedJavaFileObject) {
+
             CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
-            nextConfiguration.addGeneratedJavaFileObjectCheck(CompileTestConfiguration.FileObjectCheckType.EXISTS, location, className, kind, expectedJavaFileObject);
+            nextConfiguration.addGeneratedJavaFileObjectCheck(CompileTestConfiguration.FileObjectCheckType.EXISTS, location, className, kind, expectedJavaFileObject != null ? expectedFileObjectMatcherKind.createMatcher(expectedJavaFileObject) : null);
             return createNextInstance(nextConfiguration);
 
         }
@@ -354,7 +441,7 @@ public class CompileTestBuilder {
         public T expectJavaFileObjectNotToExist(JavaFileManager.Location location, String className, JavaFileObject.Kind kind) {
 
             CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
-            nextConfiguration.addGeneratedJavaFileObjectCheck(CompileTestConfiguration.FileObjectCheckType.DOESNT_EXIST, location, className, kind, (JavaFileObject) null);
+            nextConfiguration.addGeneratedJavaFileObjectCheck(CompileTestConfiguration.FileObjectCheckType.DOESNT_EXIST, location, className, kind, null);
 
             return createNextInstance(nextConfiguration);
         }

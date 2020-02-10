@@ -23,8 +23,14 @@ public final class CoreGeneratedFileObjectMatchers {
      * @param pattern a valid pattern string
      * @return the instance
      * @throws PatternSyntaxException If the expression's syntax is invalid
+     * @throws IllegalArgumentException if passed pattern is null
      */
     public static GeneratedFileObjectMatcher<FileObject> createRegexMatcher(String pattern) {
+
+        if (pattern == null) {
+            throw new IllegalArgumentException("Passed pattern must not be null");
+        }
+
         return new RegexGeneratedFileObjectMatcher(pattern);
     }
 
@@ -47,6 +53,24 @@ public final class CoreGeneratedFileObjectMatchers {
      */
     public static GeneratedFileObjectMatcher<FileObject> createIsWellFormedXmlMatcher() {
         return new WellFormedXmlGeneratedFileObjectMatcher();
+    }
+
+    public static <T extends FileObject> GeneratedFileObjectMatcher<T> createIgnoreLineEndingsMatcher(T expectedFileObject) {
+
+        if (expectedFileObject == null) {
+            throw new IllegalArgumentException("Passed expectedFileObject must not be null");
+        }
+
+        return new IgnoreLineEndingsGeneratedFileObjectMatcher(expectedFileObject);
+    }
+
+    public static <T extends FileObject> GeneratedFileObjectMatcher<T> createBinaryMatcher(T expectedFileObject) {
+
+        if (expectedFileObject == null) {
+            throw new IllegalArgumentException("Passed expectedFileObject must not be null");
+        }
+
+        return new BinaryGeneratedFileObjectMatcher(expectedFileObject);
     }
 
 

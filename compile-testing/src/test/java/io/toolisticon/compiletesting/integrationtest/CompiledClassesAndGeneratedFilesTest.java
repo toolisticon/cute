@@ -139,7 +139,7 @@ public class CompiledClassesAndGeneratedFilesTest {
                     .testCompilation();
         } catch (AssertionError e) {
 
-            TestUtilities.assertAssertionMessageContainsMessageTokensAssertion(e, CompileTest.MESSAGE_FO_EXISTS_BUT_DOESNT_MATCH_FO);
+            TestUtilities.assertAssertionMessageContainsMessageTokensAssertion(e, CompileTest.MESSAGE_FO_EXISTS_BUT_DOESNT_MATCH_MATCHER);
             assertionErrorWasThrown = true;
 
         }
@@ -337,7 +337,7 @@ public class CompiledClassesAndGeneratedFilesTest {
                     .testCompilation();
         } catch (AssertionError e) {
 
-            TestUtilities.assertAssertionMessageContainsMessageTokensAssertion(e, CompileTest.MESSAGE_JFO_EXISTS_BUT_DOESNT_MATCH_FO);
+            TestUtilities.assertAssertionMessageContainsMessageTokensAssertion(e, CompileTest.MESSAGE_JFO_EXISTS_BUT_DOESNT_MATCH_MATCHER);
 
             assertionErrorWasThrown = true;
 
