@@ -47,4 +47,4 @@ jobs:
         servers: '[{"id": "ossrh", "username": "${{secrets.SONATYPE_USERNAME}}", "password": "${{secrets.SONATYPE_PASSWORD}}"}]'
 
     - name: Deploy a new version to central
-      run: ./mvnw clean javadoc:jar source:jar deploy -B -DskipTests -Prelease -Dgpg.passphrase=${{secrets.GPG_PASSPHRASE}}
+      run: ./mvnw clean javadoc:jar source:jar deploy -B -DskipTests -Dgpg.passphrase=${{secrets.GPG_PASSPHRASE}}
