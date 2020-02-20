@@ -1,5 +1,6 @@
 package io.toolisticon.compiletesting.matchers;
 
+import io.toolisticon.compiletesting.Constants;
 import io.toolisticon.compiletesting.GeneratedFileObjectMatcher;
 
 import javax.tools.FileObject;
@@ -22,13 +23,13 @@ public final class CoreGeneratedFileObjectMatchers {
      *
      * @param pattern a valid pattern string
      * @return the instance
-     * @throws PatternSyntaxException If the expression's syntax is invalid
+     * @throws PatternSyntaxException   If the expression's syntax is invalid
      * @throws IllegalArgumentException if passed pattern is null
      */
     public static GeneratedFileObjectMatcher<FileObject> createRegexMatcher(String pattern) {
 
         if (pattern == null) {
-            throw new IllegalArgumentException("Passed pattern must not be null");
+            throw new IllegalArgumentException(Constants.Messages.IAE_PASSED_PARAMETER_MUST_NOT_BE_NULL.produceMessage("pattern"));
         }
 
         return new RegexGeneratedFileObjectMatcher(pattern);
@@ -58,7 +59,7 @@ public final class CoreGeneratedFileObjectMatchers {
     public static <T extends FileObject> GeneratedFileObjectMatcher<T> createIgnoreLineEndingsMatcher(T expectedFileObject) {
 
         if (expectedFileObject == null) {
-            throw new IllegalArgumentException("Passed expectedFileObject must not be null");
+            throw new IllegalArgumentException(Constants.Messages.IAE_PASSED_PARAMETER_MUST_NOT_BE_NULL.produceMessage("expected fileobject"));
         }
 
         return new IgnoreLineEndingsGeneratedFileObjectMatcher(expectedFileObject);
@@ -67,7 +68,7 @@ public final class CoreGeneratedFileObjectMatchers {
     public static <T extends FileObject> GeneratedFileObjectMatcher<T> createBinaryMatcher(T expectedFileObject) {
 
         if (expectedFileObject == null) {
-            throw new IllegalArgumentException("Passed expectedFileObject must not be null");
+            throw new IllegalArgumentException(Constants.Messages.IAE_PASSED_PARAMETER_MUST_NOT_BE_NULL.produceMessage("expected fileobject"));
         }
 
         return new BinaryGeneratedFileObjectMatcher(expectedFileObject);

@@ -1,16 +1,20 @@
 package io.toolisticon.compiletesting.impl;
 
 import io.toolisticon.compiletesting.GeneratedFileObjectMatcher;
-import io.toolisticon.compiletesting.matchers.CoreGeneratedFileObjectMatchers;
 
 import javax.annotation.processing.Processor;
+import javax.tools.Diagnostic;
 import javax.tools.FileObject;
 import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -88,6 +92,105 @@ public class CompileTestConfiguration {
                     "\n\t\tprocessorType=" + processorType +
                     ",\n\t\t throwable=" + throwable +
                     "\n\t" +
+                    '}';
+        }
+    }
+
+    public enum ComparisionKind {
+        EQUALS,
+        CONTAINS;
+    }
+
+    public static class CompilerMessageCheck {
+
+        private final Diagnostic.Kind kind;
+        private final ComparisionKind comparisionKind;
+        private final String expectedMessage;
+        private final Locale locale;
+        private final String source;
+        private final Long row;
+        private final Long column;
+
+
+        public CompilerMessageCheck(Diagnostic.Kind kind, ComparisionKind comparisionKind, String expectedMessage, Locale locale, String source, Long row, Long column) {
+            this.kind = kind;
+            this.comparisionKind = comparisionKind;
+            this.expectedMessage = expectedMessage;
+            this.locale = locale;
+            this.source = source;
+            this.row = row;
+            this.column = column;
+        }
+
+        public Diagnostic.Kind getKind() {
+            return kind;
+        }
+
+        public ComparisionKind getComparisionKind() {
+            return comparisionKind;
+        }
+
+        public String getExpectedMessage() {
+            return expectedMessage;
+        }
+
+
+        public Locale getLocale() {
+            return locale;
+        }
+
+        public String getSource() {
+            return source;
+        }
+
+        public Long getLineNumber() {
+            return row;
+        }
+
+        public Long getColumnNumber() {
+            return column;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            CompilerMessageCheck that = (CompilerMessageCheck) o;
+
+            if (kind != that.kind) return false;
+            if (comparisionKind != null ? !comparisionKind.equals(that.comparisionKind) : that.comparisionKind != null)
+                return false;
+            if (expectedMessage != null ? !expectedMessage.equals(that.expectedMessage) : that.expectedMessage != null)
+                return false;
+            if (locale != null ? !locale.equals(that.locale) : that.locale != null) return false;
+            if (source != null ? !source.equals(that.source) : that.source != null) return false;
+            if (row != null ? !row.equals(that.row) : that.row != null) return false;
+            return column != null ? column.equals(that.column) : that.column == null;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = kind != null ? kind.hashCode() : 0;
+            result = 31 * result + (comparisionKind != null ? comparisionKind.hashCode() : 0);
+            result = 31 * result + (expectedMessage != null ? expectedMessage.hashCode() : 0);
+            result = 31 * result + (locale != null ? locale.hashCode() : 0);
+            result = 31 * result + (source != null ? source.hashCode() : 0);
+            result = 31 * result + (row != null ? row.hashCode() : 0);
+            result = 31 * result + (column != null ? column.hashCode() : 0);
+            return result;
+        }
+
+        @Override
+        public String toString() {
+            return "CompilerMessageCheck{" +
+                    "kind=" + kind +
+                    ", comparisionKind=" + comparisionKind +
+                    ", expectedMessage='" + expectedMessage + '\'' +
+                    ", locale=" + locale +
+                    ", source='" + source + '\'' +
+                    ", row=" + row +
+                    ", column=" + column +
                     '}';
         }
     }
@@ -256,7 +359,6 @@ public class CompileTestConfiguration {
         }
 
 
-
         public FileObjectCheckType getCheckType() {
             return checkType;
         }
@@ -283,7 +385,7 @@ public class CompileTestConfiguration {
             int generatedFileObjectsMatcherHashCode = 0;
             if (generatedFileObjectMatchers != null) {
                 for (GeneratedFileObjectMatcher<?> gfo : generatedFileObjectMatchers) {
-                    if(gfo != null) {
+                    if (gfo != null) {
                         generatedFileObjectsMatcherHashCode += gfo.hashCode();
                     }
                 }
@@ -436,11 +538,10 @@ public class CompileTestConfiguration {
      */
     private Boolean compilationShouldSucceed;
 
-    // message checks by severity
-    private final Set<String> noteMessageCheck = new HashSet<>();
-    private final Set<String> warningMessageCheck = new HashSet<>();
-    private final Set<String> mandatoryWarningMessageCheck = new HashSet<>();
-    private final Set<String> errorMessageCheck = new HashSet<>();
+    /**
+     * Compiler Message checks.
+     */
+    private final Set<CompilerMessageCheck> compilerMessageChecks = new HashSet<>();
 
 
     /**
@@ -481,10 +582,7 @@ public class CompileTestConfiguration {
         }
 
         this.compilationShouldSucceed = source.getCompilationShouldSucceed();
-        this.warningMessageCheck.addAll(source.getWarningMessageCheck());
-        this.mandatoryWarningMessageCheck.addAll(source.getMandatoryWarningMessageCheck());
-        this.noteMessageCheck.addAll(source.getNoteMessageCheck());
-        this.errorMessageCheck.addAll(source.getErrorMessageCheck());
+        this.compilerMessageChecks.addAll(source.getCompilerMessageChecks());
 
         this.generatedJavaFileObjectChecks.addAll(source.getGeneratedJavaFileObjectChecks());
         this.generatedFileObjectChecks.addAll(source.getGeneratedFileObjectChecks());
@@ -565,32 +663,34 @@ public class CompileTestConfiguration {
         }
     }
 
-    public void addWarningMessageCheck(String... warningMessage) {
-        if (warningMessage != null) {
-            this.warningMessageCheck.addAll(Arrays.asList(warningMessage));
-            this.warningMessageCheck.remove(null);
+    public void addWarningMessageCheck(ComparisionKind comparisonKind, String... messages) {
+        addCompilerMessage(Diagnostic.Kind.WARNING, comparisonKind, messages);
+    }
+
+    public void addMandatoryWarningMessageCheck(ComparisionKind comparisonKind, String... messages) {
+        addCompilerMessage(Diagnostic.Kind.MANDATORY_WARNING, comparisonKind, messages);
+    }
+
+    public void addErrorMessageCheck(ComparisionKind comparisonKind, String... messages) {
+        addCompilerMessage(Diagnostic.Kind.ERROR, comparisonKind, messages);
+    }
+
+    public void addNoteMessageCheck(ComparisionKind comparisonKind, String... messages) {
+        addCompilerMessage(Diagnostic.Kind.NOTE, comparisonKind, messages);
+    }
+
+    private void addCompilerMessage(Diagnostic.Kind kind, ComparisionKind comparisonKind, String... messages) {
+        if (messages != null) {
+            for (String message : messages) {
+                if (message != null) {
+                    this.compilerMessageChecks.add(new CompilerMessageCheck(kind, comparisonKind, message, null, null, null, null));
+                }
+            }
         }
     }
 
-    public void addMandatoryWarningMessageCheck(String... mandatoryWarningMessage) {
-        if (mandatoryWarningMessage != null) {
-            this.mandatoryWarningMessageCheck.addAll(Arrays.asList(mandatoryWarningMessage));
-            this.mandatoryWarningMessageCheck.remove(null);
-        }
-    }
-
-    public void addErrorMessageCheck(String... errorMessage) {
-        if (errorMessage != null) {
-            this.errorMessageCheck.addAll(Arrays.asList(errorMessage));
-            this.errorMessageCheck.remove(null);
-        }
-    }
-
-    public void addNoteMessageCheck(String... noteMessage) {
-        if (noteMessage != null) {
-            this.noteMessageCheck.addAll(Arrays.asList(noteMessage));
-            this.noteMessageCheck.remove(null);
-        }
+    public void addCompilerMessageCheck(CompilerMessageCheck compilerMessageCheck) {
+        this.compilerMessageChecks.add(compilerMessageCheck);
     }
 
     public void addGeneratedJavaFileObjectCheck(FileObjectCheckType checkType, JavaFileManager.Location location, String className, JavaFileObject.Kind kind, GeneratedFileObjectMatcher<JavaFileObject> generatedFileObjectMatcher) {
@@ -696,25 +796,45 @@ public class CompileTestConfiguration {
         return modules;
     }
 
-    public Set<String> getWarningMessageCheck() {
-        return warningMessageCheck;
-    }
-
-    public Set<String> getMandatoryWarningMessageCheck() {
-        return mandatoryWarningMessageCheck;
-    }
-
-    public Set<String> getErrorMessageCheck() {
-        return errorMessageCheck;
-    }
-
-    public Set<String> getNoteMessageCheck() {
-        return noteMessageCheck;
-    }
-
     public Set<GeneratedJavaFileObjectCheck> getGeneratedJavaFileObjectChecks() {
         return generatedJavaFileObjectChecks;
     }
+
+    public Set<CompilerMessageCheck> getCompilerMessageChecks() {
+        return compilerMessageChecks;
+    }
+
+    public Map<Diagnostic.Kind, List<CompilerMessageCheck>> getCompilerMessageCheckByKindMap() {
+        Map<Diagnostic.Kind, List<CompilerMessageCheck>> map = new HashMap<>();
+
+        for (CompilerMessageCheck compilerMessageCheck : compilerMessageChecks) {
+
+            List<CompilerMessageCheck> checkByKindList = map.get(compilerMessageCheck.getKind());
+            if (checkByKindList == null) {
+                checkByKindList = new ArrayList<>();
+                map.put(compilerMessageCheck.getKind(), checkByKindList);
+
+            }
+
+            checkByKindList.add(compilerMessageCheck);
+        }
+
+        return map;
+    }
+
+    public long countErrorMessageChecks() {
+        long count = 0;
+        Iterator<CompilerMessageCheck> iterator = compilerMessageChecks.iterator();
+
+        while (iterator.hasNext()) {
+            if (Diagnostic.Kind.ERROR.equals(iterator.next().getKind())) {
+                count++;
+            }
+        }
+
+        return count;
+    }
+
 
     public Set<GeneratedFileObjectCheck> getGeneratedFileObjectChecks() {
         return generatedFileObjectChecks;
@@ -739,10 +859,7 @@ public class CompileTestConfiguration {
                 ",\n\t expectedThrownException=" + expectedThrownException +
                 ",\n\t modules=" + modules +
                 ",\n\t compilationShouldSucceed=" + compilationShouldSucceed +
-                ",\n\t warningMessageCheck=" + warningMessageCheck +
-                ",\n\t mandatoryWarningMessageCheck=" + mandatoryWarningMessageCheck +
-                ",\n\t errorMessageCheck=" + errorMessageCheck +
-                ",\n\t noteMessageCheck=" + noteMessageCheck +
+                ",\n\t compilerMessageChecks=" + compilerMessageChecks +
                 ",\n\t generatedJavaFileObjectChecks=" + generatedJavaFileObjectChecks +
                 ",\n\t generatedFileObjectChecks=" + generatedFileObjectChecks +
                 "\n" +

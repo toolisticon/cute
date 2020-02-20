@@ -53,9 +53,9 @@ final class CompileTestUtilities {
     static Set<String> getMessages(DiagnosticCollector<JavaFileObject> diagnostics, Diagnostic.Kind kind) {
 
         Set<String> messages = new HashSet<>();
-        Set<Diagnostic> flteredDiagnoistics = getDiagnosticByKind(diagnostics, kind);
+        Set<Diagnostic> filteredDiagnostic = getDiagnosticByKind(diagnostics, kind);
 
-        for (Diagnostic diagnostic : flteredDiagnoistics) {
+        for (Diagnostic diagnostic : filteredDiagnostic) {
             messages.add(diagnostic.getMessage(null));
         }
 

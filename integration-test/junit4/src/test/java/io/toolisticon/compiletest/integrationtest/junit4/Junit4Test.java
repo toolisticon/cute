@@ -3,15 +3,13 @@ package io.toolisticon.compiletest.integrationtest.junit4;
 
 import io.toolisticon.compiletesting.CompileTestBuilder;
 import io.toolisticon.compiletesting.UnitTestProcessor;
-
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
-
 import org.junit.Assert;
 import org.junit.Test;
 
 import javax.annotation.processing.ProcessingEnvironment;
-import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.Element;
 import javax.tools.Diagnostic;
 
 /**
@@ -26,7 +24,7 @@ public class Junit4Test {
                 .unitTest()
                 .useProcessor(new UnitTestProcessor() {
                     @Override
-                    public void unitTest(ProcessingEnvironment processingEnvironment, TypeElement typeElement) {
+                    public void unitTest(ProcessingEnvironment processingEnvironment, Element typeElement) {
                         processingEnvironment.getMessager().printMessage(Diagnostic.Kind.WARNING, "WARNING!");
                     }
                 })
@@ -44,7 +42,7 @@ public class Junit4Test {
                 .unitTest()
                 .useProcessor(new UnitTestProcessor() {
                     @Override
-                    public void unitTest(ProcessingEnvironment processingEnvironment, TypeElement typeElement) {
+                    public void unitTest(ProcessingEnvironment processingEnvironment, Element typeElement) {
                         processingEnvironment.getMessager().printMessage(Diagnostic.Kind.ERROR, "ERROR!");
                     }
                 })
@@ -63,7 +61,7 @@ public class Junit4Test {
                     .unitTest()
                     .useProcessor(new UnitTestProcessor() {
                         @Override
-                        public void unitTest(ProcessingEnvironment processingEnvironment, TypeElement typeElement) {
+                        public void unitTest(ProcessingEnvironment processingEnvironment, Element typeElement) {
                             processingEnvironment.getMessager().printMessage(Diagnostic.Kind.ERROR, "ERROR!");
                         }
                     })

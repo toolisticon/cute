@@ -8,6 +8,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import javax.annotation.processing.ProcessingEnvironment;
+import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic;
 
@@ -24,7 +25,7 @@ public class TestNgTest {
                 .unitTest()
                 .useProcessor(new UnitTestProcessor() {
                     @Override
-                    public void unitTest(ProcessingEnvironment processingEnvironment, TypeElement typeElement) {
+                    public void unitTest(ProcessingEnvironment processingEnvironment, Element typeElement) {
                         processingEnvironment.getMessager().printMessage(Diagnostic.Kind.WARNING, "WARNING!");
                     }
                 })
@@ -42,7 +43,7 @@ public class TestNgTest {
                 .unitTest()
                 .useProcessor(new UnitTestProcessor() {
                     @Override
-                    public void unitTest(ProcessingEnvironment processingEnvironment, TypeElement typeElement) {
+                    public void unitTest(ProcessingEnvironment processingEnvironment, Element typeElement) {
                         processingEnvironment.getMessager().printMessage(Diagnostic.Kind.ERROR, "ERROR!");
                     }
                 })
@@ -61,7 +62,7 @@ public class TestNgTest {
                     .unitTest()
                     .useProcessor(new UnitTestProcessor() {
                         @Override
-                        public void unitTest(ProcessingEnvironment processingEnvironment, TypeElement typeElement) {
+                        public void unitTest(ProcessingEnvironment processingEnvironment, Element typeElement) {
                             processingEnvironment.getMessager().printMessage(Diagnostic.Kind.ERROR, "ERROR!");
                         }
                     })

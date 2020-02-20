@@ -15,6 +15,9 @@ import javax.tools.FileObject;
 import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardLocation;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -229,53 +232,27 @@ public class CompileTestConfigurationTest {
 
 
     @Test
-    public void noteMessageCheck_setAndGet() {
+    public void compilerMessageCheck_setAndGet() {
 
-        unit.addNoteMessageCheck(message1, message2);
-        unit.addNoteMessageCheck(message3);
-
-        // do assertion
-        assertMessages(unit.getNoteMessageCheck());
-
-    }
-
-    @Test
-    public void warningMessageCheck_setAndGet() {
-
-        unit.addWarningMessageCheck(message1, message2);
-        unit.addWarningMessageCheck(message3);
+        unit.addNoteMessageCheck(CompileTestConfiguration.ComparisionKind.CONTAINS, message1, message2);
+        unit.addNoteMessageCheck(CompileTestConfiguration.ComparisionKind.CONTAINS, message3);
 
         // do assertion
-        assertMessages(unit.getWarningMessageCheck());
+        assertMessages(unit.getCompilerMessageChecks());
 
     }
 
 
-    @Test
-    public void mandatoryWarningMessageCheck_setAndGet() {
+    private void assertMessages(Set<CompileTestConfiguration.CompilerMessageCheck> messageSet) {
 
-        unit.addMandatoryWarningMessageCheck(message1, message2);
-        unit.addMandatoryWarningMessageCheck(message3);
+        List<String> messages = new ArrayList<>();
 
-        // do assertion
-        assertMessages(unit.getMandatoryWarningMessageCheck());
+        Iterator<CompileTestConfiguration.CompilerMessageCheck> iterator = messageSet.iterator();
+        while (iterator.hasNext()) {
+            messages.add(iterator.next().getExpectedMessage());
+        }
 
-    }
-
-    @Test
-    public void errorMessageCheck_setAndGet() {
-
-        unit.addErrorMessageCheck(message1, message2);
-        unit.addErrorMessageCheck(message3);
-
-        // do assertion
-        assertMessages(unit.getErrorMessageCheck());
-
-    }
-
-
-    private void assertMessages(Set<String> messageSet) {
-        MatcherAssert.assertThat(messageSet, Matchers.containsInAnyOrder(message1, message2, message3));
+        MatcherAssert.assertThat(messages, Matchers.containsInAnyOrder(message1, message2, message3));
     }
 
 
@@ -329,10 +306,7 @@ public class CompileTestConfigurationTest {
         processorTypes_addAndGet();
         processorsWithExpectedExceptions_addAndGet();
         expectedThrownException_setAndGet();
-        noteMessageCheck_setAndGet();
-        warningMessageCheck_setAndGet();
-        mandatoryWarningMessageCheck_setAndGet();
-        errorMessageCheck_setAndGet();
+        compilerMessageCheck_setAndGet();
         generatedJavaFileObjectChecks_addAndGet();
         generatedFileObjectChecks_addAndGet();
         modules_addAndGet();
@@ -344,10 +318,7 @@ public class CompileTestConfigurationTest {
         assertProcessorTypes(clonedConfiguration);
         assertProcessorsWithExpectedExceptions(clonedConfiguration);
         assertExpectedThrownException(clonedConfiguration, expectedThrownException);
-        assertMessages(clonedConfiguration.getNoteMessageCheck());
-        assertMessages(clonedConfiguration.getWarningMessageCheck());
-        assertMessages(clonedConfiguration.getMandatoryWarningMessageCheck());
-        assertMessages(clonedConfiguration.getErrorMessageCheck());
+        assertMessages(clonedConfiguration.getCompilerMessageChecks());
         assertGeneratedJavaFileObjectChecks(clonedConfiguration);
         assertGeneratedFileObjectChecks(clonedConfiguration);
         assertModules(clonedConfiguration);

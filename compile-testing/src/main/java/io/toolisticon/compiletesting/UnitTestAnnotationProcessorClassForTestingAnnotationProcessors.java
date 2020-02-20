@@ -7,29 +7,37 @@ import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic;
+import java.lang.annotation.Annotation;
 import java.util.HashSet;
 import java.util.Set;
 
 /**
  * Base annotation processor for unit testing of initialized annotation processors.
+ *
+ * @param <UNIT_PROCESSOR> the unit test processor to use
+ * @param <ELEMENT_TYPE>   The expected type of the processed element
  */
-class UnitTestAnnotationProcessorClassForTestingAnnotationProcessors<UNIT_PROCESSOR extends Processor> extends AbstractProcessor {
+class UnitTestAnnotationProcessorClassForTestingAnnotationProcessors<UNIT_PROCESSOR extends Processor, ELEMENT_TYPE extends Element> extends AbstractProcessor {
 
-    private static final Set<String> SUPPORTED_ANNOTATION_TYPES = new HashSet<>();
+    private final Set<String> supportedAnnotationTypes = new HashSet<>();
 
-    static {
-        SUPPORTED_ANNOTATION_TYPES.add(TestAnnotation.class.getCanonicalName());
-    }
+
+    /**
+     * The annotation type to search for.
+     */
+    private Class<? extends Annotation> annotationTypeToUse;
 
     /**
      * The unit test processor instance to use.
      */
-    private final UnitTestProcessorForTestingAnnotationProcessors<UNIT_PROCESSOR> unitTestProcessorForTestingAnnotationProcessors;
+    private final UnitTestProcessorForTestingAnnotationProcessors<UNIT_PROCESSOR, ELEMENT_TYPE> unitTestProcessorForTestingAnnotationProcessors;
     private final UNIT_PROCESSOR processorUnderTest;
 
 
-    public UnitTestAnnotationProcessorClassForTestingAnnotationProcessors(UNIT_PROCESSOR processorUnderTest, UnitTestProcessorForTestingAnnotationProcessors<UNIT_PROCESSOR> unitTestProcessorForTestingAnnotationProcessors) {
+    public UnitTestAnnotationProcessorClassForTestingAnnotationProcessors(UNIT_PROCESSOR processorUnderTest, Class<? extends Annotation> annotationTypeToUse, UnitTestProcessorForTestingAnnotationProcessors<UNIT_PROCESSOR, ELEMENT_TYPE> unitTestProcessorForTestingAnnotationProcessors) {
         this.processorUnderTest = processorUnderTest;
+        this.annotationTypeToUse = annotationTypeToUse;
+        this.supportedAnnotationTypes.add(annotationTypeToUse.getCanonicalName());
         this.unitTestProcessorForTestingAnnotationProcessors = unitTestProcessorForTestingAnnotationProcessors;
     }
 
@@ -43,24 +51,29 @@ class UnitTestAnnotationProcessorClassForTestingAnnotationProcessors<UNIT_PROCES
 
     @Override
     public Set<String> getSupportedAnnotationTypes() {
-        return SUPPORTED_ANNOTATION_TYPES;
+        return supportedAnnotationTypes;
     }
 
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
 
-        if (!roundEnv.processingOver()) {
+        // just try to execute tests if annotation is processed == annotations size is 1
+        if (!roundEnv.processingOver() && annotations.size() == 1) {
 
-            Set<? extends Element> set = roundEnv.getElementsAnnotatedWith(TestAnnotation.class);
+            Set<? extends Element> set = roundEnv.getElementsAnnotatedWith(annotationTypeToUse);
 
             if (set.size() == 1) {
 
-                unitTestProcessorForTestingAnnotationProcessors.unitTest(processorUnderTest, this.processingEnv, (TypeElement) set.iterator().next());
+                try {
+                    unitTestProcessorForTestingAnnotationProcessors.unitTest(processorUnderTest, this.processingEnv, (ELEMENT_TYPE) set.iterator().next());
+                } catch (ClassCastException e) {
+                    throw new FailingAssertionException(Constants.Messages.UNIT_TEST_PRECONDITION_INCOMPATIBLE_ELEMENT_TYPE.produceMessage());
+                }
 
             } else {
 
-                throw new AssertionError("PRECONDITION: Expected to find exactly one element annotated with TestAnnotation in unit test");
+                throw new AssertionError(Constants.Messages.UNIT_TEST_PRECONDITION_MUST_FIND_EXACTLY_ONE_ELEMENT.produceMessage(annotationTypeToUse.getCanonicalName()));
 
             }
 

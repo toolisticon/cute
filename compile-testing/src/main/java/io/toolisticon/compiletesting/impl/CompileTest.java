@@ -1,5 +1,6 @@
 package io.toolisticon.compiletesting.impl;
 
+import io.toolisticon.compiletesting.Constants;
 import io.toolisticon.compiletesting.FailingAssertionException;
 import io.toolisticon.compiletesting.GeneratedFileObjectMatcher;
 import io.toolisticon.compiletesting.InvalidTestConfigurationException;
@@ -15,6 +16,8 @@ import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.ToolProvider;
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -23,26 +26,7 @@ import java.util.Set;
 public class CompileTest {
 
     // Messages
-    public final static String MESSAGE_COMPILATION_SHOULD_SUCCEED_AND_ERROR_MESSAGE_EXPECTED = "Test configuration error : Compilation should succeed but error messages is expected too !!!";
-    public final static String MESSAGE_COMPILATION_SHOULD_HAVE_SUCCEEDED_BUT_FAILED = "Compilation should have succeeded but failed";
-    public final static String MESSAGE_COMPILATION_SHOULD_HAVE_FAILED_BUT_SUCCEEDED = "Compilation should have failed but succeeded";
 
-    public final static String MESSAGE_JFO_DOESNT_EXIST = "Expected generated JavaFileObject (%s) doesn't exist.";
-    public final static String MESSAGE_JFO_EXISTS_BUT_SHOULD_BE_NON_EXISTENT = "Expected JavaFileObject (%s) to be non existent.";
-
-    public final static String MESSAGE_JFO_EXISTS_BUT_DOESNT_MATCH_MATCHER = "Expected generated JavaFileObject (%s) exists but doesn't match passed GeneratedFileObjectMatcher: %s";
-
-    public final static String MESSAGE_FO_COMPARISION_FAILED = "Check with GeneratedFileObjectMatcher %s failed.";
-
-    public final static String MESSAGE_FO_DOESNT_EXIST = "Expected generated FileObject (%s) doesn't exist.";
-    public final static String MESSAGE_FO_EXISTS_BUT_SHOULD_BE_NON_EXISTENT = "Expected FileObject (%s) to be non existent.";
-
-    public final static String MESSAGE_FO_EXISTS_BUT_DOESNT_MATCH_MATCHER = "Expected generated FileObject (%s) exists but doesn't match passed GeneratedFileObjectMatcher: %s";
-
-    public final static String MESSAGE_PROCESSOR_HASNT_BEEN_APPLIED = "Annotation processor %s hasn't been applied on a class";
-    public final static String MESSAGE_HAVENT_FOUND_MESSSAGE = "Haven't found expected message string '%s' of kind %s. Got messages %s";
-
-    public final static String MESSAGE_TECHNICAL_ERROR = "TECHNICAL ERROR : %s";
 
     private final CompileTestConfiguration compileTestConfiguration;
 
@@ -75,30 +59,31 @@ public class CompileTest {
             // check if error messages and shouldSucceed aren't set contradictionary
             if (compileTestConfiguration.getCompilationShouldSucceed() != null
                     && compileTestConfiguration.getCompilationShouldSucceed()
-                    && compileTestConfiguration.getErrorMessageCheck().size() > 0) {
-                throw new InvalidTestConfigurationException(MESSAGE_COMPILATION_SHOULD_SUCCEED_AND_ERROR_MESSAGE_EXPECTED);
+                    && compileTestConfiguration.countErrorMessageChecks() > 0) {
+                throw new InvalidTestConfigurationException(Constants.Messages.MESSAGE_COMPILATION_SHOULD_SUCCEED_AND_ERROR_MESSAGE_EXPECTED.produceMessage());
             }
 
 
             // Check if compilation succeeded
             if (compileTestConfiguration.getCompilationShouldSucceed() != null && !compileTestConfiguration.getCompilationShouldSucceed().equals(compilationResult.getCompilationSucceeded())) {
 
-                throw new FailingAssertionException(compileTestConfiguration.getCompilationShouldSucceed() ? MESSAGE_COMPILATION_SHOULD_HAVE_SUCCEEDED_BUT_FAILED + "\nERRORS:\n" + CompileTestUtilities.getMessages(compilationResult.getDiagnostics(), Diagnostic.Kind.ERROR) : MESSAGE_COMPILATION_SHOULD_HAVE_FAILED_BUT_SUCCEEDED);
+                throw new FailingAssertionException(
+                        compileTestConfiguration.getCompilationShouldSucceed()
+                                ? Constants.Messages.MESSAGE_COMPILATION_SHOULD_HAVE_SUCCEEDED_BUT_FAILED.produceMessage() + "\nERRORS:\n" + CompileTestUtilities.getMessages(compilationResult.getDiagnostics(), Diagnostic.Kind.ERROR)
+                                : Constants.Messages.MESSAGE_COMPILATION_SHOULD_HAVE_FAILED_BUT_SUCCEEDED.produceMessage()
+                );
 
             }
 
 
             // Check messages
-            checkMessages(compilationResult.getDiagnostics(), Diagnostic.Kind.ERROR, compileTestConfiguration.getErrorMessageCheck());
-            checkMessages(compilationResult.getDiagnostics(), Diagnostic.Kind.WARNING, compileTestConfiguration.getWarningMessageCheck());
-            checkMessages(compilationResult.getDiagnostics(), Diagnostic.Kind.MANDATORY_WARNING, compileTestConfiguration.getMandatoryWarningMessageCheck());
-            checkMessages(compilationResult.getDiagnostics(), Diagnostic.Kind.NOTE, compileTestConfiguration.getNoteMessageCheck());
+            checkMessages(compilationResult.getDiagnostics());
 
 
             for (CompileTestConfiguration.GeneratedJavaFileObjectCheck generatedJavaFileObjectCheck : this.compileTestConfiguration.getGeneratedJavaFileObjectChecks()) {
                 if (CompileTestConfiguration.FileObjectCheckType.EXISTS.equals(generatedJavaFileObjectCheck.getCheckType())) {
                     if (!compilationResult.getCompileTestFileManager().existsExpectedJavaFileObject(generatedJavaFileObjectCheck.getLocation(), generatedJavaFileObjectCheck.getClassName(), generatedJavaFileObjectCheck.getKind())) {
-                        throw new FailingAssertionException(String.format(MESSAGE_JFO_DOESNT_EXIST, getJavaFileObjectInfoString(generatedJavaFileObjectCheck)));
+                        throw new FailingAssertionException(Constants.Messages.MESSAGE_JFO_DOESNT_EXIST.produceMessage(getJavaFileObjectInfoString(generatedJavaFileObjectCheck)));
                     } else {
 
                         try {
@@ -112,12 +97,12 @@ public class CompileTest {
                                     if (!generatedJavaFileObjectCheck.getGeneratedFileObjectMatcher().check(foundJavaFileObject)) {
 
                                         // Throw Exception as fallback if not done by matcher
-                                        throw new FailingAssertionException(String.format(MESSAGE_FO_COMPARISION_FAILED, generatedJavaFileObjectCheck.getGeneratedFileObjectMatcher().getClass().getCanonicalName()));
+                                        throw new FailingAssertionException(Constants.Messages.MESSAGE_FO_COMPARISION_FAILED.produceMessage(generatedJavaFileObjectCheck.getGeneratedFileObjectMatcher().getClass().getCanonicalName()));
 
 
                                     }
                                 } catch (FailingAssertionException e) {
-                                    throw new FailingAssertionException(String.format(MESSAGE_JFO_EXISTS_BUT_DOESNT_MATCH_MATCHER, getJavaFileObjectInfoString(generatedJavaFileObjectCheck),e.getMessage()));
+                                    throw new FailingAssertionException(Constants.Messages.MESSAGE_JFO_EXISTS_BUT_DOESNT_MATCH_MATCHER.produceMessage(getJavaFileObjectInfoString(generatedJavaFileObjectCheck), e.getMessage()));
                                 }
 
                             }
@@ -130,7 +115,7 @@ public class CompileTest {
                     }
                 } else {
                     if (compilationResult.getCompileTestFileManager().existsExpectedJavaFileObject(generatedJavaFileObjectCheck.getLocation(), generatedJavaFileObjectCheck.getClassName(), generatedJavaFileObjectCheck.getKind())) {
-                        throw new FailingAssertionException(String.format(MESSAGE_JFO_EXISTS_BUT_SHOULD_BE_NON_EXISTENT, getJavaFileObjectInfoString(generatedJavaFileObjectCheck)));
+                        throw new FailingAssertionException(Constants.Messages.MESSAGE_JFO_EXISTS_BUT_SHOULD_BE_NON_EXISTENT.produceMessage(getJavaFileObjectInfoString(generatedJavaFileObjectCheck)));
                     }
                 }
 
@@ -142,7 +127,7 @@ public class CompileTest {
                 if (CompileTestConfiguration.FileObjectCheckType.EXISTS.equals(generatedFileObjectCheck.getCheckType())) {
 
                     if (!compilationResult.getCompileTestFileManager().existsExpectedFileObject(generatedFileObjectCheck.getLocation(), generatedFileObjectCheck.getPackageName(), generatedFileObjectCheck.getRelativeName())) {
-                        throw new FailingAssertionException(String.format(MESSAGE_FO_DOESNT_EXIST, getFileObjectInfoString(generatedFileObjectCheck)));
+                        throw new FailingAssertionException(Constants.Messages.MESSAGE_FO_DOESNT_EXIST.produceMessage(getFileObjectInfoString(generatedFileObjectCheck)));
                     } else {
 
                         try {
@@ -156,24 +141,24 @@ public class CompileTest {
                                     for (GeneratedFileObjectMatcher<FileObject> matcher : generatedFileObjectCheck.getGeneratedFileObjectMatchers()) {
                                         if (!matcher.check(foundFileObject)) {
                                             // Throw Exception as fallback if not done by matcher
-                                            throw new FailingAssertionException(String.format(MESSAGE_FO_COMPARISION_FAILED, matcher.getClass().getCanonicalName()));
+                                            throw new FailingAssertionException(Constants.Messages.MESSAGE_FO_COMPARISION_FAILED.produceMessage(matcher.getClass().getCanonicalName()));
                                         }
                                     }
                                 } catch (FailingAssertionException e) {
-                                    throw new FailingAssertionException(String.format(MESSAGE_FO_EXISTS_BUT_DOESNT_MATCH_MATCHER, getFileObjectInfoString(generatedFileObjectCheck), e.getMessage()));
+                                    throw new FailingAssertionException(Constants.Messages.MESSAGE_FO_EXISTS_BUT_DOESNT_MATCH_MATCHER.produceMessage(getFileObjectInfoString(generatedFileObjectCheck), e.getMessage()));
                                 }
 
                             }
 
                         } catch (IOException e) {
-                            throw new FailingAssertionException(String.format(MESSAGE_TECHNICAL_ERROR, e.getMessage()));
+                            throw new FailingAssertionException(Constants.Messages.MESSAGE_TECHNICAL_ERROR.produceMessage(e.getMessage()));
                         }
 
 
                     }
                 } else {
                     if (compilationResult.getCompileTestFileManager().existsExpectedFileObject(generatedFileObjectCheck.getLocation(), generatedFileObjectCheck.getPackageName(), generatedFileObjectCheck.getRelativeName())) {
-                        throw new FailingAssertionException(String.format(MESSAGE_FO_EXISTS_BUT_SHOULD_BE_NON_EXISTENT, getFileObjectInfoString(generatedFileObjectCheck)));
+                        throw new FailingAssertionException(Constants.Messages.MESSAGE_FO_EXISTS_BUT_SHOULD_BE_NON_EXISTENT.produceMessage(getFileObjectInfoString(generatedFileObjectCheck)));
                     }
                 }
 
@@ -200,11 +185,11 @@ public class CompileTest {
     }
 
 
-    protected static String getJavaFileObjectInfoString(CompileTestConfiguration.GeneratedJavaFileObjectCheck generatedJavaFileObjectCheck) {
+    static String getJavaFileObjectInfoString(CompileTestConfiguration.GeneratedJavaFileObjectCheck generatedJavaFileObjectCheck) {
         return generatedJavaFileObjectCheck.getLocation() + "; " + generatedJavaFileObjectCheck.getClassName() + "; " + generatedJavaFileObjectCheck.getKind();
     }
 
-    protected static String getFileObjectInfoString(CompileTestConfiguration.GeneratedFileObjectCheck generatedFileObjectCheck) {
+    static String getFileObjectInfoString(CompileTestConfiguration.GeneratedFileObjectCheck generatedFileObjectCheck) {
         return generatedFileObjectCheck.getLocation() + "; " + generatedFileObjectCheck.getPackageName() + "; " + generatedFileObjectCheck.getRelativeName();
     }
 
@@ -254,7 +239,7 @@ public class CompileTest {
      *
      * @param diagnostics the DiagnosticCollector instance
      */
-    protected void checkIfProcessorsHaveBeenApplied(DiagnosticCollector<JavaFileObject> diagnostics) {
+    void checkIfProcessorsHaveBeenApplied(DiagnosticCollector<JavaFileObject> diagnostics) {
 
         Set<String> messages = CompileTestUtilities.getMessages(diagnostics, Diagnostic.Kind.NOTE);
 
@@ -267,7 +252,7 @@ public class CompileTest {
                 }
             }
 
-            throw new FailingAssertionException(String.format(MESSAGE_PROCESSOR_HASNT_BEEN_APPLIED, processor.getWrappedProcessor().getClass().getCanonicalName()));
+            throw new FailingAssertionException(Constants.Messages.MESSAGE_PROCESSOR_HASNT_BEEN_APPLIED.produceMessage(processor.getWrappedProcessor().getClass().getCanonicalName()));
 
         }
 
@@ -276,28 +261,65 @@ public class CompileTest {
 
     /**
      * Method to check for specific messages.
-     *
-     * @param diagnostics      the compilations diagnostics result
-     * @param kind             the kind of the messages to check
-     * @param messsagesToCheck a set containing the messages to check
      */
-    protected static void checkMessages(DiagnosticCollector<JavaFileObject> diagnostics, Diagnostic.Kind kind, Set<String> messsagesToCheck) {
+    void checkMessages(DiagnosticCollector<JavaFileObject> diagnostics) {
 
-        Set<String> messages = CompileTestUtilities.getMessages(diagnostics, kind);
+        // Just check messages of matching kind
+        Map<Diagnostic.Kind, List<CompileTestConfiguration.CompilerMessageCheck>> compileMessageChecks = compileTestConfiguration.getCompilerMessageCheckByKindMap();
 
-        outer:
-        for (String messageToCheck : messsagesToCheck) {
+        for (Map.Entry<Diagnostic.Kind, List<CompileTestConfiguration.CompilerMessageCheck>> entry : compileMessageChecks.entrySet()) {
 
-            for (String message : messages) {
+            Set<Diagnostic> filteredDiagnostics = CompileTestUtilities.getDiagnosticByKind(diagnostics, entry.getKey());
 
-                if (message.contains(messageToCheck)) {
+            outer:
+            for (CompileTestConfiguration.CompilerMessageCheck messageToCheck : entry.getValue()) {
+
+                for (Diagnostic element : filteredDiagnostics) {
+
+                    String localizedMessage = element.getMessage(messageToCheck.getLocale());
+
+
+                    // Check message
+                    switch (messageToCheck.getComparisionKind()) {
+
+                        case EQUALS: {
+                            if (!localizedMessage.equals(messageToCheck.getExpectedMessage())) {
+                                continue;
+                            }
+                            break;
+                        }
+                        case CONTAINS:
+                        default: {
+                            if (!localizedMessage.contains(messageToCheck.getExpectedMessage())) {
+                                continue;
+                            }
+                        }
+                    }
+
+                    // check source
+                    if (messageToCheck.getSource() != null && !messageToCheck.getSource().equals(((FileObject) element.getSource()).getName())) {
+                        continue;
+                    }
+
+                    // check line
+                    if (messageToCheck.getLineNumber() != null && element.getLineNumber() != messageToCheck.getLineNumber()) {
+                        continue;
+                    }
+
+                    // check column
+                    if (messageToCheck.getColumnNumber() != null && element.getColumnNumber() != messageToCheck.getColumnNumber()) {
+                        continue;
+                    }
+
+                    // found it
                     continue outer;
+
                 }
 
-            }
+                // Not found ==> assertion fails
+                throw new FailingAssertionException(Constants.Messages.MESSAGE_HAVENT_FOUND_MESSSAGE.produceMessage(messageToCheck, messageToCheck.getKind().name()));
 
-            // Not found ==> assertion fails
-            throw new FailingAssertionException(String.format(MESSAGE_HAVENT_FOUND_MESSSAGE, messageToCheck, kind.name(), messages.toString()));
+            }
 
         }
 

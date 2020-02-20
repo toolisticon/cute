@@ -1,5 +1,6 @@
 package io.toolisticon.compiletesting.matchers;
 
+import io.toolisticon.compiletesting.Constants;
 import io.toolisticon.compiletesting.FailingAssertionException;
 import io.toolisticon.compiletesting.GeneratedFileObjectMatcher;
 
@@ -35,7 +36,7 @@ public class IgnoreLineEndingsGeneratedFileObjectMatcher<T extends FileObject> i
     public boolean check(T fileObject) throws IOException {
 
         if (!contentEquals(fileObject.openInputStream(), expectedFileObject.openInputStream())) {
-            throw new FailingAssertionException("FileObjects aren't equal by doing textual comparision and ignoring line endings");
+            throw new FailingAssertionException(Constants.Messages.GFOM_FILEOBJECTS_ARENT_EQUAL_BY_TEXTUAL_COMPARISION_WITH_IGNORE_LINEENDINGS.produceMessage());
         }
 
         return true;

@@ -1,6 +1,7 @@
 package io.toolisticon.compiletesting.matchers;
 
 
+import io.toolisticon.compiletesting.Constants;
 import io.toolisticon.compiletesting.FailingAssertionException;
 import io.toolisticon.compiletesting.GeneratedFileObjectMatcher;
 
@@ -38,7 +39,7 @@ class WellFormedXmlGeneratedFileObjectMatcher implements GeneratedFileObjectMatc
 
             return true;
         } catch (Exception e) {
-            throw new FailingAssertionException(String.format("File %s is no well formed xml file!", fileObject.getName().toString()));
+            throw new FailingAssertionException(Constants.Messages.GFOM_FILEOBJECT_IS_NOT_WELL_FORMED.produceMessage(fileObject.getName().toString()));
         }
 
 

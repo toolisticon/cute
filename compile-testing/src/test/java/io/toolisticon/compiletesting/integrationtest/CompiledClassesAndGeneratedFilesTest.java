@@ -1,6 +1,7 @@
 package io.toolisticon.compiletesting.integrationtest;
 
 import io.toolisticon.compiletesting.CompileTestBuilder;
+import io.toolisticon.compiletesting.Constants;
 import io.toolisticon.compiletesting.GeneratedFileObjectMatcher;
 import io.toolisticon.compiletesting.JavaFileObjectUtils;
 import io.toolisticon.compiletesting.TestUtilities;
@@ -84,7 +85,7 @@ public class CompiledClassesAndGeneratedFilesTest {
                     .testCompilation();
         } catch (AssertionError e) {
 
-            TestUtilities.assertAssertionMessageContainsMessageTokensAssertion(e, CompileTest.MESSAGE_FO_EXISTS_BUT_SHOULD_BE_NON_EXISTENT);
+            TestUtilities.assertAssertionMessageContainsMessageTokensAssertion(e, Constants.Messages.MESSAGE_FO_EXISTS_BUT_SHOULD_BE_NON_EXISTENT.getMessagePattern());
 
             assertionErrorWasThrown = true;
 
@@ -139,7 +140,7 @@ public class CompiledClassesAndGeneratedFilesTest {
                     .testCompilation();
         } catch (AssertionError e) {
 
-            TestUtilities.assertAssertionMessageContainsMessageTokensAssertion(e, CompileTest.MESSAGE_FO_EXISTS_BUT_DOESNT_MATCH_MATCHER);
+            TestUtilities.assertAssertionMessageContainsMessageTokensAssertion(e, Constants.Messages.MESSAGE_FO_EXISTS_BUT_DOESNT_MATCH_MATCHER.getMessagePattern());
             assertionErrorWasThrown = true;
 
         }
@@ -167,7 +168,7 @@ public class CompiledClassesAndGeneratedFilesTest {
                     .testCompilation();
         } catch (AssertionError e) {
 
-            TestUtilities.assertAssertionMessageContainsMessageTokensAssertion(e, CompileTest.MESSAGE_FO_EXISTS_BUT_DOESNT_MATCH_MATCHER);
+            TestUtilities.assertAssertionMessageContainsMessageTokensAssertion(e, Constants.Messages.MESSAGE_FO_EXISTS_BUT_DOESNT_MATCH_MATCHER.getMessagePattern());
             assertionErrorWasThrown = true;
 
         }
@@ -241,7 +242,7 @@ public class CompiledClassesAndGeneratedFilesTest {
                     .testCompilation();
         } catch (AssertionError e) {
 
-            TestUtilities.assertAssertionMessageContainsMessageTokensAssertion(e, CompileTest.MESSAGE_JFO_DOESNT_EXIST);
+            TestUtilities.assertAssertionMessageContainsMessageTokensAssertion(e, Constants.Messages.MESSAGE_JFO_DOESNT_EXIST.getMessagePattern());
 
             assertionErrorWasThrown = true;
 
@@ -265,7 +266,7 @@ public class CompiledClassesAndGeneratedFilesTest {
                     .testCompilation();
         } catch (AssertionError e) {
 
-            TestUtilities.assertAssertionMessageContainsMessageTokensAssertion(e, CompileTest.MESSAGE_JFO_DOESNT_EXIST);
+            TestUtilities.assertAssertionMessageContainsMessageTokensAssertion(e, Constants.Messages.MESSAGE_JFO_DOESNT_EXIST.getMessagePattern());
 
             assertionErrorWasThrown = true;
 
@@ -289,7 +290,7 @@ public class CompiledClassesAndGeneratedFilesTest {
                     .testCompilation();
         } catch (AssertionError e) {
 
-            TestUtilities.assertAssertionMessageContainsMessageTokensAssertion(e, CompileTest.MESSAGE_JFO_EXISTS_BUT_SHOULD_BE_NON_EXISTENT);
+            TestUtilities.assertAssertionMessageContainsMessageTokensAssertion(e, Constants.Messages.MESSAGE_JFO_EXISTS_BUT_SHOULD_BE_NON_EXISTENT.getMessagePattern());
 
             assertionErrorWasThrown = true;
 
@@ -313,7 +314,7 @@ public class CompiledClassesAndGeneratedFilesTest {
                     .testCompilation();
         } catch (AssertionError e) {
 
-            TestUtilities.assertAssertionMessageContainsMessageTokensAssertion(e, CompileTest.MESSAGE_JFO_EXISTS_BUT_SHOULD_BE_NON_EXISTENT);
+            TestUtilities.assertAssertionMessageContainsMessageTokensAssertion(e, Constants.Messages.MESSAGE_JFO_EXISTS_BUT_SHOULD_BE_NON_EXISTENT.getMessagePattern());
 
             assertionErrorWasThrown = true;
 
@@ -337,7 +338,7 @@ public class CompiledClassesAndGeneratedFilesTest {
                     .testCompilation();
         } catch (AssertionError e) {
 
-            TestUtilities.assertAssertionMessageContainsMessageTokensAssertion(e, CompileTest.MESSAGE_JFO_EXISTS_BUT_DOESNT_MATCH_MATCHER);
+            TestUtilities.assertAssertionMessageContainsMessageTokensAssertion(e, Constants.Messages.MESSAGE_JFO_EXISTS_BUT_DOESNT_MATCH_MATCHER.getMessagePattern());
 
             assertionErrorWasThrown = true;
 
@@ -366,7 +367,7 @@ public class CompiledClassesAndGeneratedFilesTest {
                     .testCompilation();
         } catch (AssertionError e) {
 
-            TestUtilities.assertAssertionMessageContainsMessageTokensAssertion(e, CompileTest.MESSAGE_JFO_EXISTS_BUT_DOESNT_MATCH_MATCHER);
+            TestUtilities.assertAssertionMessageContainsMessageTokensAssertion(e, Constants.Messages.MESSAGE_JFO_EXISTS_BUT_DOESNT_MATCH_MATCHER.getMessagePattern());
 
             assertionErrorWasThrown = true;
 

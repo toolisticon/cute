@@ -5,10 +5,14 @@ import io.toolisticon.compiletesting.impl.CompileTestConfiguration;
 import io.toolisticon.compiletesting.matchers.CoreGeneratedFileObjectMatchers;
 
 import javax.annotation.processing.Processor;
+import javax.lang.model.element.Element;
+import javax.tools.Diagnostic;
 import javax.tools.FileObject;
 import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardLocation;
+import java.lang.annotation.Annotation;
+import java.util.Locale;
 
 /**
  * Compile test builder.
@@ -49,6 +53,7 @@ public class CompileTestBuilder {
          */
         protected abstract <T extends FileObject> GeneratedFileObjectMatcher<T> createMatcher(T expectedFileObject);
     }
+
 
     /**
      * Abstract base builder class.
@@ -124,6 +129,45 @@ public class CompileTestBuilder {
             return createNextInstance(nextConfiguration);
         }
 
+        /**
+         * Starts a sub builder for adding a check for an error compiler message.
+         *
+         * @return an immutable builder instance for creating a complex compiler message check
+         */
+        public CompileMessageCheckBuilder<T> expectErrorMessage() {
+            CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
+            return new CompileMessageCheckBuilder<T>(createNextInstance(nextConfiguration), Diagnostic.Kind.ERROR);
+        }
+
+        /**
+         * Starts a sub builder for adding a check for a mandatory warning compiler message.
+         *
+         * @return an immutable builder instance for creating a complex compiler message check
+         */
+        public CompileMessageCheckBuilder<T> expectMandatoryWarning() {
+            CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
+            return new CompileMessageCheckBuilder<T>(createNextInstance(nextConfiguration), Diagnostic.Kind.MANDATORY_WARNING);
+        }
+
+        /**
+         * Starts a sub builder for adding a check for a warning compiler message.
+         *
+         * @return an immutable builder instance for creating a complex compiler message check
+         */
+        public CompileMessageCheckBuilder<T> expectWarning() {
+            CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
+            return new CompileMessageCheckBuilder<T>(createNextInstance(nextConfiguration), Diagnostic.Kind.WARNING);
+        }
+
+        /**
+         * Starts a sub builder for adding a check for a note compiler message.
+         *
+         * @return an immutable builder instance for creating a complex compiler message check
+         */
+        public CompileMessageCheckBuilder<T> expectNote() {
+            CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
+            return new CompileMessageCheckBuilder<T>(createNextInstance(nextConfiguration), Diagnostic.Kind.NOTE);
+        }
 
         /**
          * Adds some warning checks.
@@ -134,7 +178,7 @@ public class CompileTestBuilder {
         public T expectedWarningMessages(String... warningChecks) {
             CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
             if (warningChecks != null) {
-                nextConfiguration.addWarningMessageCheck(warningChecks);
+                nextConfiguration.addWarningMessageCheck(CompileTestConfiguration.ComparisionKind.CONTAINS, warningChecks);
             }
             return createNextInstance(nextConfiguration);
 
@@ -150,7 +194,7 @@ public class CompileTestBuilder {
 
             CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
             if (mandatoryWarningChecks != null) {
-                nextConfiguration.addMandatoryWarningMessageCheck(mandatoryWarningChecks);
+                nextConfiguration.addMandatoryWarningMessageCheck(CompileTestConfiguration.ComparisionKind.CONTAINS, mandatoryWarningChecks);
             }
             return createNextInstance(nextConfiguration);
 
@@ -166,7 +210,7 @@ public class CompileTestBuilder {
 
             CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
             if (errorChecksToSet != null) {
-                nextConfiguration.addErrorMessageCheck(errorChecksToSet);
+                nextConfiguration.addErrorMessageCheck(CompileTestConfiguration.ComparisionKind.CONTAINS, errorChecksToSet);
             }
             return createNextInstance(nextConfiguration);
 
@@ -182,7 +226,22 @@ public class CompileTestBuilder {
 
             CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
             if (noteChecksToSet != null) {
-                nextConfiguration.addNoteMessageCheck(noteChecksToSet);
+                nextConfiguration.addNoteMessageCheck(CompileTestConfiguration.ComparisionKind.CONTAINS, noteChecksToSet);
+            }
+            return createNextInstance(nextConfiguration);
+
+        }
+
+        /**
+         * Adds a CompilerMessageCheck.
+         *
+         * @param compilerMessageCheck The Compiler Message check
+         * @return The next immutable builder instance
+         */
+        T addCompilerMessageCheck(CompileTestConfiguration.CompilerMessageCheck compilerMessageCheck) {
+            CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
+            if (compilerMessageCheck != null) {
+                nextConfiguration.addCompilerMessageCheck(compilerMessageCheck);
             }
             return createNextInstance(nextConfiguration);
 
@@ -240,7 +299,7 @@ public class CompileTestBuilder {
                 FileObject expectedFileObject) {
 
             if (matcherKind == null) {
-                throw new IllegalArgumentException("passed matcherKind  ust not be null");
+                throw new IllegalArgumentException(Constants.Messages.IAE_PASSED_PARAMETER_MUST_NOT_BE_NULL.produceMessage("matcherKind"));
             }
 
             CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
@@ -326,7 +385,7 @@ public class CompileTestBuilder {
          * @param className the class name
          * @return the next builder instance
          */
-        public T expectedClassFileExists(String className) {
+        public T expectedGeneratedClassExists(String className) {
             return expectedJavaFileObjectExists(StandardLocation.CLASS_OUTPUT, className, JavaFileObject.Kind.CLASS);
         }
 
@@ -462,7 +521,7 @@ public class CompileTestBuilder {
          */
         public void testCompilation() {
             if (compileTestConfiguration.getSourceFiles().size() == 0) {
-                throw new IllegalArgumentException("At least one source file has to be added to the compiler test configuration");
+                throw new IllegalStateException(Constants.Messages.ISE_MUST_CONFIGURE_AT_LEAST_ONE_SOURCE_FILE.produceMessage());
             }
 
             new CompileTest(createCompileTestConfiguration()).executeTest();
@@ -526,10 +585,10 @@ public class CompileTestBuilder {
         public CompilationTestBuilder addProcessorWithExpectedException(Class<? extends Processor> processor, Class<? extends Throwable> exception) {
 
             if (processor == null) {
-                throw new IllegalArgumentException("Passed processor must not be null");
+                throw new IllegalArgumentException(Constants.Messages.IAE_PASSED_PARAMETER_MUST_NOT_BE_NULL.produceMessage("processor"));
             }
             if (exception == null) {
-                throw new IllegalArgumentException("Passed exception must not be null");
+                throw new IllegalArgumentException(Constants.Messages.IAE_PASSED_PARAMETER_MUST_NOT_BE_NULL.produceMessage("exception"));
             }
             CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
             nextConfiguration.addProcessorWithExpectedException(processor, exception);
@@ -590,7 +649,7 @@ public class CompileTestBuilder {
         public UnitTestBuilder useProcessor(Processor processor) {
 
             if (processor == null) {
-                throw new IllegalArgumentException("passed processor must not be null!");
+                throw new IllegalArgumentException(Constants.Messages.IAE_PASSED_PARAMETER_MUST_NOT_BE_NULL.produceMessage("processor"));
             }
 
             CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
@@ -603,45 +662,111 @@ public class CompileTestBuilder {
         }
 
         /**
-         * Sets the processor to use.
-         * The processor should support {@link TestAnnotation} annotation processing if no custom source file is defined.
-         * If custom source is used make sure {@link TestAnnotation} is used somewhere in the custom source file to make sure if annotation processor is used.
+         * Allows writing of unit tests.
+         * You can pass in a {@link UnitTestProcessor} instance that contains your test code in it's unitTest method.
+         * <p>
+         * The {@link javax.annotation.processing.ProcessingEnvironment} and an Element of type ELEMENT_TYPE will passed to the UnitTestProcessor.unitTest method.
+         * <p>
+         * The {@link TestAnnotation} will be used to look up this Element during.
+         * <p>
+         * So please make sure that the {@link TestAnnotation} is used exactly once, when you are using a custom source files
          *
          * @param unitTestProcessor the processor to use
+         * @param <ELEMENT_TYPE>    The expected element type (Must be TypeElement, if no custom source files are used)
          * @return the UnitTestBuilder instance
          * @throws IllegalArgumentException if passed processor is null.
+         * @throws IllegalStateException    if more than one Element is found or if ELEMENT_TYPE doesn't match type of the found element
          */
-        public UnitTestBuilder useProcessor(UnitTestProcessor unitTestProcessor) {
+        public <ELEMENT_TYPE extends Element> UnitTestBuilder useProcessor(UnitTestProcessor<ELEMENT_TYPE> unitTestProcessor) {
+            return useProcessor(Constants.DEFAULT_ANNOTATION, unitTestProcessor);
+        }
+
+        /**
+         * Allows writing of unit tests.
+         * You can pass in a {@link UnitTestProcessor} instance that contains your test code in it's unitTest method.
+         * <p>
+         * The {@link javax.annotation.processing.ProcessingEnvironment} and an Element of type ELEMENT_TYPE will passed to the UnitTestProcessor.unitTest method.
+         * <p>
+         * The {@link TestAnnotation} will be used to look up this Element during.
+         * <p>
+         * So please make sure that the {@link TestAnnotation} is used exactly once, when you are using a custom source files
+         *
+         * @param customAnnotationType the annotation type to search the element for
+         * @param unitTestProcessor    the processor to use
+         * @param <ELEMENT_TYPE>       The expected element type (Must be TypeElement, if no custom source files are used)
+         * @return the UnitTestBuilder instance
+         * @throws IllegalArgumentException if passed processor is null.
+         * @throws IllegalStateException    if more than one Element is found or if ELEMENT_TYPE doesn't match type of the found element
+         */
+        public <ELEMENT_TYPE extends Element> UnitTestBuilder useProcessor(Class<? extends Annotation> customAnnotationType, UnitTestProcessor<ELEMENT_TYPE> unitTestProcessor) {
 
             if (unitTestProcessor == null) {
-                throw new IllegalArgumentException("passed unitTestProcessor must not be null!");
+                throw new IllegalArgumentException(Constants.Messages.IAE_PASSED_PARAMETER_MUST_NOT_BE_NULL.produceMessage("unitTestProcessor"));
+            }
+
+            if (customAnnotationType == null) {
+                throw new IllegalArgumentException(Constants.Messages.IAE_PASSED_PARAMETER_MUST_NOT_BE_NULL.produceMessage("customAnnotationType"));
             }
 
             CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
 
             // remove existing processor
             nextConfiguration.getProcessors().clear();
-            nextConfiguration.addProcessors(new UnitTestAnnotationProcessorClass(unitTestProcessor));
+            nextConfiguration.addProcessors(new UnitTestAnnotationProcessorClass<ELEMENT_TYPE>(customAnnotationType, unitTestProcessor));
 
             return createNextInstance(nextConfiguration);
         }
 
         /**
-         * Sets the processor to use.
+         * Allows unit
+         * Provides a specific processor instance that can be used for unit testing.
+         * Additionally it provides an element
+         * The passed processor won't be used as an annotation processor during compilation.
+         * <p>
+         * It will internally use a generic processor that
          * The processor should support {@link TestAnnotation} annotation processing if no custom source file is defined.
          * If custom source is used make sure {@link TestAnnotation} is used somewhere in the custom source file to make sure if annotation processor is used.
          *
          * @param processorUnderTestClass                         the Processor which should be provided as a
          * @param unitTestProcessorForTestingAnnotationProcessors the processor to use
          * @param <PROCESSOR_UNDER_TEST>                          The processor type under test
+         * @param <ELEMENT_TYPE>                                  The expected element type to be processed
          * @return the UnitTestBuilder instance
          * @throws IllegalArgumentException if passed processor is null.
+         * @throws IllegalStateException    if more than one Element is found or if ELEMENT_TYPE doesn't match type of the found element
          */
 
-        public <PROCESSOR_UNDER_TEST extends Processor> UnitTestBuilder useProcessor(Class<PROCESSOR_UNDER_TEST> processorUnderTestClass, UnitTestProcessorForTestingAnnotationProcessors<PROCESSOR_UNDER_TEST> unitTestProcessorForTestingAnnotationProcessors) {
+        public <PROCESSOR_UNDER_TEST extends Processor, ELEMENT_TYPE extends Element> UnitTestBuilder useProcessor(Class<PROCESSOR_UNDER_TEST> processorUnderTestClass, UnitTestProcessorForTestingAnnotationProcessors<PROCESSOR_UNDER_TEST, ELEMENT_TYPE> unitTestProcessorForTestingAnnotationProcessors) {
+            return useProcessor(processorUnderTestClass, Constants.DEFAULT_ANNOTATION, unitTestProcessorForTestingAnnotationProcessors);
+        }
+
+        /**
+         * Sets the processor to use.
+         * The processor should support annotation processing of passed annotation type if no custom source file is defined.
+         * Please make sure to add a custom source files in which the customAnnotationType annotation is used exactly once.
+         *
+         * @param processorUnderTestClass                         the Processor type
+         * @param customAnnotationType                            the custom annotation used to search the element to pass be passed in
+         * @param unitTestProcessorForTestingAnnotationProcessors the processor to use
+         * @param <PROCESSOR_UNDER_TEST>                          The processor type under test
+         * @param <ELEMENT_TYPE>                                  The expected element type to be processed
+         * @return the UnitTestBuilder instance
+         * @throws IllegalArgumentException if passed processor or customAnnotationType is null.
+         * @throws IllegalStateException    if more than one Element is found or if ELEMENT_TYPE doesn't match type of the found element
+         */
+
+        public <PROCESSOR_UNDER_TEST extends Processor, ELEMENT_TYPE extends Element> UnitTestBuilder useProcessor(Class<PROCESSOR_UNDER_TEST> processorUnderTestClass, Class<? extends Annotation> customAnnotationType, UnitTestProcessorForTestingAnnotationProcessors<PROCESSOR_UNDER_TEST, ELEMENT_TYPE> unitTestProcessorForTestingAnnotationProcessors) {
 
             if (unitTestProcessorForTestingAnnotationProcessors == null) {
-                throw new IllegalArgumentException("passed unitTestProcessorForTestingAnnotationProcessors must not be null!");
+                throw new IllegalArgumentException(Constants.Messages.IAE_PASSED_PARAMETER_MUST_NOT_BE_NULL.produceMessage("unitTestProcessorForTestingAnnotationProcessors"));
+            }
+
+            if (customAnnotationType == null) {
+                throw new IllegalArgumentException(Constants.Messages.IAE_PASSED_PARAMETER_MUST_NOT_BE_NULL.produceMessage("customAnnotationType"));
+            }
+
+            if (processorUnderTestClass == null) {
+                throw new IllegalArgumentException(Constants.Messages.IAE_PASSED_PARAMETER_MUST_NOT_BE_NULL.produceMessage("processorUnderTestClass"));
             }
 
             CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
@@ -651,17 +776,16 @@ public class CompileTestBuilder {
             try {
                 processorUnderTest = processorUnderTestClass.getDeclaredConstructor().newInstance();
             } catch (Exception e) {
-                throw new IllegalArgumentException("useProcessor: Passed processor class under test " + (processorUnderTestClass == null ? "<NULL>" : processorUnderTestClass.getCanonicalName()) + " cannot be instanciated.");
+                throw new IllegalArgumentException(Constants.Messages.IAE_CANNOT_INSTANTIATE_PROCESSOR.produceMessage(processorUnderTestClass.getCanonicalName()));
             }
 
 
             // remove existing processor
             nextConfiguration.getProcessors().clear();
-            nextConfiguration.addProcessors(new UnitTestAnnotationProcessorClassForTestingAnnotationProcessors<PROCESSOR_UNDER_TEST>(processorUnderTest, unitTestProcessorForTestingAnnotationProcessors));
+            nextConfiguration.addProcessors(new UnitTestAnnotationProcessorClassForTestingAnnotationProcessors<PROCESSOR_UNDER_TEST, ELEMENT_TYPE>(processorUnderTest, customAnnotationType, unitTestProcessorForTestingAnnotationProcessors));
 
             return createNextInstance(nextConfiguration);
         }
-
 
         /**
          * Sets the source file used to apply processor on.
@@ -675,7 +799,7 @@ public class CompileTestBuilder {
 
 
             if (source == null) {
-                throw new IllegalArgumentException("passed source file must not be null!");
+                throw new IllegalArgumentException(Constants.Messages.IAE_PASSED_PARAMETER_MUST_NOT_BE_NULL.produceMessage("source"));
             }
 
             CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
@@ -724,7 +848,7 @@ public class CompileTestBuilder {
         public void testCompilation() {
 
             if (compileTestConfiguration.getProcessors().size() == 0) {
-                throw new IllegalArgumentException("At least one processor has to be added to the compiler test configuration");
+                throw new IllegalStateException(Constants.Messages.ISE_MUST_CONFIGURE_AT_LEAST_ONE_PROCESSOR.produceMessage());
             }
 
             super.testCompilation();
@@ -747,7 +871,7 @@ public class CompileTestBuilder {
          * @return the default source file object
          */
         public static JavaFileObject getDefaultSource() {
-            return JavaFileObjectUtils.readFromResource("/AnnotationProcessorUnitTestClass.java");
+            return JavaFileObjectUtils.readFromResource(Constants.DEFAULT_UNIT_TEST_SOURCE_FILE);
         }
 
         /**
@@ -758,6 +882,143 @@ public class CompileTestBuilder {
         }
 
     }
+
+    /**
+     * Fluent immutable builder for creation of complex compiler message checks.
+     *
+     * @param <COMPILETESTBUILDER> The enclosing builder.
+     */
+    public static class CompileMessageCheckBuilder<COMPILETESTBUILDER extends BasicBuilder<COMPILETESTBUILDER>> {
+
+        private final COMPILETESTBUILDER compileTestBuilder;
+
+        private Diagnostic.Kind kind;
+        private CompileTestConfiguration.ComparisionKind comparisionKind;
+        private String expectedMessage;
+        private Locale locale;
+        private String source;
+        private Long lineNumber;
+        private Long columnNumber;
+
+        /**
+         * Constructor.
+         *
+         * @param compileTestBuilder the enclosing builder
+         * @param kind               the message kind that needs to be checked
+         */
+        CompileMessageCheckBuilder(COMPILETESTBUILDER compileTestBuilder, Diagnostic.Kind kind) {
+            this.compileTestBuilder = compileTestBuilder;
+            this.kind = kind;
+        }
+
+        /**
+         * The line number to search the compiler message at.
+         *
+         * @param lineNumber the line number to check for.Line check will be skipped if passed lineNumber is null.
+         * @return the next immutable builder instance
+         */
+        public CompileMessageCheckBuilder<COMPILETESTBUILDER> atLineNumber(Long lineNumber) {
+            CompileMessageCheckBuilder<COMPILETESTBUILDER> nextBuilder = createNextBuilder();
+            nextBuilder.lineNumber = lineNumber;
+            return nextBuilder;
+        }
+
+        /**
+         * The column number to search the compiler message at.
+         *
+         * @param columnNumber the column number to check for. Column check will be skipped if passed columnNumber is null.
+         * @return the next immutable builder instance
+         */
+        public CompileMessageCheckBuilder<COMPILETESTBUILDER> atColumnNumber(Long columnNumber) {
+            CompileMessageCheckBuilder<COMPILETESTBUILDER> nextBuilder = createNextBuilder();
+            nextBuilder.columnNumber = columnNumber;
+            return nextBuilder;
+        }
+
+        /**
+         * Do check for localized compiler message.
+         *
+         * @param locale the locale to use, or null for default locale.
+         * @return the next immutable builder instance
+         */
+        public CompileMessageCheckBuilder<COMPILETESTBUILDER> withLocale(Locale locale) {
+            CompileMessageCheckBuilder<COMPILETESTBUILDER> nextBuilder = createNextBuilder();
+            nextBuilder.locale = locale;
+            return nextBuilder;
+        }
+
+        /**
+         * Do check if compiler message is linked for a specific source
+         *
+         * @param source
+         * @return the next immutable builder instance
+         */
+        public CompileMessageCheckBuilder<COMPILETESTBUILDER> atSource(String source) {
+            CompileMessageCheckBuilder<COMPILETESTBUILDER> nextBuilder = createNextBuilder();
+            nextBuilder.source = source;
+            return nextBuilder;
+        }
+
+        /**
+         * Check if a compiler message exists that contains the passed message token.
+         * May be used for checking for message codes.
+         *
+         * @param expectedContainedMessageToken the message to search for
+         * @return the next immutable builder instance of enclosing builder
+         */
+        public COMPILETESTBUILDER contains(String expectedContainedMessageToken) {
+            CompileMessageCheckBuilder<COMPILETESTBUILDER> nextBuilder = createNextBuilder();
+
+            nextBuilder.comparisionKind = CompileTestConfiguration.ComparisionKind.CONTAINS;
+            nextBuilder.expectedMessage = expectedContainedMessageToken;
+
+            CompileTestConfiguration.CompilerMessageCheck compilerMessageCheck = new CompileTestConfiguration.CompilerMessageCheck(nextBuilder.kind, nextBuilder.comparisionKind, nextBuilder.expectedMessage, nextBuilder.locale, nextBuilder.source, nextBuilder.lineNumber, nextBuilder.columnNumber);
+
+            return compileTestBuilder.addCompilerMessageCheck(compilerMessageCheck);
+        }
+
+        /**
+         * Check if a compiler message matches  the passed message string.
+         *
+         * @param expectedMessage the message to search for
+         * @return the next immutable builder instance of enclosing builder
+         */
+        public COMPILETESTBUILDER isEqual(String expectedMessage) {
+            CompileMessageCheckBuilder<COMPILETESTBUILDER> nextBuilder = createNextBuilder();
+
+            nextBuilder.comparisionKind = CompileTestConfiguration.ComparisionKind.EQUALS;
+            nextBuilder.expectedMessage = expectedMessage;
+
+            CompileTestConfiguration.CompilerMessageCheck compilerMessageCheck = new CompileTestConfiguration.CompilerMessageCheck(nextBuilder.kind, nextBuilder.comparisionKind, nextBuilder.expectedMessage, nextBuilder.locale, nextBuilder.source, nextBuilder.lineNumber, nextBuilder.columnNumber);
+
+            return compileTestBuilder.addCompilerMessageCheck(compilerMessageCheck);
+        }
+
+
+        /**
+         * Creates the next builder instance.
+         *
+         * @return the next builder instance
+         */
+        CompileMessageCheckBuilder<COMPILETESTBUILDER> createNextBuilder() {
+
+            CompileMessageCheckBuilder<COMPILETESTBUILDER> nextBuilder = new CompileMessageCheckBuilder<>(this.compileTestBuilder, this.kind);
+
+            nextBuilder.kind = this.kind;
+            nextBuilder.comparisionKind = this.comparisionKind;
+            nextBuilder.expectedMessage = this.expectedMessage;
+            nextBuilder.locale = this.locale;
+            nextBuilder.source = this.source;
+            nextBuilder.lineNumber = this.lineNumber;
+            nextBuilder.columnNumber = this.columnNumber;
+
+            return nextBuilder;
+
+        }
+
+
+    }
+
 
     /**
      * Internal builder class for unit and compilation tests.

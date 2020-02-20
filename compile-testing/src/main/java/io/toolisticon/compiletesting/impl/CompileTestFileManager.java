@@ -1,12 +1,13 @@
 package io.toolisticon.compiletesting.impl;
 
+import io.toolisticon.compiletesting.Constants;
+
 import javax.tools.FileObject;
 import javax.tools.ForwardingJavaFileManager;
 import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
 import javax.tools.SimpleJavaFileObject;
 import javax.tools.StandardJavaFileManager;
-import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -107,7 +108,7 @@ class CompileTestFileManager extends ForwardingJavaFileManager<StandardJavaFileM
             if (generatedJavaFileObjectCache.contains(uri)) {
                 return generatedJavaFileObjectCache.getFileObject(uri);
             } else {
-                throw new IllegalArgumentException("Can't find JavaFileObject for uri:" + uri.toString());
+                throw new IllegalArgumentException(Constants.Messages.IAE_CANNOT_FIND_JAVAFILEOBJECT.produceMessage(uri.toString()));
             }
         }
         return super.getJavaFileForInput(location, className, kind);
@@ -124,7 +125,7 @@ class CompileTestFileManager extends ForwardingJavaFileManager<StandardJavaFileM
             if (generatedFileObjectCache.contains(uri)) {
                 return generatedFileObjectCache.getFileObject(uri);
             } else {
-                throw new IllegalArgumentException("Can't find FileObject for uri:" + uri.toString());
+                throw new IllegalArgumentException(Constants.Messages.IAE_CANNOT_FIND_FILEOBJECT.produceMessage(uri.toString()));
             }
         }
         return super.getFileForInput(location, packageName, relativeName);

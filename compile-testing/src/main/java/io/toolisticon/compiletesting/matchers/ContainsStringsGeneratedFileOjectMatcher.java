@@ -1,5 +1,6 @@
 package io.toolisticon.compiletesting.matchers;
 
+import io.toolisticon.compiletesting.Constants;
 import io.toolisticon.compiletesting.FailingAssertionException;
 import io.toolisticon.compiletesting.GeneratedFileObjectMatcher;
 
@@ -29,7 +30,7 @@ class ContainsStringsGeneratedFileOjectMatcher implements GeneratedFileObjectMat
         for (String stringToCheck : stringsToCheck) {
 
             if (!fileContent.contains(stringToCheck)) {
-                throw new FailingAssertionException(String.format("Couldn't find substring %s in file %s", stringToCheck, fileObject.getName().toString()));
+                throw new FailingAssertionException(Constants.Messages.GFOM_COULDNT_FIND_SUBSTRING.produceMessage(stringToCheck, fileObject.getName().toString()));
             }
 
         }

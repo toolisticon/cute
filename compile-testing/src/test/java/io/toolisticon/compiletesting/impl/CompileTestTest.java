@@ -1,6 +1,7 @@
 package io.toolisticon.compiletesting.impl;
 
 import io.toolisticon.compiletesting.CompileTestBuilder;
+import io.toolisticon.compiletesting.Constants;
 import io.toolisticon.compiletesting.GeneratedFileObjectMatcher;
 import io.toolisticon.compiletesting.InvalidTestConfigurationException;
 import io.toolisticon.compiletesting.JavaFileObjectUtils;
@@ -12,7 +13,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import javax.annotation.processing.ProcessingEnvironment;
-import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.Element;
 import javax.tools.Diagnostic;
 import javax.tools.FileObject;
 import javax.tools.JavaFileObject;
@@ -30,7 +31,7 @@ public class CompileTestTest {
                 .unitTest()
                 .useProcessor(new UnitTestProcessor() {
                     @Override
-                    public void unitTest(ProcessingEnvironment processingEnvironment, TypeElement typeElement) {
+                    public void unitTest(ProcessingEnvironment processingEnvironment, Element typeElement) {
 
                         try {
 
@@ -70,7 +71,7 @@ public class CompileTestTest {
                     .unitTest()
                     .useProcessor(new UnitTestProcessor() {
                         @Override
-                        public void unitTest(ProcessingEnvironment processingEnvironment, TypeElement typeElement) {
+                        public void unitTest(ProcessingEnvironment processingEnvironment, Element typeElement) {
                             try {
                                 FileObject fileObject = processingEnvironment.getFiler().createResource(StandardLocation.SOURCE_OUTPUT, "root", "Jupp.txt", typeElement);
                                 Writer writer = fileObject.openWriter();
@@ -107,7 +108,7 @@ public class CompileTestTest {
                 .unitTest()
                 .useProcessor(new UnitTestProcessor() {
                     @Override
-                    public void unitTest(ProcessingEnvironment processingEnvironment, TypeElement typeElement) {
+                    public void unitTest(ProcessingEnvironment processingEnvironment, Element typeElement) {
 
                         try {
                             JavaFileObject javaFileObject = processingEnvironment.getFiler().createSourceFile("io.toolisticon.compiletesting.CheckTest");
@@ -126,7 +127,7 @@ public class CompileTestTest {
 
                 .compilationShouldSucceed()
                 .expectedJavaFileObjectExists(StandardLocation.CLASS_OUTPUT, "io.toolisticon.compiletesting.CheckTest", JavaFileObject.Kind.CLASS)
-                .expectedClassFileExists("io.toolisticon.compiletesting.CheckTest")
+                .expectedGeneratedClassExists("io.toolisticon.compiletesting.CheckTest")
                 .expectedJavaFileObjectExists(StandardLocation.SOURCE_OUTPUT, "io.toolisticon.compiletesting.CheckTest", JavaFileObject.Kind.SOURCE)
                 .expectedJavaFileObjectExists(StandardLocation.SOURCE_OUTPUT, "io.toolisticon.compiletesting.CheckTest", JavaFileObject.Kind.SOURCE, JavaFileObjectUtils.readFromString("xyz", "package io.toolisticon.compiletesting;\npublic class CheckTest{}"))
                 .expectedJavaFileObjectExists(StandardLocation.SOURCE_OUTPUT, "io.toolisticon.compiletesting.CheckTest", JavaFileObject.Kind.SOURCE, new GeneratedFileObjectMatcher<JavaFileObject>() {
@@ -154,7 +155,7 @@ public class CompileTestTest {
         CompileTestBuilder.unitTest()
                 .useProcessor(new UnitTestProcessor() {
                     @Override
-                    public void unitTest(ProcessingEnvironment processingEnvironment, TypeElement typeElement) {
+                    public void unitTest(ProcessingEnvironment processingEnvironment, Element typeElement) {
 
                     }
                 }).compilationShouldSucceed().expectedErrorMessages("XXX").testCompilation();
@@ -168,7 +169,7 @@ public class CompileTestTest {
             CompileTestBuilder.unitTest()
                     .useProcessor(new UnitTestProcessor() {
                         @Override
-                        public void unitTest(ProcessingEnvironment processingEnvironment, TypeElement typeElement) {
+                        public void unitTest(ProcessingEnvironment processingEnvironment, Element typeElement) {
                             processingEnvironment.getMessager().printMessage(Diagnostic.Kind.ERROR, "FAIL!");
                         }
                     })
@@ -176,7 +177,7 @@ public class CompileTestTest {
                     .testCompilation();
 
         } catch (AssertionError e) {
-            TestUtilities.assertAssertionMessageContainsMessageTokensAssertion(e, CompileTest.MESSAGE_COMPILATION_SHOULD_HAVE_SUCCEEDED_BUT_FAILED);
+            TestUtilities.assertAssertionMessageContainsMessageTokensAssertion(e, Constants.Messages.MESSAGE_COMPILATION_SHOULD_HAVE_SUCCEEDED_BUT_FAILED.getMessagePattern());
             assertionErrorWasThrown = true;
 
         }
@@ -194,7 +195,7 @@ public class CompileTestTest {
             CompileTestBuilder.unitTest()
                     .useProcessor(new UnitTestProcessor() {
                         @Override
-                        public void unitTest(ProcessingEnvironment processingEnvironment, TypeElement typeElement) {
+                        public void unitTest(ProcessingEnvironment processingEnvironment, Element typeElement) {
 
                         }
                     })
@@ -202,7 +203,7 @@ public class CompileTestTest {
                     .testCompilation();
 
         } catch (AssertionError e) {
-            TestUtilities.assertAssertionMessageContainsMessageTokensAssertion(e, CompileTest.MESSAGE_COMPILATION_SHOULD_HAVE_FAILED_BUT_SUCCEEDED);
+            TestUtilities.assertAssertionMessageContainsMessageTokensAssertion(e, Constants.Messages.MESSAGE_COMPILATION_SHOULD_HAVE_FAILED_BUT_SUCCEEDED.getMessagePattern());
             assertionErrorWasThrown = true;
 
         }

@@ -1,5 +1,6 @@
 package io.toolisticon.compiletesting.matchers;
 
+import io.toolisticon.compiletesting.Constants;
 import io.toolisticon.compiletesting.FailingAssertionException;
 import io.toolisticon.compiletesting.GeneratedFileObjectMatcher;
 
@@ -37,7 +38,7 @@ public class BinaryGeneratedFileObjectMatcher<T extends FileObject> implements G
         }
 
         if (!contentEquals(fileObject.openInputStream(), expectedFileObject.openInputStream())) {
-            throw new FailingAssertionException("FileObjects aren't equal by using binary comparison");
+            throw new FailingAssertionException(Constants.Messages.GFOM_FILEOBJECTS_ARENT_EQUAL_BY_BINARY_COMPARISION.produceMessage());
         }
 
         return true;

@@ -92,7 +92,7 @@ public class JavaFileObjectUtils {
             InputStream inputStream = relativeRoot.getResourceAsStream(location);
 
             if (inputStream == null) {
-                throw new IllegalStateException("Cannot open InputStream for resource with uri '" + uri.toString() + "' ! ");
+                throw new IllegalStateException(Constants.Messages.ISE_CANNOT_OPEN_INPUTSTREAM_WITH_URI.produceMessage(uri.toString()));
             }
 
             return inputStream;
@@ -155,7 +155,7 @@ public class JavaFileObjectUtils {
     public static SimpleJavaFileObject readFromResource(String location, Class<?> relativeLocationRoot) {
 
         if (location == null) {
-            throw new IllegalArgumentException("Passed location must not be null");
+            throw new IllegalArgumentException(Constants.Messages.IAE_PASSED_PARAMETER_MUST_NOT_BE_NULL.produceMessage("location"));
         }
 
         return new JavaSourceFromResource(location, relativeLocationRoot);
@@ -175,7 +175,7 @@ public class JavaFileObjectUtils {
     public static SimpleJavaFileObject readFromResource(String location) {
 
         if (location == null) {
-            throw new IllegalArgumentException("Passed location must not be null");
+            throw new IllegalArgumentException(Constants.Messages.IAE_PASSED_PARAMETER_MUST_NOT_BE_NULL.produceMessage("location"));
         }
 
         return new JavaSourceFromResource((!location.startsWith("/") ? "/" : "") + location, null);
@@ -213,11 +213,11 @@ public class JavaFileObjectUtils {
     public static SimpleJavaFileObject readFromString(String location, String content) {
 
         if (location == null) {
-            throw new IllegalArgumentException("Passed location must not be null");
+            throw new IllegalArgumentException(Constants.Messages.IAE_PASSED_PARAMETER_MUST_NOT_BE_NULL.produceMessage("location"));
         }
 
         if (content == null) {
-            throw new IllegalArgumentException("Passed content must not be null");
+            throw new IllegalArgumentException(Constants.Messages.IAE_PASSED_PARAMETER_MUST_NOT_BE_NULL.produceMessage("content"));
         }
 
         return new JavaSourceFromString(location, content);
@@ -250,7 +250,7 @@ public class JavaFileObjectUtils {
     public static SimpleJavaFileObject readFromUrl(URL url) throws URISyntaxException {
 
         if (url == null) {
-            throw new IllegalArgumentException("Passed url must not be null");
+            throw new IllegalArgumentException(Constants.Messages.IAE_PASSED_PARAMETER_MUST_NOT_BE_NULL.produceMessage("url"));
         }
 
         return new JavaSourceFromUrl(url);

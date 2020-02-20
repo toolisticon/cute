@@ -238,7 +238,7 @@ public class AnnotationProcessorWrapperTest {
         CompileTestBuilder.unitTest().useProcessor(
                 new UnitTestProcessor() {
                     @Override
-                    public void unitTest(ProcessingEnvironment processingEnvironment, TypeElement typeElement) {
+                    public void unitTest(ProcessingEnvironment processingEnvironment, Element typeElement) {
 
                     }
                 })
@@ -256,7 +256,7 @@ public class AnnotationProcessorWrapperTest {
         CompileTestBuilder.unitTest().useProcessor(
                 new UnitTestProcessor() {
                     @Override
-                    public void unitTest(ProcessingEnvironment processingEnvironment, TypeElement typeElement) {
+                    public void unitTest(ProcessingEnvironment processingEnvironment, Element typeElement) {
                         throw new IllegalArgumentException();
                     }
                 })
@@ -273,7 +273,7 @@ public class AnnotationProcessorWrapperTest {
             CompileTestBuilder.unitTest().useProcessor(
                     new UnitTestProcessor() {
                         @Override
-                        public void unitTest(ProcessingEnvironment processingEnvironment, TypeElement typeElement) {
+                        public void unitTest(ProcessingEnvironment processingEnvironment, Element typeElement) {
 
                         }
                     })
@@ -292,7 +292,7 @@ public class AnnotationProcessorWrapperTest {
             CompileTestBuilder.unitTest().useProcessor(
                     new UnitTestProcessor() {
                         @Override
-                        public void unitTest(ProcessingEnvironment processingEnvironment, TypeElement typeElement) {
+                        public void unitTest(ProcessingEnvironment processingEnvironment, Element typeElement) {
                             throw new IllegalStateException();
                         }
                     })
@@ -311,7 +311,7 @@ public class AnnotationProcessorWrapperTest {
             CompileTestBuilder.unitTest().useProcessor(
                     new UnitTestProcessor() {
                         @Override
-                        public void unitTest(ProcessingEnvironment processingEnvironment, TypeElement typeElement) {
+                        public void unitTest(ProcessingEnvironment processingEnvironment, Element typeElement) {
                             throw new IllegalStateException();
                         }
                     })

@@ -12,6 +12,8 @@ import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.Processor;
 import javax.annotation.processing.RoundEnvironment;
+import javax.lang.model.element.Element;
+import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic;
 import javax.tools.FileObject;
@@ -19,6 +21,10 @@ import javax.tools.JavaFileObject;
 import javax.tools.StandardLocation;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 public class CompileTestBuilderTest {
@@ -33,7 +39,7 @@ public class CompileTestBuilderTest {
                 .useProcessor(
                         new UnitTestProcessor() {
                             @Override
-                            public void unitTest(ProcessingEnvironment processingEnvironment, TypeElement typeElement) {
+                            public void unitTest(ProcessingEnvironment processingEnvironment, Element typeElement) {
 
                                 processingEnvironment.getMessager().printMessage(Diagnostic.Kind.MANDATORY_WARNING, "MANDATORY_WARNING");
                                 processingEnvironment.getMessager().printMessage(Diagnostic.Kind.WARNING, "WARNING");
@@ -68,7 +74,7 @@ public class CompileTestBuilderTest {
 
         CompileTestBuilder
                 .unitTest()
-                .useProcessor(SimpleTestProcessor1.class, new UnitTestProcessorForTestingAnnotationProcessors<SimpleTestProcessor1>() {
+                .useProcessor(SimpleTestProcessor1.class, new UnitTestProcessorForTestingAnnotationProcessors<SimpleTestProcessor1, TypeElement>() {
                     @Override
                     public void unitTest(SimpleTestProcessor1 unit, ProcessingEnvironment processingEnvironment, TypeElement typeElement) {
 
@@ -92,7 +98,7 @@ public class CompileTestBuilderTest {
                 .unitTest()
                 .useProcessor(new UnitTestProcessor() {
                     @Override
-                    public void unitTest(ProcessingEnvironment processingEnvironment, TypeElement typeElement) {
+                    public void unitTest(ProcessingEnvironment processingEnvironment, Element typeElement) {
 
                         processingEnvironment.getMessager().printMessage(Diagnostic.Kind.ERROR, "ERROR");
 
@@ -107,6 +113,25 @@ public class CompileTestBuilderTest {
     }
 
 
+    private void assertCompilerMessages(Set<CompileTestConfiguration.CompilerMessageCheck> compilerMessageChecks, Diagnostic.Kind kind, CompileTestConfiguration.ComparisionKind comparisionKind, String... expectedMessages) {
+
+        List<String> configuredExpectedMessages = new ArrayList<>();
+
+        Iterator<CompileTestConfiguration.CompilerMessageCheck> iterator = compilerMessageChecks.iterator();
+        while (iterator.hasNext()) {
+            CompileTestConfiguration.CompilerMessageCheck element = iterator.next();
+
+            MatcherAssert.assertThat(element.getComparisionKind(), Matchers.is(comparisionKind));
+            MatcherAssert.assertThat(element.getKind(), Matchers.is(kind));
+
+            configuredExpectedMessages.add(element.getExpectedMessage());
+
+        }
+
+        MatcherAssert.assertThat(configuredExpectedMessages
+                , Matchers.containsInAnyOrder(expectedMessages));
+    }
+
     @Test
     public void test_addWarningChecks() {
 
@@ -114,22 +139,21 @@ public class CompileTestBuilderTest {
                 .compilationTest()
                 .expectedWarningMessages("WARN1");
 
-        MatcherAssert.assertThat(builder.createCompileTestConfiguration().getWarningMessageCheck(), Matchers.containsInAnyOrder("WARN1"));
+
+        assertCompilerMessages(builder.createCompileTestConfiguration().getCompilerMessageChecks(), Diagnostic.Kind.WARNING, CompileTestConfiguration.ComparisionKind.CONTAINS, "WARN1");
 
         CompileTestBuilder.CompilationTestBuilder builder2 = builder
                 .expectedWarningMessages("WARN2");
 
-        MatcherAssert.assertThat(builder2
-                .createCompileTestConfiguration()
-                .getWarningMessageCheck(), Matchers.containsInAnyOrder("WARN1", "WARN2"));
+        assertCompilerMessages(builder2.createCompileTestConfiguration().getCompilerMessageChecks(), Diagnostic.Kind.WARNING, CompileTestConfiguration.ComparisionKind.CONTAINS, "WARN1", "WARN2");
+
 
         CompileTestBuilder.CompilationTestBuilder builder3 = builder2
                 .expectedWarningMessages()
                 .expectedWarningMessages(null);
 
-        MatcherAssert.assertThat(builder3
-                .createCompileTestConfiguration()
-                .getWarningMessageCheck(), Matchers.containsInAnyOrder("WARN1", "WARN2"));
+
+        assertCompilerMessages(builder3.createCompileTestConfiguration().getCompilerMessageChecks(), Diagnostic.Kind.WARNING, CompileTestConfiguration.ComparisionKind.CONTAINS, "WARN1", "WARN2");
 
 
     }
@@ -140,23 +164,21 @@ public class CompileTestBuilderTest {
                 .compilationTest()
                 .expectedMandatoryWarningMessages("MWARN1");
 
-        MatcherAssert.assertThat(builder.createCompileTestConfiguration()
-                .getMandatoryWarningMessageCheck(), Matchers.containsInAnyOrder("MWARN1"));
+        assertCompilerMessages(builder.createCompileTestConfiguration().getCompilerMessageChecks(), Diagnostic.Kind.MANDATORY_WARNING, CompileTestConfiguration.ComparisionKind.CONTAINS, "MWARN1");
+
 
         CompileTestBuilder.CompilationTestBuilder builder2 = builder
                 .expectedMandatoryWarningMessages("MWARN2");
 
-        MatcherAssert.assertThat(builder2
-                .createCompileTestConfiguration()
-                .getMandatoryWarningMessageCheck(), Matchers.containsInAnyOrder("MWARN1", "MWARN2"));
+        assertCompilerMessages(builder2.createCompileTestConfiguration().getCompilerMessageChecks(), Diagnostic.Kind.MANDATORY_WARNING, CompileTestConfiguration.ComparisionKind.CONTAINS, "MWARN1", "MWARN2");
+
 
         CompileTestBuilder.CompilationTestBuilder builder3 = builder2
                 .expectedMandatoryWarningMessages()
                 .expectedMandatoryWarningMessages(null);
 
-        MatcherAssert.assertThat(builder3
-                .createCompileTestConfiguration()
-                .getMandatoryWarningMessageCheck(), Matchers.containsInAnyOrder("MWARN1", "MWARN2"));
+
+        assertCompilerMessages(builder3.createCompileTestConfiguration().getCompilerMessageChecks(), Diagnostic.Kind.MANDATORY_WARNING, CompileTestConfiguration.ComparisionKind.CONTAINS, "MWARN1", "MWARN2");
 
 
     }
@@ -167,23 +189,23 @@ public class CompileTestBuilderTest {
                 .compilationTest()
                 .expectedNoteMessages("NOTE1");
 
-        MatcherAssert.assertThat(builder.createCompileTestConfiguration()
-                .getNoteMessageCheck(), Matchers.containsInAnyOrder("NOTE1"));
+
+        assertCompilerMessages(builder.createCompileTestConfiguration().getCompilerMessageChecks(), Diagnostic.Kind.NOTE, CompileTestConfiguration.ComparisionKind.CONTAINS, "NOTE1");
+
 
         CompileTestBuilder.CompilationTestBuilder builder2 = builder
                 .expectedNoteMessages("NOTE2");
 
-        MatcherAssert.assertThat(builder2
-                .createCompileTestConfiguration()
-                .getNoteMessageCheck(), Matchers.containsInAnyOrder("NOTE1", "NOTE2"));
+
+        assertCompilerMessages(builder2.createCompileTestConfiguration().getCompilerMessageChecks(), Diagnostic.Kind.NOTE, CompileTestConfiguration.ComparisionKind.CONTAINS, "NOTE1", "NOTE2");
+
 
         CompileTestBuilder.CompilationTestBuilder builder3 = builder2
                 .expectedNoteMessages()
                 .expectedNoteMessages(null);
 
-        MatcherAssert.assertThat(builder3
-                .createCompileTestConfiguration()
-                .getNoteMessageCheck(), Matchers.containsInAnyOrder("NOTE1", "NOTE2"));
+
+        assertCompilerMessages(builder3.createCompileTestConfiguration().getCompilerMessageChecks(), Diagnostic.Kind.NOTE, CompileTestConfiguration.ComparisionKind.CONTAINS, "NOTE1", "NOTE2");
 
 
     }
@@ -194,23 +216,21 @@ public class CompileTestBuilderTest {
                 .compilationTest()
                 .expectedErrorMessages("ERROR1");
 
-        MatcherAssert.assertThat(builder.createCompileTestConfiguration()
-                .getErrorMessageCheck(), Matchers.containsInAnyOrder("ERROR1"));
+
+        assertCompilerMessages(builder.createCompileTestConfiguration().getCompilerMessageChecks(), Diagnostic.Kind.ERROR, CompileTestConfiguration.ComparisionKind.CONTAINS, "ERROR1");
+
 
         CompileTestBuilder.CompilationTestBuilder builder2 = builder
                 .expectedErrorMessages("ERROR2");
 
-        MatcherAssert.assertThat(builder2
-                .createCompileTestConfiguration()
-                .getErrorMessageCheck(), Matchers.containsInAnyOrder("ERROR1", "ERROR2"));
+        assertCompilerMessages(builder2.createCompileTestConfiguration().getCompilerMessageChecks(), Diagnostic.Kind.ERROR, CompileTestConfiguration.ComparisionKind.CONTAINS, "ERROR1", "ERROR2");
+
 
         CompileTestBuilder.CompilationTestBuilder builder3 = builder2
                 .expectedErrorMessages()
                 .expectedErrorMessages(null);
 
-        MatcherAssert.assertThat(builder3
-                .createCompileTestConfiguration()
-                .getErrorMessageCheck(), Matchers.containsInAnyOrder("ERROR1", "ERROR2"));
+        assertCompilerMessages(builder3.createCompileTestConfiguration().getCompilerMessageChecks(), Diagnostic.Kind.ERROR, CompileTestConfiguration.ComparisionKind.CONTAINS, "ERROR1", "ERROR2");
 
 
     }
@@ -370,7 +390,7 @@ public class CompileTestBuilderTest {
 
         CompileTestBuilder.UnitTestBuilder builder = CompileTestBuilder
                 .unitTest()
-                .useProcessor(AbstractProcessor.class, new UnitTestProcessorForTestingAnnotationProcessors<AbstractProcessor>() {
+                .useProcessor(AbstractProcessor.class, new UnitTestProcessorForTestingAnnotationProcessors<AbstractProcessor, TypeElement>() {
                     @Override
                     public void unitTest(AbstractProcessor unit, ProcessingEnvironment processingEnvironment, TypeElement typeElement) {
 
@@ -386,12 +406,100 @@ public class CompileTestBuilderTest {
 
         CompileTestBuilder.UnitTestBuilder builder = CompileTestBuilder
                 .unitTest()
-                .useProcessor(null, new UnitTestProcessorForTestingAnnotationProcessors<AbstractProcessor>() {
+                .useProcessor(null, new UnitTestProcessorForTestingAnnotationProcessors<AbstractProcessor, TypeElement>() {
                     @Override
                     public void unitTest(AbstractProcessor unit, ProcessingEnvironment processingEnvironment, TypeElement typeElement) {
 
                     }
                 });
+
+
+    }
+
+
+    public static class TestProcessor extends AbstractProcessor{
+        @Override
+        public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
+            return false;
+        }
+    }
+
+    @Test
+    public void test_useProcessor_nonMatchingElement1() {
+
+
+        try {
+            CompileTestBuilder
+                    .unitTest()
+                    .<TestProcessor, ExecutableElement>useProcessor(TestProcessor.class, new UnitTestProcessorForTestingAnnotationProcessors<TestProcessor, ExecutableElement>() {
+                        @Override
+                        public void unitTest(TestProcessor unit, ProcessingEnvironment processingEnvironment, ExecutableElement typeElement) {
+                            processingEnvironment.getMessager().printMessage(Diagnostic.Kind.NOTE, "ABC");
+                        }
+                    })
+                    .testCompilation();
+        } catch (AssertionError e){
+
+            MatcherAssert.assertThat(e.getMessage(), Matchers.containsString(Constants.Messages.UNIT_TEST_PRECONDITION_INCOMPATIBLE_ELEMENT_TYPE.getMessagePattern()));
+
+            return;
+        }
+
+        throw new AssertionError("Expected AssertionError to be thrown.");
+
+    }
+
+    @Test
+    public void test_useProcessor_nonMatchingElement2() {
+
+        try {
+        CompileTestBuilder
+                .unitTest()
+                .<ExecutableElement>useProcessor(new UnitTestProcessor<ExecutableElement>() {
+                    @Override
+                    public void unitTest(ProcessingEnvironment processingEnvironment, ExecutableElement typeElement) {
+                        processingEnvironment.getMessager().printMessage(Diagnostic.Kind.NOTE, "ABC");
+                    }
+                })
+                .testCompilation();
+        } catch (AssertionError e){
+
+            MatcherAssert.assertThat(e.getMessage(), Matchers.containsString(Constants.Messages.UNIT_TEST_PRECONDITION_INCOMPATIBLE_ELEMENT_TYPE.getMessagePattern()));
+
+            return;
+        }
+
+        throw new AssertionError("Expected AssertionError to be thrown.");
+
+    }
+
+    @Test
+    public void test_useProcessor_withoutGenericTypeParameters1() {
+
+            CompileTestBuilder
+                    .unitTest()
+                    .useProcessor(TestProcessor.class, new UnitTestProcessorForTestingAnnotationProcessors() {
+                        @Override
+                        public void unitTest(Processor unit, ProcessingEnvironment processingEnvironment, Element typeElement) {
+                            processingEnvironment.getMessager().printMessage(Diagnostic.Kind.NOTE, "ABC");
+                        }
+                    })
+                    .testCompilation();
+
+    }
+
+    @Test
+    public void test_useProcessor_withoutGenericTypeParameters2() {
+
+            CompileTestBuilder
+                    .unitTest()
+                    .useProcessor(new UnitTestProcessor() {
+                        @Override
+                        public void unitTest(ProcessingEnvironment processingEnvironment, Element element) {
+                            processingEnvironment.getMessager().printMessage(Diagnostic.Kind.NOTE, "ABC");
+                        }
+                    })
+                    .testCompilation();
 
 
     }
@@ -439,7 +547,7 @@ public class CompileTestBuilderTest {
 
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IllegalStateException.class)
     public void test_CompileTimeTestBuilder_testCompilation_noSourceFiles() {
 
         CompileTestBuilder
@@ -453,6 +561,21 @@ public class CompileTestBuilderTest {
     public void test_useModules() {
 
         MatcherAssert.assertThat(CompileTestBuilder.compilationTest().useModules("ABC", "DEF").compileTestConfiguration.getModules(), Matchers.contains("ABC", "DEF"));
+
+    }
+
+    @Test
+    public void test_addCompilerMessageCheck() {
+
+        CompileTestConfiguration configuration = CompileTestBuilder.compilationTest().expectErrorMessage().atSource("XYZ").atLineNumber(5L).atColumnNumber(6L).withLocale(Locale.ENGLISH).contains("ABC").compileTestConfiguration;
+        CompileTestConfiguration.CompilerMessageCheck compilerMessageCheck = configuration.getCompilerMessageChecks().iterator().next();
+        MatcherAssert.assertThat(compilerMessageCheck.getSource(), Matchers.is("XYZ"));
+        MatcherAssert.assertThat(compilerMessageCheck.getKind(), Matchers.is(Diagnostic.Kind.ERROR));
+        MatcherAssert.assertThat(compilerMessageCheck.getLineNumber(), Matchers.is(5L));
+        MatcherAssert.assertThat(compilerMessageCheck.getColumnNumber(), Matchers.is(6L));
+        MatcherAssert.assertThat(compilerMessageCheck.getLocale(), Matchers.is(Locale.ENGLISH));
+        MatcherAssert.assertThat(compilerMessageCheck.getComparisionKind(), Matchers.is(CompileTestConfiguration.ComparisionKind.CONTAINS));
+        MatcherAssert.assertThat(compilerMessageCheck.getExpectedMessage(), Matchers.is("ABC"));
 
     }
 

@@ -6,27 +6,34 @@ import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic;
+import java.lang.annotation.Annotation;
 import java.util.HashSet;
 import java.util.Set;
 
 /**
  * Base annotation processor for unit tests.
+ *
+ * @param <ELEMENT_TYPE> The expected type of the processed element
  */
-class UnitTestAnnotationProcessorClass extends AbstractProcessor {
+class UnitTestAnnotationProcessorClass<ELEMENT_TYPE extends Element> extends AbstractProcessor {
 
-    private static final Set<String> SUPPORTED_ANNOTATION_TYPES = new HashSet<>();
+    private final Set<String> supportedAnnotationTypes = new HashSet<>();
 
-    static {
-        SUPPORTED_ANNOTATION_TYPES.add(TestAnnotation.class.getCanonicalName());
-    }
+
+    /**
+     * The annotation type to search for.
+     */
+    private Class<? extends Annotation> annotationTypeToUse;
 
     /**
      * The unit test processor instance to use.
      */
-    private final UnitTestProcessor unitTestProcessor;
+    private final UnitTestProcessor<ELEMENT_TYPE> unitTestProcessor;
 
 
-    public UnitTestAnnotationProcessorClass(UnitTestProcessor unitTestProcessor) {
+    public UnitTestAnnotationProcessorClass(Class<? extends Annotation> annotationTypeToUse, UnitTestProcessor<ELEMENT_TYPE> unitTestProcessor) {
+        this.annotationTypeToUse = annotationTypeToUse;
+        this.supportedAnnotationTypes.add(annotationTypeToUse.getCanonicalName());
         this.unitTestProcessor = unitTestProcessor;
     }
 
@@ -37,18 +44,27 @@ class UnitTestAnnotationProcessorClass extends AbstractProcessor {
 
     @Override
     public Set<String> getSupportedAnnotationTypes() {
-        return SUPPORTED_ANNOTATION_TYPES;
+        return supportedAnnotationTypes;
     }
 
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
 
-        if (!roundEnv.processingOver()) {
-            Set<? extends Element> set = roundEnv.getElementsAnnotatedWith(TestAnnotation.class);
+        // just try to execute tests if annotation is processed == annotations size is 1
+        if (!roundEnv.processingOver() && annotations.size() == 1) {
+            Set<? extends Element> set = roundEnv.getElementsAnnotatedWith(annotationTypeToUse);
 
             if (set.size() == 1) {
-                unitTestProcessor.unitTest(this.processingEnv, (TypeElement) set.iterator().next());
+                try {
+                    unitTestProcessor.unitTest(this.processingEnv, (ELEMENT_TYPE) set.iterator().next());
+                } catch (ClassCastException e) {
+                    throw new FailingAssertionException(Constants.Messages.UNIT_TEST_PRECONDITION_INCOMPATIBLE_ELEMENT_TYPE.produceMessage());
+                }
+            } else {
+
+                throw new AssertionError(Constants.Messages.UNIT_TEST_PRECONDITION_MUST_FIND_EXACTLY_ONE_ELEMENT.produceMessage(annotationTypeToUse.getCanonicalName()));
+
             }
         }
         return false;

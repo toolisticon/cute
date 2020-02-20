@@ -1,5 +1,6 @@
 package io.toolisticon.compiletesting.matchers;
 
+import io.toolisticon.compiletesting.Constants;
 import io.toolisticon.compiletesting.FailingAssertionException;
 import io.toolisticon.compiletesting.GeneratedFileObjectMatcher;
 
@@ -34,7 +35,7 @@ class RegexGeneratedFileObjectMatcher implements GeneratedFileObjectMatcher<File
         String content = fileObject.getCharContent(true).toString();
 
         if (!pattern.matcher(content).matches()) {
-            throw new FailingAssertionException(String.format("File '%s' doesn't match the following pattern: '%s'!", content /* fileObject.getName().toString()*/, patternString));
+            throw new FailingAssertionException(Constants.Messages.GFOM_FILEOBJECT_DOESNT_MATCH_PATTERN.produceMessage(content, patternString));
         }
 
         return true;
