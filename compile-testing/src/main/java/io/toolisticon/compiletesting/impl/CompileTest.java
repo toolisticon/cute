@@ -252,7 +252,7 @@ public class CompileTest {
                 }
             }
 
-            throw new FailingAssertionException(Constants.Messages.MESSAGE_PROCESSOR_HASNT_BEEN_APPLIED.produceMessage(processor.getWrappedProcessor().getClass().getCanonicalName()));
+            throw new FailingAssertionException(Constants.Messages.MESSAGE_PROCESSOR_HASNT_BEEN_APPLIED.produceMessage(processor.getWrappedProcessor().getClass().getCanonicalName(), processor.getSupportedAnnotationTypes()));
 
         }
 
@@ -317,7 +317,7 @@ public class CompileTest {
                 }
 
                 // Not found ==> assertion fails
-                throw new FailingAssertionException(Constants.Messages.MESSAGE_HAVENT_FOUND_MESSSAGE.produceMessage(messageToCheck, messageToCheck.getKind().name()));
+                throw new FailingAssertionException(Constants.Messages.MESSAGE_HAVENT_FOUND_MESSSAGE.produceMessage(messageToCheck.getExpectedMessage(), messageToCheck.getKind().name()));
 
             }
 

@@ -144,7 +144,7 @@ public class CompileTestBuilder {
          *
          * @return an immutable builder instance for creating a complex compiler message check
          */
-        public CompileMessageCheckBuilder<T> expectMandatoryWarning() {
+        public CompileMessageCheckBuilder<T> expectMandatoryWarningMessage() {
             CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
             return new CompileMessageCheckBuilder<T>(createNextInstance(nextConfiguration), Diagnostic.Kind.MANDATORY_WARNING);
         }
@@ -154,7 +154,7 @@ public class CompileTestBuilder {
          *
          * @return an immutable builder instance for creating a complex compiler message check
          */
-        public CompileMessageCheckBuilder<T> expectWarning() {
+        public CompileMessageCheckBuilder<T> expectWarningMessage() {
             CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
             return new CompileMessageCheckBuilder<T>(createNextInstance(nextConfiguration), Diagnostic.Kind.WARNING);
         }
@@ -164,7 +164,7 @@ public class CompileTestBuilder {
          *
          * @return an immutable builder instance for creating a complex compiler message check
          */
-        public CompileMessageCheckBuilder<T> expectNote() {
+        public CompileMessageCheckBuilder<T> expectNoteMessage() {
             CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
             return new CompileMessageCheckBuilder<T>(createNextInstance(nextConfiguration), Diagnostic.Kind.NOTE);
         }
@@ -175,7 +175,7 @@ public class CompileTestBuilder {
          * @param warningChecks the warning checks to set, null values will be ignored.
          * @return the next builder instance
          */
-        public T expectedWarningMessages(String... warningChecks) {
+        public T expectWarningMessagesThatContain(String... warningChecks) {
             CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
             if (warningChecks != null) {
                 nextConfiguration.addWarningMessageCheck(CompileTestConfiguration.ComparisionKind.CONTAINS, warningChecks);
@@ -190,7 +190,7 @@ public class CompileTestBuilder {
          * @param mandatoryWarningChecks the mandatory warning checks to set, null values will be ignored.
          * @return the next builder instance
          */
-        public T expectedMandatoryWarningMessages(String... mandatoryWarningChecks) {
+        public T expectMandatoryWarningMessagesThatContain(String... mandatoryWarningChecks) {
 
             CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
             if (mandatoryWarningChecks != null) {
@@ -206,7 +206,7 @@ public class CompileTestBuilder {
          * @param errorChecksToSet the error checks to set, null values will be ignored.
          * @return the next builder instance
          */
-        public T expectedErrorMessages(String... errorChecksToSet) {
+        public T expectErrorMessagesThatContain(String... errorChecksToSet) {
 
             CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
             if (errorChecksToSet != null) {
@@ -222,7 +222,7 @@ public class CompileTestBuilder {
          * @param noteChecksToSet the notes checks to set, null values will be ignored.
          * @return the next builder instance
          */
-        public T expectedNoteMessages(String... noteChecksToSet) {
+        public T expectNoteMessagesThatContain(String... noteChecksToSet) {
 
             CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
             if (noteChecksToSet != null) {
@@ -255,8 +255,8 @@ public class CompileTestBuilder {
          * @param relativeName the relative name to the passed package
          * @return the next builder instance
          */
-        public T expectedFileObjectExists(JavaFileManager.Location location, String packageName, String relativeName) {
-            return expectedFileObjectExists(location, packageName, relativeName, (FileObject) null);
+        public T expectThatFileObjectExists(JavaFileManager.Location location, String packageName, String relativeName) {
+            return expectThatFileObjectExists(location, packageName, relativeName, (FileObject) null);
         }
 
         /**
@@ -269,13 +269,13 @@ public class CompileTestBuilder {
          * @param expectedFileObject the file used for comparision of content
          * @return the next builder instance
          */
-        public T expectedFileObjectExists(
+        public T expectThatFileObjectExists(
                 JavaFileManager.Location location,
                 String packageName,
                 String relativeName,
                 FileObject expectedFileObject) {
 
-            return expectedFileObjectExists(location, packageName, relativeName, ExpectedFileObjectMatcherKind.BINARY, expectedFileObject);
+            return expectThatFileObjectExists(location, packageName, relativeName, ExpectedFileObjectMatcherKind.BINARY, expectedFileObject);
 
         }
 
@@ -291,7 +291,7 @@ public class CompileTestBuilder {
          * @param expectedFileObject the file used for comparision of content
          * @return the next builder instance
          */
-        public T expectedFileObjectExists(
+        public T expectThatFileObjectExists(
                 JavaFileManager.Location location,
                 String packageName,
                 String relativeName,
@@ -324,7 +324,7 @@ public class CompileTestBuilder {
          * @return the next builder instance
          */
         @SafeVarargs
-        public final T expectedFileObjectExists(
+        public final T expectThatFileObjectExists(
                 JavaFileManager.Location location,
                 String packageName,
                 String relativeName,
@@ -363,8 +363,8 @@ public class CompileTestBuilder {
          * @param className the full qualified name of the class
          * @return the next builder instance
          */
-        public T expectedGeneratedSourceFileExists(String className) {
-            return expectedJavaFileObjectExists(StandardLocation.SOURCE_OUTPUT, className, JavaFileObject.Kind.SOURCE);
+        public T expectThatGeneratedSourceFileExists(String className) {
+            return expectThatJavaFileObjectExists(StandardLocation.SOURCE_OUTPUT, className, JavaFileObject.Kind.SOURCE);
         }
 
         /**
@@ -375,8 +375,8 @@ public class CompileTestBuilder {
          * @param expectedJavaFileObject the file used for comparision of content
          * @return the next builder instance
          */
-        public T expectedGeneratedSourceFileExists(String className, JavaFileObject expectedJavaFileObject) {
-            return expectedJavaFileObjectExists(StandardLocation.SOURCE_OUTPUT, className, JavaFileObject.Kind.SOURCE, expectedJavaFileObject);
+        public T expectThatGeneratedSourceFileExists(String className, JavaFileObject expectedJavaFileObject) {
+            return expectThatJavaFileObjectExists(StandardLocation.SOURCE_OUTPUT, className, JavaFileObject.Kind.SOURCE, expectedJavaFileObject);
         }
 
         /**
@@ -385,8 +385,8 @@ public class CompileTestBuilder {
          * @param className the class name
          * @return the next builder instance
          */
-        public T expectedGeneratedClassExists(String className) {
-            return expectedJavaFileObjectExists(StandardLocation.CLASS_OUTPUT, className, JavaFileObject.Kind.CLASS);
+        public T expectThatGeneratedClassExists(String className) {
+            return expectThatJavaFileObjectExists(StandardLocation.CLASS_OUTPUT, className, JavaFileObject.Kind.CLASS);
         }
 
         /**
@@ -397,8 +397,8 @@ public class CompileTestBuilder {
          * @param generatedJavaFileObjectCheck the matcher to use
          * @return the next builder instance
          */
-        public T expectedGeneratedSourceFileExists(String className, GeneratedFileObjectMatcher<JavaFileObject> generatedJavaFileObjectCheck) {
-            return expectedJavaFileObjectExists(StandardLocation.SOURCE_OUTPUT, className, JavaFileObject.Kind.SOURCE, generatedJavaFileObjectCheck);
+        public T expectThatGeneratedSourceFileExists(String className, GeneratedFileObjectMatcher<JavaFileObject> generatedJavaFileObjectCheck) {
+            return expectThatJavaFileObjectExists(StandardLocation.SOURCE_OUTPUT, className, JavaFileObject.Kind.SOURCE, generatedJavaFileObjectCheck);
         }
 
         /**
@@ -408,7 +408,7 @@ public class CompileTestBuilder {
          * @return the next builder instance
          */
         public T expectGeneratedSourceFileNotToExist(String className) {
-            return expectJavaFileObjectNotToExist(StandardLocation.SOURCE_OUTPUT, className, JavaFileObject.Kind.SOURCE);
+            return expectThatJavaFileObjectNotExist(StandardLocation.SOURCE_OUTPUT, className, JavaFileObject.Kind.SOURCE);
         }
 
         /**
@@ -419,8 +419,8 @@ public class CompileTestBuilder {
          * @param kind      the kind of the JavaFileObject
          * @return the next builder instance
          */
-        public T expectedJavaFileObjectExists(JavaFileManager.Location location, String className, JavaFileObject.Kind kind) {
-            return expectedJavaFileObjectExists(location, className, kind, (JavaFileObject) null);
+        public T expectThatJavaFileObjectExists(JavaFileManager.Location location, String className, JavaFileObject.Kind kind) {
+            return expectThatJavaFileObjectExists(location, className, kind, (JavaFileObject) null);
         }
 
 
@@ -434,13 +434,13 @@ public class CompileTestBuilder {
          * @param expectedJavaFileObject the file used for comparision of content
          * @return the next builder instance
          */
-        public T expectedJavaFileObjectExists(
+        public T expectThatJavaFileObjectExists(
                 JavaFileManager.Location location,
                 String className,
                 JavaFileObject.Kind kind,
                 JavaFileObject expectedJavaFileObject) {
 
-            return expectedJavaFileObjectExists(location, className, kind, ExpectedFileObjectMatcherKind.BINARY, expectedJavaFileObject);
+            return expectThatJavaFileObjectExists(location, className, kind, ExpectedFileObjectMatcherKind.BINARY, expectedJavaFileObject);
 
         }
 
@@ -454,7 +454,7 @@ public class CompileTestBuilder {
          * @param expectedJavaFileObject the file used for comparision of content
          * @return the next builder instance
          */
-        public T expectedJavaFileObjectExists(
+        public T expectThatJavaFileObjectExists(
                 JavaFileManager.Location location,
                 String className,
                 JavaFileObject.Kind kind,
@@ -477,7 +477,7 @@ public class CompileTestBuilder {
          * @param generatedJavaFileObjectCheck the matcher to use
          * @return the next builder instance
          */
-        public T expectedJavaFileObjectExists(
+        public T expectThatJavaFileObjectExists(
                 JavaFileManager.Location location,
                 String className,
                 JavaFileObject.Kind kind,
@@ -497,7 +497,7 @@ public class CompileTestBuilder {
          * @param kind      the kind of the JavaFileObject
          * @return the next builder instance
          */
-        public T expectJavaFileObjectNotToExist(JavaFileManager.Location location, String className, JavaFileObject.Kind kind) {
+        public T expectThatJavaFileObjectNotExist(JavaFileManager.Location location, String className, JavaFileObject.Kind kind) {
 
             CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
             nextConfiguration.addGeneratedJavaFileObjectCheck(CompileTestConfiguration.FileObjectCheckType.DOESNT_EXIST, location, className, kind, null);
@@ -519,7 +519,7 @@ public class CompileTestBuilder {
          *
          * @throws IllegalStateException if there's some invalid configuration
          */
-        public void testCompilation() {
+        public void executeTest() {
             if (compileTestConfiguration.getSourceFiles().size() == 0) {
                 throw new IllegalStateException(Constants.Messages.ISE_MUST_CONFIGURE_AT_LEAST_ONE_SOURCE_FILE.produceMessage());
             }
@@ -663,7 +663,7 @@ public class CompileTestBuilder {
 
         /**
          * Allows writing of unit tests.
-         * You can pass in a {@link UnitTestProcessor} instance that contains your test code in it's unitTest method.
+         * You can pass in a {@link UnitTest} instance that contains your test code in it's unitTest method.
          * <p>
          * The {@link javax.annotation.processing.ProcessingEnvironment} and an Element of type ELEMENT_TYPE will passed to the UnitTestProcessor.unitTest method.
          * <p>
@@ -671,19 +671,19 @@ public class CompileTestBuilder {
          * <p>
          * So please make sure that the {@link TestAnnotation} is used exactly once, when you are using a custom source files
          *
-         * @param unitTestProcessor the processor to use
+         * @param unitTest the processor to use
          * @param <ELEMENT_TYPE>    The expected element type (Must be TypeElement, if no custom source files are used)
          * @return the UnitTestBuilder instance
          * @throws IllegalArgumentException if passed processor is null.
          * @throws IllegalStateException    if more than one Element is found or if ELEMENT_TYPE doesn't match type of the found element
          */
-        public <ELEMENT_TYPE extends Element> UnitTestBuilder useProcessor(UnitTestProcessor<ELEMENT_TYPE> unitTestProcessor) {
-            return useProcessor(Constants.DEFAULT_ANNOTATION, unitTestProcessor);
+        public <ELEMENT_TYPE extends Element> UnitTestBuilder defineTest(UnitTest<ELEMENT_TYPE> unitTest) {
+            return defineTest(Constants.DEFAULT_ANNOTATION, unitTest);
         }
 
         /**
          * Allows writing of unit tests.
-         * You can pass in a {@link UnitTestProcessor} instance that contains your test code in it's unitTest method.
+         * You can pass in a {@link UnitTest} instance that contains your test code in it's unitTest method.
          * <p>
          * The {@link javax.annotation.processing.ProcessingEnvironment} and an Element of type ELEMENT_TYPE will passed to the UnitTestProcessor.unitTest method.
          * <p>
@@ -692,15 +692,15 @@ public class CompileTestBuilder {
          * So please make sure that the {@link TestAnnotation} is used exactly once, when you are using a custom source files
          *
          * @param customAnnotationType the annotation type to search the element for
-         * @param unitTestProcessor    the processor to use
+         * @param unitTest    the processor to use
          * @param <ELEMENT_TYPE>       The expected element type (Must be TypeElement, if no custom source files are used)
          * @return the UnitTestBuilder instance
          * @throws IllegalArgumentException if passed processor is null.
          * @throws IllegalStateException    if more than one Element is found or if ELEMENT_TYPE doesn't match type of the found element
          */
-        public <ELEMENT_TYPE extends Element> UnitTestBuilder useProcessor(Class<? extends Annotation> customAnnotationType, UnitTestProcessor<ELEMENT_TYPE> unitTestProcessor) {
+        public <ELEMENT_TYPE extends Element> UnitTestBuilder defineTest(Class<? extends Annotation> customAnnotationType, UnitTest<ELEMENT_TYPE> unitTest) {
 
-            if (unitTestProcessor == null) {
+            if (unitTest == null) {
                 throw new IllegalArgumentException(Constants.Messages.IAE_PASSED_PARAMETER_MUST_NOT_BE_NULL.produceMessage("unitTestProcessor"));
             }
 
@@ -712,7 +712,7 @@ public class CompileTestBuilder {
 
             // remove existing processor
             nextConfiguration.getProcessors().clear();
-            nextConfiguration.addProcessors(new UnitTestAnnotationProcessorClass<ELEMENT_TYPE>(customAnnotationType, unitTestProcessor));
+            nextConfiguration.addProcessors(new UnitTestAnnotationProcessorClass<ELEMENT_TYPE>(customAnnotationType, unitTest));
 
             return createNextInstance(nextConfiguration);
         }
@@ -728,7 +728,7 @@ public class CompileTestBuilder {
          * If custom source is used make sure {@link TestAnnotation} is used somewhere in the custom source file to make sure if annotation processor is used.
          *
          * @param processorUnderTestClass                         the Processor which should be provided as a
-         * @param unitTestProcessorForTestingAnnotationProcessors the processor to use
+         * @param unitTestForTestingAnnotationProcessors the processor to use
          * @param <PROCESSOR_UNDER_TEST>                          The processor type under test
          * @param <ELEMENT_TYPE>                                  The expected element type to be processed
          * @return the UnitTestBuilder instance
@@ -736,8 +736,8 @@ public class CompileTestBuilder {
          * @throws IllegalStateException    if more than one Element is found or if ELEMENT_TYPE doesn't match type of the found element
          */
 
-        public <PROCESSOR_UNDER_TEST extends Processor, ELEMENT_TYPE extends Element> UnitTestBuilder useProcessor(Class<PROCESSOR_UNDER_TEST> processorUnderTestClass, UnitTestProcessorForTestingAnnotationProcessors<PROCESSOR_UNDER_TEST, ELEMENT_TYPE> unitTestProcessorForTestingAnnotationProcessors) {
-            return useProcessor(processorUnderTestClass, Constants.DEFAULT_ANNOTATION, unitTestProcessorForTestingAnnotationProcessors);
+        public <PROCESSOR_UNDER_TEST extends Processor, ELEMENT_TYPE extends Element> UnitTestBuilder defineTest(Class<PROCESSOR_UNDER_TEST> processorUnderTestClass, UnitTestForTestingAnnotationProcessors<PROCESSOR_UNDER_TEST, ELEMENT_TYPE> unitTestForTestingAnnotationProcessors) {
+            return defineTest(processorUnderTestClass, Constants.DEFAULT_ANNOTATION, unitTestForTestingAnnotationProcessors);
         }
 
         /**
@@ -747,7 +747,7 @@ public class CompileTestBuilder {
          *
          * @param processorUnderTestClass                         the Processor type
          * @param customAnnotationType                            the custom annotation used to search the element to pass be passed in
-         * @param unitTestProcessorForTestingAnnotationProcessors the processor to use
+         * @param unitTestForTestingAnnotationProcessors the processor to use
          * @param <PROCESSOR_UNDER_TEST>                          The processor type under test
          * @param <ELEMENT_TYPE>                                  The expected element type to be processed
          * @return the UnitTestBuilder instance
@@ -755,9 +755,9 @@ public class CompileTestBuilder {
          * @throws IllegalStateException    if more than one Element is found or if ELEMENT_TYPE doesn't match type of the found element
          */
 
-        public <PROCESSOR_UNDER_TEST extends Processor, ELEMENT_TYPE extends Element> UnitTestBuilder useProcessor(Class<PROCESSOR_UNDER_TEST> processorUnderTestClass, Class<? extends Annotation> customAnnotationType, UnitTestProcessorForTestingAnnotationProcessors<PROCESSOR_UNDER_TEST, ELEMENT_TYPE> unitTestProcessorForTestingAnnotationProcessors) {
+        public <PROCESSOR_UNDER_TEST extends Processor, ELEMENT_TYPE extends Element> UnitTestBuilder defineTest(Class<PROCESSOR_UNDER_TEST> processorUnderTestClass, Class<? extends Annotation> customAnnotationType, UnitTestForTestingAnnotationProcessors<PROCESSOR_UNDER_TEST, ELEMENT_TYPE> unitTestForTestingAnnotationProcessors) {
 
-            if (unitTestProcessorForTestingAnnotationProcessors == null) {
+            if (unitTestForTestingAnnotationProcessors == null) {
                 throw new IllegalArgumentException(Constants.Messages.IAE_PASSED_PARAMETER_MUST_NOT_BE_NULL.produceMessage("unitTestProcessorForTestingAnnotationProcessors"));
             }
 
@@ -782,7 +782,7 @@ public class CompileTestBuilder {
 
             // remove existing processor
             nextConfiguration.getProcessors().clear();
-            nextConfiguration.addProcessors(new UnitTestAnnotationProcessorClassForTestingAnnotationProcessors<PROCESSOR_UNDER_TEST, ELEMENT_TYPE>(processorUnderTest, customAnnotationType, unitTestProcessorForTestingAnnotationProcessors));
+            nextConfiguration.addProcessors(new UnitTestAnnotationProcessorClassForTestingAnnotationProcessors<PROCESSOR_UNDER_TEST, ELEMENT_TYPE>(processorUnderTest, customAnnotationType, unitTestForTestingAnnotationProcessors));
 
             return createNextInstance(nextConfiguration);
         }
@@ -845,13 +845,13 @@ public class CompileTestBuilder {
         /**
          * {@inheritDoc}
          */
-        public void testCompilation() {
+        public void executeTest() {
 
             if (compileTestConfiguration.getProcessors().size() == 0) {
                 throw new IllegalStateException(Constants.Messages.ISE_MUST_CONFIGURE_AT_LEAST_ONE_PROCESSOR.produceMessage());
             }
 
-            super.testCompilation();
+            super.executeTest();
 
         }
 
@@ -966,7 +966,7 @@ public class CompileTestBuilder {
          * @param expectedContainedMessageToken the message to search for
          * @return the next immutable builder instance of enclosing builder
          */
-        public COMPILETESTBUILDER contains(String expectedContainedMessageToken) {
+        public COMPILETESTBUILDER thatContains(String expectedContainedMessageToken) {
             CompileMessageCheckBuilder<COMPILETESTBUILDER> nextBuilder = createNextBuilder();
 
             nextBuilder.comparisionKind = CompileTestConfiguration.ComparisionKind.CONTAINS;
@@ -983,7 +983,7 @@ public class CompileTestBuilder {
          * @param expectedMessage the message to search for
          * @return the next immutable builder instance of enclosing builder
          */
-        public COMPILETESTBUILDER isEqual(String expectedMessage) {
+        public COMPILETESTBUILDER thatIsEqualTo(String expectedMessage) {
             CompileMessageCheckBuilder<COMPILETESTBUILDER> nextBuilder = createNextBuilder();
 
             nextBuilder.comparisionKind = CompileTestConfiguration.ComparisionKind.EQUALS;
@@ -1055,7 +1055,7 @@ public class CompileTestBuilder {
      * Unit tests can be used to test methods that internally rely on the java compile time model
      * or using the tools provided by the processors processing environment.
      *
-     * @return the UnitTestBuilderm instance
+     * @return the UnitTestBuilder instance
      */
     public static UnitTestBuilder unitTest() {
         return new TestTypeBuilder().unitTest();

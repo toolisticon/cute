@@ -20,7 +20,7 @@ public class ProcessorWasAppliedTest {
                 .unitTest()
                 .useProcessor(new SimpleTestProcessor1())
                 .useSource(JavaFileObjectUtils.readFromResource("/integrationtest/AnnotationProcessorAppliedTestClass.java"))
-                .testCompilation();
+                .executeTest();
 
 
     }
@@ -33,12 +33,12 @@ public class ProcessorWasAppliedTest {
                     .unitTest()
                     .useProcessor(new SimpleTestProcessor2())
                     .useSource(JavaFileObjectUtils.readFromResource("/integrationtest/AnnotationProcessorAppliedTestClass.java"))
-                    .testCompilation();
+                    .executeTest();
 
         } catch (AssertionError e) {
             assertionErrorWasTriggered = true;
 
-            MatcherAssert.assertThat(e.getMessage(), Matchers.containsString("hasn't been applied on a class"));
+            MatcherAssert.assertThat(e.getMessage(), Matchers.containsString("Annotation processor " + SimpleTestProcessor2.class.getCanonicalName() + " hasn't been called"));
 
         }
 
@@ -53,7 +53,7 @@ public class ProcessorWasAppliedTest {
                 .useProcessor(new SimpleTestProcessor1() {
                 })
                 .useSource(JavaFileObjectUtils.readFromResource("/integrationtest/AnnotationProcessorAppliedTestClass.java"))
-                .testCompilation();
+                .executeTest();
 
     }
 
@@ -66,12 +66,12 @@ public class ProcessorWasAppliedTest {
                     .useProcessor(new SimpleTestProcessor2() {
                     })
                     .useSource(JavaFileObjectUtils.readFromResource("/integrationtest/AnnotationProcessorAppliedTestClass.java"))
-                    .testCompilation();
+                    .executeTest();
 
         } catch (AssertionError e) {
             assertionErrorWasTriggered = true;
 
-            MatcherAssert.assertThat(e.getMessage(), Matchers.containsString("hasn't been applied on a class"));
+            MatcherAssert.assertThat(e.getMessage(), Matchers.containsString("Annotation processor null hasn't been called"));
 
         }
 
@@ -86,7 +86,7 @@ public class ProcessorWasAppliedTest {
                 .compilationTest()
                 .addProcessors(SimpleTestProcessor1.class)
                 .addSources(JavaFileObjectUtils.readFromResource("/integrationtest/AnnotationProcessorAppliedTestClass.java"))
-                .testCompilation();
+                .executeTest();
 
     }
 
@@ -100,12 +100,12 @@ public class ProcessorWasAppliedTest {
                     .compilationTest()
                     .addProcessors(SimpleTestProcessor2.class)
                     .addSources(JavaFileObjectUtils.readFromResource("/integrationtest/AnnotationProcessorAppliedTestClass.java"))
-                    .testCompilation();
+                    .executeTest();
 
         } catch (AssertionError e) {
             assertionErrorWasTriggered = true;
 
-            MatcherAssert.assertThat(e.getMessage(), Matchers.containsString("hasn't been applied on a class"));
+            MatcherAssert.assertThat(e.getMessage(), Matchers.containsString("Annotation processor " + SimpleTestProcessor2.class.getCanonicalName() + " hasn't been called"));
 
         }
 

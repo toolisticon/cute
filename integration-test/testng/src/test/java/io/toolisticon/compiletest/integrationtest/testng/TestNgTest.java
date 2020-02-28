@@ -1,7 +1,7 @@
 package io.toolisticon.compiletest.integrationtest.testng;
 
 import io.toolisticon.compiletesting.CompileTestBuilder;
-import io.toolisticon.compiletesting.UnitTestProcessor;
+import io.toolisticon.compiletesting.UnitTest;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
 import org.testng.Assert;
@@ -9,7 +9,6 @@ import org.testng.annotations.Test;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
-import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic;
 
 /**
@@ -23,15 +22,15 @@ public class TestNgTest {
         CompileTestBuilder
 
                 .unitTest()
-                .useProcessor(new UnitTestProcessor() {
+                .defineTest(new UnitTest() {
                     @Override
                     public void unitTest(ProcessingEnvironment processingEnvironment, Element typeElement) {
                         processingEnvironment.getMessager().printMessage(Diagnostic.Kind.WARNING, "WARNING!");
                     }
                 })
-                .expectedWarningMessages("WARNING!")
+                .expectWarningMessagesThatContain("WARNING!")
                 .compilationShouldSucceed()
-                .testCompilation();
+                .executeTest();
 
 
     }
@@ -41,15 +40,15 @@ public class TestNgTest {
 
         CompileTestBuilder
                 .unitTest()
-                .useProcessor(new UnitTestProcessor() {
+                .defineTest(new UnitTest() {
                     @Override
                     public void unitTest(ProcessingEnvironment processingEnvironment, Element typeElement) {
                         processingEnvironment.getMessager().printMessage(Diagnostic.Kind.ERROR, "ERROR!");
                     }
                 })
-                .expectedErrorMessages("ERROR!")
+                .expectErrorMessagesThatContain("ERROR!")
                 .compilationShouldFail()
-                .testCompilation();
+                .executeTest();
 
 
     }
@@ -60,14 +59,14 @@ public class TestNgTest {
         try {
             CompileTestBuilder
                     .unitTest()
-                    .useProcessor(new UnitTestProcessor() {
+                    .defineTest(new UnitTest() {
                         @Override
                         public void unitTest(ProcessingEnvironment processingEnvironment, Element typeElement) {
                             processingEnvironment.getMessager().printMessage(Diagnostic.Kind.ERROR, "ERROR!");
                         }
                     })
                     .compilationShouldSucceed()
-                    .testCompilation();
+                    .executeTest();
 
             Assert.fail("Should have failed");
         } catch (AssertionError error) {

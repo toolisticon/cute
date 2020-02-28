@@ -125,7 +125,11 @@ final class DebugOutputGenerator {
             for (Diagnostic diagnostics : filteredDiagnostics) {
 
 
-                stringBuilder.append("[").append(i).append("]'")
+                stringBuilder.append("[").append(i)
+                        //.append(diagnostics.getSource() != null ? "|s:'" + ((FileObject)diagnostics.getSource()).getName() + "'" : "")
+                        //.append(diagnostics.getLineNumber() != Diagnostic.NOPOS ? "|l:'" + diagnostics.getLineNumber() + "'" : "")
+                        //.append(diagnostics.getColumnNumber() != Diagnostic.NOPOS ? "|c:'" + diagnostics.getColumnNumber() + "'" : "")
+                        .append("]'")
                         .append(diagnostics)
                         .append("'\n");
                 i++;

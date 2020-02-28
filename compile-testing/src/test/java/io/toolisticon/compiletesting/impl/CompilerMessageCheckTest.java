@@ -1,11 +1,10 @@
 package io.toolisticon.compiletesting.impl;
 
 import io.toolisticon.compiletesting.CompileTestBuilder;
-import io.toolisticon.compiletesting.UnitTestProcessor;
+import io.toolisticon.compiletesting.UnitTest;
 import org.junit.Test;
 
 import javax.annotation.processing.ProcessingEnvironment;
-import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic;
 
@@ -19,90 +18,90 @@ public class CompilerMessageCheckTest {
     @Test
     public void testComplexCompilerMessageCheck_findMessage_withAll() {
 
-        builder.compilationShouldSucceed().<TypeElement>useProcessor(new UnitTestProcessor<TypeElement>() {
+        builder.compilationShouldSucceed().<TypeElement>defineTest(new UnitTest<TypeElement>() {
             @Override
             public void unitTest(ProcessingEnvironment processingEnvironment, TypeElement element) {
                 processingEnvironment.getMessager().printMessage(Diagnostic.Kind.WARNING, "ABC", element);
             }
         })
-                .expectWarning().atSource("/AnnotationProcessorUnitTestClass.java").atLineNumber(13L).atColumnNumber(8L).isEqual("ABC")
+                .expectWarningMessage().atSource("/AnnotationProcessorUnitTestClass.java").atLineNumber(13L).atColumnNumber(8L).thatIsEqualTo("ABC")
 
-                .testCompilation();
+                .executeTest();
 
     }
 
     @Test(expected = AssertionError.class)
     public void testComplexCompilerMessageCheck_dontFindMessage_withAll_wrongSource() {
 
-        builder.compilationShouldSucceed().<TypeElement>useProcessor(new UnitTestProcessor<TypeElement>() {
+        builder.compilationShouldSucceed().<TypeElement>defineTest(new UnitTest<TypeElement>() {
             @Override
             public void unitTest(ProcessingEnvironment processingEnvironment, TypeElement element) {
                 processingEnvironment.getMessager().printMessage(Diagnostic.Kind.WARNING, "ABC", element);
             }
         })
-                .expectWarning().atSource("/XYZ.java").atLineNumber(13L).atColumnNumber(8L).isEqual("ABC")
+                .expectWarningMessage().atSource("/XYZ.java").atLineNumber(13L).atColumnNumber(8L).thatIsEqualTo("ABC")
 
-                .testCompilation();
+                .executeTest();
 
     }
 
     @Test(expected = AssertionError.class)
     public void testComplexCompilerMessageCheck_dontFindMessage_withAll_wrongLine() {
 
-        builder.compilationShouldSucceed().<TypeElement>useProcessor(new UnitTestProcessor<TypeElement>() {
+        builder.compilationShouldSucceed().<TypeElement>defineTest(new UnitTest<TypeElement>() {
             @Override
             public void unitTest(ProcessingEnvironment processingEnvironment, TypeElement element) {
                 processingEnvironment.getMessager().printMessage(Diagnostic.Kind.WARNING, "ABC", element);
             }
         })
-                .expectWarning().atSource("/AnnotationProcessorUnitTestClass.java").atLineNumber(3L).atColumnNumber(8L).isEqual("ABC")
+                .expectWarningMessage().atSource("/AnnotationProcessorUnitTestClass.java").atLineNumber(3L).atColumnNumber(8L).thatIsEqualTo("ABC")
 
-                .testCompilation();
+                .executeTest();
 
     }
 
     @Test(expected = AssertionError.class)
     public void testComplexCompilerMessageCheck_dontFindMessage_withAll_wrongColumn() {
 
-        builder.compilationShouldSucceed().<TypeElement>useProcessor(new UnitTestProcessor<TypeElement>() {
+        builder.compilationShouldSucceed().<TypeElement>defineTest(new UnitTest<TypeElement>() {
             @Override
             public void unitTest(ProcessingEnvironment processingEnvironment, TypeElement element) {
                 processingEnvironment.getMessager().printMessage(Diagnostic.Kind.WARNING, "ABC", element);
             }
         })
-                .expectWarning().atSource("/AnnotationProcessorUnitTestClass.java").atLineNumber(13L).atColumnNumber(7L).isEqual("ABC")
+                .expectWarningMessage().atSource("/AnnotationProcessorUnitTestClass.java").atLineNumber(13L).atColumnNumber(7L).thatIsEqualTo("ABC")
 
-                .testCompilation();
+                .executeTest();
 
     }
 
     @Test(expected = AssertionError.class)
     public void testComplexCompilerMessageCheck_dontFindMessage_withAll_wrongMessage() {
 
-        builder.compilationShouldSucceed().<TypeElement>useProcessor(new UnitTestProcessor<TypeElement>() {
+        builder.compilationShouldSucceed().<TypeElement>defineTest(new UnitTest<TypeElement>() {
             @Override
             public void unitTest(ProcessingEnvironment processingEnvironment, TypeElement element) {
                 processingEnvironment.getMessager().printMessage(Diagnostic.Kind.WARNING, "ABC", element);
             }
         })
-                .expectWarning().atSource("/AnnotationProcessorUnitTestClass.java").atLineNumber(13L).atColumnNumber(8L).isEqual("BC")
+                .expectWarningMessage().atSource("/AnnotationProcessorUnitTestClass.java").atLineNumber(13L).atColumnNumber(8L).thatIsEqualTo("BC")
 
-                .testCompilation();
+                .executeTest();
 
     }
 
     @Test
     public void testComplexCompilerMessageCheck_findMessageSubstring_withAll() {
 
-        builder.compilationShouldSucceed().<TypeElement>useProcessor(new UnitTestProcessor<TypeElement>() {
+        builder.compilationShouldSucceed().<TypeElement>defineTest(new UnitTest<TypeElement>() {
             @Override
             public void unitTest(ProcessingEnvironment processingEnvironment, TypeElement element) {
                 processingEnvironment.getMessager().printMessage(Diagnostic.Kind.WARNING, "ABC", element);
             }
         })
-                .expectWarning().atSource("/AnnotationProcessorUnitTestClass.java").atLineNumber(13L).atColumnNumber(8L).contains("BC")
+                .expectWarningMessage().atSource("/AnnotationProcessorUnitTestClass.java").atLineNumber(13L).atColumnNumber(8L).thatContains("BC")
 
-                .testCompilation();
+                .executeTest();
 
     }
 

@@ -6,7 +6,7 @@ import io.toolisticon.compiletesting.GeneratedFileObjectMatcher;
 import io.toolisticon.compiletesting.InvalidTestConfigurationException;
 import io.toolisticon.compiletesting.JavaFileObjectUtils;
 import io.toolisticon.compiletesting.TestUtilities;
-import io.toolisticon.compiletesting.UnitTestProcessor;
+import io.toolisticon.compiletesting.UnitTest;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
@@ -29,7 +29,7 @@ public class CompileTestTest {
 
         CompileTestBuilder
                 .unitTest()
-                .useProcessor(new UnitTestProcessor() {
+                .defineTest(new UnitTest() {
                     @Override
                     public void unitTest(ProcessingEnvironment processingEnvironment, Element typeElement) {
 
@@ -50,15 +50,15 @@ public class CompileTestTest {
                 .useCompilerOptions("-verbose  ", " -source    1.7   ", "-target 1.7")
                 .compilationShouldSucceed()
 
-                .expectedFileObjectExists(StandardLocation.SOURCE_OUTPUT, "root", "Jupp.txt")
-                .expectedFileObjectExists(StandardLocation.SOURCE_OUTPUT, "root", "Jupp.txt", JavaFileObjectUtils.readFromString("TATA!"))
-                .expectedFileObjectExists(StandardLocation.SOURCE_OUTPUT, "root", "Jupp.txt", new GeneratedFileObjectMatcher<FileObject>() {
+                .expectThatFileObjectExists(StandardLocation.SOURCE_OUTPUT, "root", "Jupp.txt")
+                .expectThatFileObjectExists(StandardLocation.SOURCE_OUTPUT, "root", "Jupp.txt", JavaFileObjectUtils.readFromString("TATA!"))
+                .expectThatFileObjectExists(StandardLocation.SOURCE_OUTPUT, "root", "Jupp.txt", new GeneratedFileObjectMatcher<FileObject>() {
                     @Override
                     public boolean check(FileObject fileObject) throws IOException {
                         return fileObject.getCharContent(false).toString().contains("TAT");
                     }
                 })
-                .testCompilation();
+                .executeTest();
 
     }
 
@@ -69,7 +69,7 @@ public class CompileTestTest {
         try {
             CompileTestBuilder
                     .unitTest()
-                    .useProcessor(new UnitTestProcessor() {
+                    .defineTest(new UnitTest() {
                         @Override
                         public void unitTest(ProcessingEnvironment processingEnvironment, Element typeElement) {
                             try {
@@ -87,8 +87,8 @@ public class CompileTestTest {
                     })
 
                     .compilationShouldSucceed()
-                    .expectedFileObjectExists(StandardLocation.SOURCE_OUTPUT, "root", "Jupp.txt", JavaFileObjectUtils.readFromString("WURST!"))
-                    .testCompilation();
+                    .expectThatFileObjectExists(StandardLocation.SOURCE_OUTPUT, "root", "Jupp.txt", JavaFileObjectUtils.readFromString("WURST!"))
+                    .executeTest();
 
             Assert.fail("Should have triggered an assertion error");
 
@@ -106,7 +106,7 @@ public class CompileTestTest {
     public void test_JavaFileObjectExists() {
         CompileTestBuilder
                 .unitTest()
-                .useProcessor(new UnitTestProcessor() {
+                .defineTest(new UnitTest() {
                     @Override
                     public void unitTest(ProcessingEnvironment processingEnvironment, Element typeElement) {
 
@@ -126,19 +126,19 @@ public class CompileTestTest {
                 })
 
                 .compilationShouldSucceed()
-                .expectedJavaFileObjectExists(StandardLocation.CLASS_OUTPUT, "io.toolisticon.compiletesting.CheckTest", JavaFileObject.Kind.CLASS)
-                .expectedGeneratedClassExists("io.toolisticon.compiletesting.CheckTest")
-                .expectedJavaFileObjectExists(StandardLocation.SOURCE_OUTPUT, "io.toolisticon.compiletesting.CheckTest", JavaFileObject.Kind.SOURCE)
-                .expectedJavaFileObjectExists(StandardLocation.SOURCE_OUTPUT, "io.toolisticon.compiletesting.CheckTest", JavaFileObject.Kind.SOURCE, JavaFileObjectUtils.readFromString("xyz", "package io.toolisticon.compiletesting;\npublic class CheckTest{}"))
-                .expectedJavaFileObjectExists(StandardLocation.SOURCE_OUTPUT, "io.toolisticon.compiletesting.CheckTest", JavaFileObject.Kind.SOURCE, new GeneratedFileObjectMatcher<JavaFileObject>() {
+                .expectThatJavaFileObjectExists(StandardLocation.CLASS_OUTPUT, "io.toolisticon.compiletesting.CheckTest", JavaFileObject.Kind.CLASS)
+                .expectThatGeneratedClassExists("io.toolisticon.compiletesting.CheckTest")
+                .expectThatJavaFileObjectExists(StandardLocation.SOURCE_OUTPUT, "io.toolisticon.compiletesting.CheckTest", JavaFileObject.Kind.SOURCE)
+                .expectThatJavaFileObjectExists(StandardLocation.SOURCE_OUTPUT, "io.toolisticon.compiletesting.CheckTest", JavaFileObject.Kind.SOURCE, JavaFileObjectUtils.readFromString("xyz", "package io.toolisticon.compiletesting;\npublic class CheckTest{}"))
+                .expectThatJavaFileObjectExists(StandardLocation.SOURCE_OUTPUT, "io.toolisticon.compiletesting.CheckTest", JavaFileObject.Kind.SOURCE, new GeneratedFileObjectMatcher<JavaFileObject>() {
                     @Override
                     public boolean check(JavaFileObject fileObject) throws IOException {
                         return fileObject.getCharContent(false).toString().contains("public class CheckTest{}");
                     }
                 })
-                .expectedGeneratedSourceFileExists("io.toolisticon.compiletesting.CheckTest")
-                .expectedGeneratedSourceFileExists("io.toolisticon.compiletesting.CheckTest", JavaFileObjectUtils.readFromString("xyz", "package io.toolisticon.compiletesting;\npublic class CheckTest{}"))
-                .expectedGeneratedSourceFileExists("io.toolisticon.compiletesting.CheckTest", new GeneratedFileObjectMatcher<JavaFileObject>() {
+                .expectThatGeneratedSourceFileExists("io.toolisticon.compiletesting.CheckTest")
+                .expectThatGeneratedSourceFileExists("io.toolisticon.compiletesting.CheckTest", JavaFileObjectUtils.readFromString("xyz", "package io.toolisticon.compiletesting;\npublic class CheckTest{}"))
+                .expectThatGeneratedSourceFileExists("io.toolisticon.compiletesting.CheckTest", new GeneratedFileObjectMatcher<JavaFileObject>() {
                     @Override
                     public boolean check(JavaFileObject fileObject) throws IOException {
                         return fileObject.getCharContent(false).toString().contains("public class CheckTest{}");
@@ -146,19 +146,19 @@ public class CompileTestTest {
                 })
                 .expectGeneratedSourceFileNotToExist("io.toolisticon.compiletesting.CheckTestNotExistent")
                 .expectFileObjectNotToExist(StandardLocation.SOURCE_OUTPUT, "io.toolisticon.compiletesting", "SomethingThatDoesntExist.txt")
-                .testCompilation();
+                .executeTest();
 
     }
 
     @Test(expected = InvalidTestConfigurationException.class)
     public void executeTest_CompilationSucceedAndErrorMessageExpectedShouldThowInvalidTestConfigurationException() {
         CompileTestBuilder.unitTest()
-                .useProcessor(new UnitTestProcessor() {
+                .defineTest(new UnitTest() {
                     @Override
                     public void unitTest(ProcessingEnvironment processingEnvironment, Element typeElement) {
 
                     }
-                }).compilationShouldSucceed().expectedErrorMessages("XXX").testCompilation();
+                }).compilationShouldSucceed().expectErrorMessagesThatContain("XXX").executeTest();
     }
 
     @Test
@@ -167,14 +167,14 @@ public class CompileTestTest {
         try {
 
             CompileTestBuilder.unitTest()
-                    .useProcessor(new UnitTestProcessor() {
+                    .defineTest(new UnitTest() {
                         @Override
                         public void unitTest(ProcessingEnvironment processingEnvironment, Element typeElement) {
                             processingEnvironment.getMessager().printMessage(Diagnostic.Kind.ERROR, "FAIL!");
                         }
                     })
                     .compilationShouldSucceed()
-                    .testCompilation();
+                    .executeTest();
 
         } catch (AssertionError e) {
             TestUtilities.assertAssertionMessageContainsMessageTokensAssertion(e, Constants.Messages.MESSAGE_COMPILATION_SHOULD_HAVE_SUCCEEDED_BUT_FAILED.getMessagePattern());
@@ -193,14 +193,14 @@ public class CompileTestTest {
         try {
 
             CompileTestBuilder.unitTest()
-                    .useProcessor(new UnitTestProcessor() {
+                    .defineTest(new UnitTest() {
                         @Override
                         public void unitTest(ProcessingEnvironment processingEnvironment, Element typeElement) {
 
                         }
                     })
                     .compilationShouldFail()
-                    .testCompilation();
+                    .executeTest();
 
         } catch (AssertionError e) {
             TestUtilities.assertAssertionMessageContainsMessageTokensAssertion(e, Constants.Messages.MESSAGE_COMPILATION_SHOULD_HAVE_FAILED_BUT_SUCCEEDED.getMessagePattern());

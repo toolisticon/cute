@@ -28,13 +28,13 @@ class UnitTestAnnotationProcessorClass<ELEMENT_TYPE extends Element> extends Abs
     /**
      * The unit test processor instance to use.
      */
-    private final UnitTestProcessor<ELEMENT_TYPE> unitTestProcessor;
+    private final UnitTest<ELEMENT_TYPE> unitTest;
 
 
-    public UnitTestAnnotationProcessorClass(Class<? extends Annotation> annotationTypeToUse, UnitTestProcessor<ELEMENT_TYPE> unitTestProcessor) {
+    public UnitTestAnnotationProcessorClass(Class<? extends Annotation> annotationTypeToUse, UnitTest<ELEMENT_TYPE> unitTest) {
         this.annotationTypeToUse = annotationTypeToUse;
         this.supportedAnnotationTypes.add(annotationTypeToUse.getCanonicalName());
-        this.unitTestProcessor = unitTestProcessor;
+        this.unitTest = unitTest;
     }
 
     @Override
@@ -57,7 +57,7 @@ class UnitTestAnnotationProcessorClass<ELEMENT_TYPE extends Element> extends Abs
 
             if (set.size() == 1) {
                 try {
-                    unitTestProcessor.unitTest(this.processingEnv, (ELEMENT_TYPE) set.iterator().next());
+                    unitTest.unitTest(this.processingEnv, (ELEMENT_TYPE) set.iterator().next());
                 } catch (ClassCastException e) {
                     throw new FailingAssertionException(Constants.Messages.UNIT_TEST_PRECONDITION_INCOMPATIBLE_ELEMENT_TYPE.produceMessage());
                 }

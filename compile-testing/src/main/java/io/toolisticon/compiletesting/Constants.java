@@ -58,7 +58,7 @@ public final class Constants {
 
         public final static Message MESSAGE_FO_EXISTS_BUT_DOESNT_MATCH_MATCHER = new Message("Expected generated FileObject (%s) exists but doesn't match passed GeneratedFileObjectMatcher: %s");
 
-        public final static Message MESSAGE_PROCESSOR_HASNT_BEEN_APPLIED = new Message("Annotation processor %s hasn't been applied on a class!");
+        public final static Message MESSAGE_PROCESSOR_HASNT_BEEN_APPLIED = new Message("Annotation processor %s hasn't been called! Please check that there's at least one source file using an annotation supported by the processor: %s");
         public final static Message MESSAGE_HAVENT_FOUND_MESSSAGE = new Message("Haven't found expected message string '%s' of kind %s!");
 
         public final static Message MESSAGE_TECHNICAL_ERROR = new Message("TECHNICAL ERROR : %s");

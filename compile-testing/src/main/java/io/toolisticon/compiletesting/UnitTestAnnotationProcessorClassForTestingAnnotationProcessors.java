@@ -30,15 +30,15 @@ class UnitTestAnnotationProcessorClassForTestingAnnotationProcessors<UNIT_PROCES
     /**
      * The unit test processor instance to use.
      */
-    private final UnitTestProcessorForTestingAnnotationProcessors<UNIT_PROCESSOR, ELEMENT_TYPE> unitTestProcessorForTestingAnnotationProcessors;
+    private final UnitTestForTestingAnnotationProcessors<UNIT_PROCESSOR, ELEMENT_TYPE> unitTestForTestingAnnotationProcessors;
     private final UNIT_PROCESSOR processorUnderTest;
 
 
-    public UnitTestAnnotationProcessorClassForTestingAnnotationProcessors(UNIT_PROCESSOR processorUnderTest, Class<? extends Annotation> annotationTypeToUse, UnitTestProcessorForTestingAnnotationProcessors<UNIT_PROCESSOR, ELEMENT_TYPE> unitTestProcessorForTestingAnnotationProcessors) {
+    public UnitTestAnnotationProcessorClassForTestingAnnotationProcessors(UNIT_PROCESSOR processorUnderTest, Class<? extends Annotation> annotationTypeToUse, UnitTestForTestingAnnotationProcessors<UNIT_PROCESSOR, ELEMENT_TYPE> unitTestForTestingAnnotationProcessors) {
         this.processorUnderTest = processorUnderTest;
         this.annotationTypeToUse = annotationTypeToUse;
         this.supportedAnnotationTypes.add(annotationTypeToUse.getCanonicalName());
-        this.unitTestProcessorForTestingAnnotationProcessors = unitTestProcessorForTestingAnnotationProcessors;
+        this.unitTestForTestingAnnotationProcessors = unitTestForTestingAnnotationProcessors;
     }
 
     @Override
@@ -66,7 +66,7 @@ class UnitTestAnnotationProcessorClassForTestingAnnotationProcessors<UNIT_PROCES
             if (set.size() == 1) {
 
                 try {
-                    unitTestProcessorForTestingAnnotationProcessors.unitTest(processorUnderTest, this.processingEnv, (ELEMENT_TYPE) set.iterator().next());
+                    unitTestForTestingAnnotationProcessors.unitTest(processorUnderTest, this.processingEnv, (ELEMENT_TYPE) set.iterator().next());
                 } catch (ClassCastException e) {
                     throw new FailingAssertionException(Constants.Messages.UNIT_TEST_PRECONDITION_INCOMPATIBLE_ELEMENT_TYPE.produceMessage());
                 }

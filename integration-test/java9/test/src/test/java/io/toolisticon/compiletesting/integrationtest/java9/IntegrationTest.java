@@ -21,7 +21,7 @@ public class IntegrationTest {
                         JavaFileObjectUtils.readFromResource("/testcases/bindRegularJavaModule/module-info.java"))
                 .useModules("io.toolisticon.compiletesting.integrationtest.java9.regularmodule")
                 .compilationShouldSucceed()
-                .testCompilation();
+                .executeTest();
 
     }
 
@@ -36,8 +36,8 @@ public class IntegrationTest {
                         JavaFileObjectUtils.readFromResource("/testcases/accessNotExportedClass/module-info.java"))
                 .useModules("io.toolisticon.compiletesting.integrationtest.java9.regularmodule")
                 .compilationShouldFail()
-                .expectedErrorMessages("io.toolisticon.compiletesting.integrationtest.java9.regularmodule.notexported", "is not visible")
-                .testCompilation();
+                .expectErrorMessagesThatContain("io.toolisticon.compiletesting.integrationtest.java9.regularmodule.notexported", "is not visible")
+                .executeTest();
 
     }
 
@@ -53,7 +53,7 @@ public class IntegrationTest {
                         JavaFileObjectUtils.readFromResource("/testcases/bindNamedAutomaticJavaModule/module-info.java"))
                 .useModules("integration.test.java9.namedautomaticmodule")
                 .compilationShouldSucceed()
-                .testCompilation();
+                .executeTest();
 
     }
 
@@ -69,7 +69,7 @@ public class IntegrationTest {
                         JavaFileObjectUtils.readFromResource("/testcases/bindUnnamedAutomaticJavaModule/module-info.java"))
                 .useModules("integration.test.java9.unnamedautomaticmodule")
                 .compilationShouldSucceed()
-                .testCompilation();
+                .executeTest();
 
     }
 

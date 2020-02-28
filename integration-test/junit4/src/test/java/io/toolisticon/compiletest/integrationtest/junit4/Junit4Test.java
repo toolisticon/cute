@@ -2,7 +2,7 @@ package io.toolisticon.compiletest.integrationtest.junit4;
 
 
 import io.toolisticon.compiletesting.CompileTestBuilder;
-import io.toolisticon.compiletesting.UnitTestProcessor;
+import io.toolisticon.compiletesting.UnitTest;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
@@ -22,15 +22,15 @@ public class Junit4Test {
 
         CompileTestBuilder
                 .unitTest()
-                .useProcessor(new UnitTestProcessor() {
+                .defineTest(new UnitTest() {
                     @Override
                     public void unitTest(ProcessingEnvironment processingEnvironment, Element typeElement) {
                         processingEnvironment.getMessager().printMessage(Diagnostic.Kind.WARNING, "WARNING!");
                     }
                 })
-                .expectedWarningMessages("WARNING!")
+                .expectWarningMessagesThatContain("WARNING!")
                 .compilationShouldSucceed()
-                .testCompilation();
+                .executeTest();
 
 
     }
@@ -40,15 +40,15 @@ public class Junit4Test {
 
         CompileTestBuilder
                 .unitTest()
-                .useProcessor(new UnitTestProcessor() {
+                .defineTest(new UnitTest() {
                     @Override
                     public void unitTest(ProcessingEnvironment processingEnvironment, Element typeElement) {
                         processingEnvironment.getMessager().printMessage(Diagnostic.Kind.ERROR, "ERROR!");
                     }
                 })
-                .expectedErrorMessages("ERROR!")
+                .expectErrorMessagesThatContain("ERROR!")
                 .compilationShouldFail()
-                .testCompilation();
+                .executeTest();
 
 
     }
@@ -59,14 +59,14 @@ public class Junit4Test {
         try {
             CompileTestBuilder
                     .unitTest()
-                    .useProcessor(new UnitTestProcessor() {
+                    .defineTest(new UnitTest() {
                         @Override
                         public void unitTest(ProcessingEnvironment processingEnvironment, Element typeElement) {
                             processingEnvironment.getMessager().printMessage(Diagnostic.Kind.ERROR, "ERROR!");
                         }
                     })
                     .compilationShouldSucceed()
-                    .testCompilation();
+                    .executeTest();
 
             Assert.fail("Should have failed");
         } catch (AssertionError error) {
