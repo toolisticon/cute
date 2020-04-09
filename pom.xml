@@ -90,7 +90,7 @@
         <mockito.version>2.28.2</mockito.version>
 
         <!-- plugin versions -->
-        <animal-sniffer-maven-plugin.version>1.16</animal-sniffer-maven-plugin.version>
+        <animal-sniffer-maven-plugin.version>1.18</animal-sniffer-maven-plugin.version>
         <maven-assembly-plugin.version>2.4</maven-assembly-plugin.version>
         <maven-bundle-plugin.version>2.5.3</maven-bundle-plugin.version>
         <maven-failsafe-plugin.version>2.18.1</maven-failsafe-plugin.version>
@@ -417,7 +417,7 @@
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>animal-sniffer-maven-plugin</artifactId>
-                        <version>1.16</version>
+                        <version>1.18</version>
 
                         <configuration>
                             <excludeDependencies>
