@@ -93,7 +93,7 @@
         <!-- plugin versions -->
         <animal-sniffer-maven-plugin.version>1.16</animal-sniffer-maven-plugin.version>
         <maven-assembly-plugin.version>2.4</maven-assembly-plugin.version>
-        <maven-bundle-plugin.version>2.5.3</maven-bundle-plugin.version>
+        <maven-bundle-plugin.version>5.1.1</maven-bundle-plugin.version>
         <maven-failsafe-plugin.version>2.18.1</maven-failsafe-plugin.version>
         <maven-processor-plugin.version>2.2.4</maven-processor-plugin.version>
         <maven-surefire-plugin.version>2.18.1</maven-surefire-plugin.version>
