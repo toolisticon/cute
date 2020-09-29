@@ -5,8 +5,8 @@
     <packaging>pom</packaging>
 
     <parent>
-        <groupId>io.toolisticon.compiletesting</groupId>
-        <artifactId>compiletesting-parent</artifactId>
+        <groupId>io.toolisticon.cute</groupId>
+        <artifactId>cute-parent</artifactId>
         <version>0.8.0</version>
     </parent>
 
@@ -86,7 +86,7 @@
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
-                        <Export-Package>io.toolisticon.compiletesting.extension</Export-Package>
+                        <Export-Package>io.toolisticon.cute.extension</Export-Package>
                     </instructions>
                 </configuration>
             </plugin>

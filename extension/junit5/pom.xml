@@ -1,11 +1,12 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>extension-junit5</artifactId>
     <packaging>bundle</packaging>
 
     <parent>
-        <groupId>io.toolisticon.compiletesting</groupId>
+        <groupId>io.toolisticon.cute</groupId>
         <artifactId>extension-parent</artifactId>
         <version>0.8.0</version>
     </parent>
@@ -16,7 +17,7 @@
     <dependencies>
 
         <dependency>
-            <groupId>io.toolisticon.compiletesting</groupId>
+            <groupId>io.toolisticon.cute</groupId>
             <artifactId>extension-api</artifactId>
         </dependency>
 
@@ -50,7 +51,7 @@
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
-                        <Export-Package>io.toolisticon.compiletesting.extension.junit5</Export-Package>
+                        <Export-Package>io.toolisticon.cute.extension.junit5</Export-Package>
                     </instructions>
                 </configuration>
             </plugin>
@@ -77,7 +78,7 @@
                                         <exclude>*</exclude>
                                     </excludes>
                                     <includes>
-                                        <include>io.toolisticon.compiletesting:extension-api:*</include>
+                                        <include>io.toolisticon.cute:extension-api:*</include>
                                         <include>io.toolisticon.spiap:provided</include>
                                         <include>*:*:*:*:test:*</include>
                                         <include>*:*:*:*:provided:*</include>
@@ -104,7 +105,7 @@
                             <resources>
                                 <resource>
                                     <directory>target/generated-sources/annotations</directory>
-                                    <targetPath />
+                                    <targetPath/>
                                 </resource>
                             </resources>
                         </configuration>

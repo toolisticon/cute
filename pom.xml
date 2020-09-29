@@ -2,20 +2,20 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>io.toolisticon.compiletesting</groupId>
-    <artifactId>compiletesting-parent</artifactId>
+    <groupId>io.toolisticon.cute</groupId>
+    <artifactId>cute-parent</artifactId>
     <version>0.8.0</version>
     <packaging>pom</packaging>
 
-    <name>compiletesting-parent</name>
-    <description>Please refer to https://github.com/toolisticon/compile-testing</description>
-    <url>https://github.com/toolisticon/compile-testing</url>
+    <name>cute-parent</name>
+    <description>Please refer to https://github.com/toolisticon/cute</description>
+    <url>https://github.com/toolisticon/cute</url>
 
     <modules>
 
         <!-- modules -->
         <module>extension</module>
-        <module>compile-testing</module>
+        <module>cute</module>
         <module>integration-test</module>
 
     </modules>
@@ -58,15 +58,15 @@
 
 
     <issueManagement>
-        <url>https://github.com/toolisticon/compile-testing/issues</url>
+        <url>https://github.com/toolisticon/cute/issues</url>
         <system>GitHub Issues</system>
     </issueManagement>
 
     <scm>
-        <connection>scm:git:git@github.com:toolisticon/compile-testing.git</connection>
-        <developerConnection>scm:git:git@github.com:toolisticon/compile-testing.git</developerConnection>
-        <url>git@github.com:toolisticon/compile-testing.git</url>
-        <tag>compiletesting-parent-0.8.0</tag>
+        <connection>scm:git:git@github.com:toolisticon/cute.git</connection>
+        <developerConnection>scm:git:git@github.com:toolisticon/cute.git</developerConnection>
+        <url>git@github.com:toolisticon/cute.git</url>
+        <tag>cute-parent-0.8.0</tag>
     </scm>
 
     <properties>
@@ -149,7 +149,7 @@
                                         <exclude>*</exclude>
                                     </excludes>
                                     <includes>
-                                        <include>io.toolisticon.compiletesting:*</include>
+                                        <include>io.toolisticon.cute:*</include>
                                         <include>*:*:*:*:test:*</include>
                                         <include>*:*:*:*:provided:*</include>
                                     </includes>
@@ -213,7 +213,7 @@
                     <extensions>true</extensions>
                     <configuration>
                         <instructions>
-                            <Export-Package>io.toolisticon.compiletesting</Export-Package>
+                            <Export-Package>io.toolisticon.cute</Export-Package>
                         </instructions>
                     </configuration>
                     <version>${maven-bundle-plugin.version}</version>
@@ -431,7 +431,7 @@
 
                         <configuration>
                             <excludeDependencies>
-                                <excludeDependency>io.toolisticon.compiletesting:extension-modulesupport:*
+                                <excludeDependency>io.toolisticon.cute:extension-modulesupport:*
                                 </excludeDependency>
                             </excludeDependencies>
                         </configuration>
@@ -489,7 +489,7 @@
 
                         <configuration>
                             <excludeDependencies>
-                                <excludeDependency>io.toolisticon.compiletesting:extension-modulesupport:*
+                                <excludeDependency>io.toolisticon.cute:extension-modulesupport:*
                                 </excludeDependency>
                             </excludeDependencies>
                         </configuration>
@@ -587,31 +587,31 @@
 
             <!-- internal -->
             <dependency>
-                <groupId>io.toolisticon.compiletesting</groupId>
-                <artifactId>compiletesting</artifactId>
+                <groupId>io.toolisticon.cute</groupId>
+                <artifactId>cute</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>io.toolisticon.compiletesting</groupId>
+                <groupId>io.toolisticon.cute</groupId>
                 <artifactId>extension-parent</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>io.toolisticon.compiletesting</groupId>
+                <groupId>io.toolisticon.cute</groupId>
                 <artifactId>extension-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>io.toolisticon.compiletesting</groupId>
+                <groupId>io.toolisticon.cute</groupId>
                 <artifactId>extension-plainjava</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>io.toolisticon.compiletesting</groupId>
+                <groupId>io.toolisticon.cute</groupId>
                 <artifactId>extension-modulesupport</artifactId>
                 <version>${project.version}</version>
             </dependency>
