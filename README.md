@@ -1,8 +1,8 @@
-# TOOLISTICON Compile-Testing
+# TOOLISTICON CUTE - Compile-Time Unit Testing
 
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.toolisticon.compiletesting/compiletesting/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.toolisticon.compiletesting/compiletesting)
-![Build Status](https://github.com/toolisticon/compile-testing/workflows/default/badge.svg)
-[![codecov](https://codecov.io/gh/toolisticon/compile-testing/branch/master/graph/badge.svg)](https://codecov.io/gh/toolisticon/compile-testing)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.toolisticon.cute/cute/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.toolisticon.cute/cute)
+![Build Status](https://github.com/toolisticon/cute/workflows/default/badge.svg)
+[![codecov](https://codecov.io/gh/toolisticon/cute/branch/master/graph/badge.svg)](https://codecov.io/gh/toolisticon/cute)
 
 # Why you should use this project?
 Testing of annotation processors can be a very difficult task.
@@ -35,8 +35,8 @@ Simply add the following dependencies to your project to be able to use this tes
 
    <!-- Compile testing framework -->
        <dependency>
-       <groupId>io.toolisticon.compiletesting</groupId>
-       <artifactId>compiletesting</artifactId>
+       <groupId>io.toolisticon.cute</groupId>
+       <artifactId>cute</artifactId>
        <version>${currentVersion}</version>
        <scope>test</scope>
    </dependency>
@@ -47,7 +47,7 @@ Simply add the following dependencies to your project to be able to use this tes
        Per default assertion errors are thrown and handled as java.lang.AssertionError by most unit test frameworks.
    -->
    <dependency>
-       <groupId>io.toolisticon.compiletesting</groupId>
+       <groupId>io.toolisticon.cute</groupId>
        <artifactId>${extension-junit4, extension-junit5, extension-testng}</artifactId>
        <version>${currentVersion}</version>
        <scope>test</scope>
@@ -79,18 +79,19 @@ Compilation test allow you to define testcase source files and to apply your pro
 public void exampleCompilationTest() {
 
    CompileTestBuilder.compilationTest()
-           .addSources("/exampletestcase/Testcase1.java")
-           .addProcessors(YourProcessorUnderTest.class)
-           .compilationShouldSucceed()
-           .expectedWarningMessages("WARNING SNIPPET(will check if a warning exists that contains passed string)")
-           .expectedGeneratedSourceFileExists(
-                   "your.test.package.GeneratedFile", 
-                   JavaFileObjectUtils.readFromString("package your.test.package;\npublic class GeneratedFile{}"))
-           .testCompilation();
+       .addSources("/exampletestcase/Testcase1.java")
+       .addProcessors(YourProcessorUnderTest.class)
+       .compilationShouldSucceed()
+       .expectWarningMessageThatContains("WARNING SNIPPET(will check if a warning exists that contains passed string)")
+       .expectThatGeneratedSourceFileExists(
+               "your.test.package.GeneratedFile",
+               JavaFileObjectUtils.readFromString("package your.test.package;\npublic class GeneratedFile{}"))
+       .executeTest();
+
 }
 ```
 
-Additionally to the explicitely configured assertions it implicitly checks if your annotation processor has been applied and triggers an AssertionError if not.
+Additionally, to the explicitly configured assertions it implicitly checks if your annotation processor has been applied and triggers an AssertionError if not.
 
 
 
@@ -110,21 +111,26 @@ Your unit test code can be declared via the fluent api:
 @Test
 public void exampleUnitTest() {
 
-    CompileTestBuilder.unitTest().useProcessor(SampleProcesssor.class, new UnitTestProcessorForTestingAnnotationProcessors<SampleProcesssor>() {
-        @Override
-        public void unitTest(SampleProcesssor unit, ProcessingEnvironment processingEnvironment, TypeElement typeElement) {
+    CompileTestBuilder.unitTest()
+        .defineTest(SampleProcesssor.class, new UnitTestForTestingAnnotationProcessors<SampleProcesssor,TypeElement>() {
+            @Override
+            public void unitTest(SampleProcesssor unit, ProcessingEnvironment processingEnvironment, TypeElement typeElement) {
 
-            // AbstractProcessor.init() method was called by compiletesting framework                    
-            String result = unit.yourMethodToTest("ABC");
+                // Processor's init() method was called by cute framework
+                String result = unit.yourMethodToTest("ABC");
 
-            // AssertionErrors will be passed through your external unit test function
-            MatcherAssert.assertThat(result, Matchers.is("EXPECTED RESULT"));
+                // AssertionErrors will be passed through your external unit test function
+                MatcherAssert.assertThat(result, Matchers.is("EXPECTED RESULT"));
 
-        }
-    })
-    .compilationShouldSucceed()
-    .expectedWarningMessages("WARNING SNIPPET(will check if a warning exists that contains passed string)")
-    .testCompilation();
+            }
+        })
+        .compilationShouldSucceed()
+        .expectWarningMessage()
+            .atSource("/YourClass.java")
+            .atLineNumber(10L)
+            .atColumnNumber(20L)
+            .thatContains("WARNING SNIPPET(will check if a warning exists that contains passed string)")
+        .executeTest();
     
 }
 ```
