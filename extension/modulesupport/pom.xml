@@ -119,7 +119,7 @@
                     <target>9</target>
                 </configuration>
             </plugin>
-
+<!--
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>animal-sniffer-maven-plugin</artifactId>
@@ -127,7 +127,7 @@
                     <skip>true</skip>
                 </configuration>
             </plugin>
-
+-->
 
         </plugins>
 
