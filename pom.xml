@@ -91,7 +91,7 @@
         <mockito.version>2.28.2</mockito.version>
 
         <!-- plugin versions -->
-        <!--<animal-sniffer-maven-plugin.version>1.16</animal-sniffer-maven-plugin.version>-->
+        <animal-sniffer-maven-plugin.version>1.16</animal-sniffer-maven-plugin.version>
         <maven-assembly-plugin.version>2.4</maven-assembly-plugin.version>
         <maven-bundle-plugin.version>2.5.3</maven-bundle-plugin.version>
         <maven-failsafe-plugin.version>2.18.1</maven-failsafe-plugin.version>
@@ -231,7 +231,7 @@
                 <plugin>
                     <groupId>org.jacoco</groupId>
                     <artifactId>jacoco-maven-plugin</artifactId>
-                    <version>0.8.2</version>
+                    <version>${jacoco-maven-plugin.version}</version>
                 </plugin>
 
                 <plugin>
@@ -255,73 +255,6 @@
                     <version>${maven-assembly-plugin.version}</version>
                 </plugin>
 
-                <!-- gitflow -->
-                <plugin>
-                    <groupId>com.amashchenko.maven.plugin</groupId>
-                    <artifactId>gitflow-maven-plugin</artifactId>
-                    <version>1.14.0</version>
-                    <configuration>
-                        <gitFlowConfig>
-                            <productionBranch>master</productionBranch>
-                            <developmentBranch>develop</developmentBranch>
-                            <featureBranchPrefix>feature/</featureBranchPrefix>
-                            <releaseBranchPrefix>release/</releaseBranchPrefix>
-                            <hotfixBranchPrefix>hotfix/</hotfixBranchPrefix>
-                            <supportBranchPrefix>support/</supportBranchPrefix>
-                            <origin>origin</origin>
-                        </gitFlowConfig>
-                        <useSnapshotInHotfix>true</useSnapshotInHotfix>
-                        <useSnapshotInRelease>true</useSnapshotInRelease>
-                        <keepBranch>false</keepBranch>
-                        <pushRemote>true</pushRemote>
-                    </configuration>
-                </plugin>
-
-                <!-- To sign the artifacts -->
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-gpg-plugin</artifactId>
-                    <version>1.6</version>
-                    <configuration>
-                        <keyname>${gpg.keyname}</keyname>
-                        <gpgArguments>
-                            <arg>--batch</arg>
-                            <arg>--yes</arg>
-                            <arg>--pinentry-mode</arg>
-                            <arg>loopback</arg>
-                        </gpgArguments>
-                    </configuration>
-                    <executions>
-                        <execution>
-                            <id>sign-artifacts</id>
-                            <phase>verify</phase>
-                            <goals>
-                                <goal>sign</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
-
-                <plugin>
-                    <groupId>org.sonatype.plugins</groupId>
-                    <artifactId>nexus-staging-maven-plugin</artifactId>
-                    <version>1.6.8</version>
-                    <configuration>
-                        <autoReleaseAfterClose>true</autoReleaseAfterClose>
-                        <serverId>sonatype-nexus-staging</serverId>
-                        <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-                    </configuration>
-                    <executions>
-                        <execution>
-                            <id>default-deploy</id>
-                            <phase>deploy</phase>
-                            <goals>
-                                <goal>deploy</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
-
             </plugins>
         </pluginManagement>
     </build>
@@ -338,7 +271,6 @@
                         <artifactId>maven-javadoc-plugin</artifactId>
                         <configuration>
                             <additionalparam>-Xdoclint:none</additionalparam>
-                            <source>8</source>
                         </configuration>
                     </plugin>
                 </plugins>
@@ -425,7 +357,7 @@
 
                 <plugins>
 
-                    <!--
+
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>animal-sniffer-maven-plugin</artifactId>
@@ -454,7 +386,7 @@
 
                                     <signature>
                                         <groupId>org.codehaus.mojo.signature</groupId>
-                                        <artifactId>java16</artifactId>
+                                        <artifactId>java17</artifactId>
                                         <version>1.0</version>
                                     </signature>
 
@@ -466,8 +398,6 @@
 
 
                     </plugin>
-
-                    -->
 
                 </plugins>
 
@@ -486,11 +416,11 @@
 
                 <plugins>
 
-                    <!--
+
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>animal-sniffer-maven-plugin</artifactId>
-                        <version>1.16</version>
+                        <version>1.17</version>
 
                         <configuration>
                             <excludeDependencies>
@@ -514,7 +444,7 @@
 
                                     <signature>
                                         <groupId>org.codehaus.mojo.signature</groupId>
-                                        <artifactId>java16</artifactId>
+                                        <artifactId>java17</artifactId>
                                         <version>1.0</version>
                                     </signature>
 
@@ -528,44 +458,14 @@
 
                     </plugin>
 
-                    -->
+
 
                 </plugins>
 
 
             </build>
         </profile>
-        <!--
-            Profile creating all artifacts: JARs, POMs, Sources, JavaDoc and all signatures.
-        -->
-        <profile>
-            <id>release</id>
-            <activation>
-                <property>
-                    <name>release</name>
-                </property>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>build-helper-maven-plugin</artifactId>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-source-plugin</artifactId>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-gpg-plugin</artifactId>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.sonatype.plugins</groupId>
-                        <artifactId>nexus-staging-maven-plugin</artifactId>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
+
 
 
     </profiles>
