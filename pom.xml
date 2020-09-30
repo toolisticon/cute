@@ -99,7 +99,7 @@
         <maven-surefire-plugin.version>2.18.1</maven-surefire-plugin.version>
 
 
-        <maven-javadoc-plugin.version>3.1.0</maven-javadoc-plugin.version>
+        <maven-javadoc-plugin.version>2.10.4s</maven-javadoc-plugin.version>
 
 
     </properties>
