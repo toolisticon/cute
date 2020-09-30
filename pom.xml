@@ -100,7 +100,7 @@
         <jacoco-maven-plugin.version>0.8.5</jacoco-maven-plugin.version>
 
 
-        <maven-javadoc-plugin.version>2.10.4s</maven-javadoc-plugin.version>
+        <maven-javadoc-plugin.version>2.10.4</maven-javadoc-plugin.version>
 
 
     </properties>
