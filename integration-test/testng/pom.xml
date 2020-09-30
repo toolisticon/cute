@@ -5,9 +5,9 @@
     <packaging>bundle</packaging>
 
     <parent>
-        <groupId>io.toolisticon.compiletesting</groupId>
+        <groupId>io.toolisticon.cute</groupId>
         <artifactId>integration-test-parent</artifactId>
-        <version>0.8.0</version>
+        <version>0.9.0</version>
     </parent>
 
     <name>integration-test-testng</name>
@@ -16,12 +16,12 @@
     <dependencies>
 
         <dependency>
-            <groupId>io.toolisticon.compiletesting</groupId>
-            <artifactId>compiletesting</artifactId>
+            <groupId>io.toolisticon.cute</groupId>
+            <artifactId>cute</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>io.toolisticon.compiletesting</groupId>
+            <groupId>io.toolisticon.cute</groupId>
             <artifactId>extension-testng</artifactId>
             <version>${project.version}</version>
         </dependency>

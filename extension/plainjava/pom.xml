@@ -5,9 +5,9 @@
     <packaging>bundle</packaging>
 
     <parent>
-        <groupId>io.toolisticon.compiletesting</groupId>
+        <groupId>io.toolisticon.cute</groupId>
         <artifactId>extension-parent</artifactId>
-        <version>0.8.0</version>
+        <version>0.9.0</version>
     </parent>
 
     <name>extension-plainjava</name>
@@ -16,7 +16,7 @@
     <dependencies>
 
         <dependency>
-            <groupId>io.toolisticon.compiletesting</groupId>
+            <groupId>io.toolisticon.cute</groupId>
             <artifactId>extension-api</artifactId>
         </dependency>
 
@@ -43,7 +43,7 @@
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
-                        <Export-Package>io.toolisticon.compiletesting.extension.plainjava</Export-Package>
+                        <Export-Package>io.toolisticon.cute.extension.plainjava</Export-Package>
                     </instructions>
                 </configuration>
             </plugin>
@@ -70,7 +70,7 @@
                                         <exclude>*</exclude>
                                     </excludes>
                                     <includes>
-                                        <include>io.toolisticon.compiletesting:extension-api:*</include>
+                                        <include>io.toolisticon.cute:extension-api:*</include>
                                         <include>io.toolisticon.spiap:provided</include>
                                         <include>*:*:*:*:test:*</include>
                                         <include>*:*:*:*:provided:*</include>
