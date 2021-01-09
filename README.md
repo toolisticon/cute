@@ -82,7 +82,11 @@ public void exampleCompilationTest() {
        .addSources("/exampletestcase/Testcase1.java")
        .addProcessors(YourProcessorUnderTest.class)
        .compilationShouldSucceed()
-       .expectWarningMessageThatContains("WARNING SNIPPET(will check if a warning exists that contains passed string)")
+       .expectWarningMessage()
+            .atSource("/exampletestcase/Testcase1.java")
+            .atLineNumber(10L)
+            .atColumnNumber(20L)
+            .thatContains("WARNING SNIPPET(will check if a warning exists that contains passed string)")
        .expectThatGeneratedSourceFileExists(
                "your.test.package.GeneratedFile",
                JavaFileObjectUtils.readFromString("package your.test.package;\npublic class GeneratedFile{}"))
@@ -126,9 +130,6 @@ public void exampleUnitTest() {
         })
         .compilationShouldSucceed()
         .expectWarningMessage()
-            .atSource("/YourClass.java")
-            .atLineNumber(10L)
-            .atColumnNumber(20L)
             .thatContains("WARNING SNIPPET(will check if a warning exists that contains passed string)")
         .executeTest();
     
@@ -137,9 +138,68 @@ public void exampleUnitTest() {
  
 Besides that it's also possible to add an assertion if an expected exception has been thrown.
 
-Additionally you have compile time model access for all classes residing in your classpath (including all test classes), which allows you to setup test classes easily, for example by adding classes to your src/test/java folder or by adding static inner classes to your unit test class.
- 
- 
+Additionally, you have compile time model access for all classes residing in your classpath (including all test classes), which allows you to setup test classes easily, for example by adding classes to your src/test/java folder or by adding static inner classes to your unit test class.
+
+## Passing elements and annotation processor into unit tests 
+Another cute feature is that it's possible to easily pass in elements and even annotation processors into the unit test. 
+
+For passing in elements all you need to do is to create a static class next to your unit tests and to add the _PassIn_ annotation on the element you want to pass in.
+The static class then can be used as parameter in _defineTestWithPassedInElement_ method.
+
+Additional you can pass in an annotation processor by using the annotation processor class  as a parameter in _defineTestWithPassedInElement_ method.
+An instance of the annotation processor will be created and initialized.
+
+```java
+    private static class PassedInElement {
+        // Add your custom code like
+        @PassIn
+        void yourMethodToBePassedIn(){
+        }   
+    }
+    
+    // Example 1 : Pass in element
+    @Test
+    public void yourUnitTestWithPassedInElement() {
+
+        CompileTestBuilder
+                .unitTest()
+                .defineTestWithPassedInElement(PassedInElement.class, new UnitTest<ExecutableElement>() {
+                    @Override
+                    public void unitTest(ProcessingEnvironment processingEnvironment, ExecutableElement element) {
+
+                        // put your unit test code
+
+                    }
+                })
+                .compilationShouldSucceed()
+                .executeTest();
+
+
+    }
+
+    // Example 2 : Pass in annotation processor and element
+    // The processor will be instantiated and initialized
+    @Test
+    public void yourUnitTestWithPassedInElementAndProcessor() {
+
+        CompileTestBuilder
+                .unitTest()
+                .defineTestWithPassedInElement(YourProcessorToTest.class, PassedInElement.class, new UnitTestForTestingAnnotationProcessors<YourProcessorToTest, ExecutableElement>() {
+                    @Override
+                    public void unitTest(YourProcessorToTest unit, ProcessingEnvironment processingEnvironment, ExecutableElement element) {
+
+                        // put your unit test code
+                        String result = unit.methodToTest(element);
+                        MatcherAssert.assertThat(result, Matchers.is("EXPECTED RESULT"));
+
+                    }
+                })
+                .compilationShouldSucceed()
+                .executeTest();
+
+
+    }
+```
  
 # Projects using this toolkit library
 

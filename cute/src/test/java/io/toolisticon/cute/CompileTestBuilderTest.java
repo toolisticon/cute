@@ -21,6 +21,8 @@ import javax.tools.JavaFileObject;
 import javax.tools.StandardLocation;
 import java.io.IOException;
 import java.io.Writer;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -79,6 +81,61 @@ public class CompileTestBuilderTest {
                     public void unitTest(SimpleTestProcessor1 unit, ProcessingEnvironment processingEnvironment, TypeElement typeElement) {
 
                         MatcherAssert.assertThat(unit.getProcessingEnvironment(), Matchers.equalTo(processingEnvironment));
+
+                    }
+                })
+                .compilationShouldSucceed()
+                .executeTest();
+
+
+    }
+
+    @PassIn
+    private static class PassInProcessorAndElement {
+
+    }
+
+    @Test
+    public void test_UnitTest_successfulCompilation_withInitializedProcessorUnderTestAndPassIn_build() {
+
+        CompileTestBuilder
+                .unitTest()
+                .defineTestWithPassedInElement(SimpleTestProcessor1.class, PassInProcessorAndElement.class, new UnitTestForTestingAnnotationProcessors<SimpleTestProcessor1, TypeElement>() {
+                    @Override
+                    public void unitTest(SimpleTestProcessor1 unit, ProcessingEnvironment processingEnvironment, TypeElement typeElement) {
+
+                        MatcherAssert.assertThat(typeElement, Matchers.notNullValue());
+                        MatcherAssert.assertThat(typeElement.getQualifiedName().toString(), Matchers.is(PassInProcessorAndElement.class.getCanonicalName()));
+
+                    }
+                })
+                .compilationShouldSucceed()
+                .executeTest();
+
+
+    }
+
+    @Retention(RetentionPolicy.RUNTIME)
+    private static @interface CustomPassInAnnotation {
+
+    }
+
+    @CustomPassInAnnotation
+    private static class PassInProcessorAndElementWithCustomAnnotation {
+
+    }
+
+    @Test
+    public void test_UnitTest_successfulCompilation_withInitializedProcessorUnderTestAndPassInWithCustomAnnotation_build() {
+
+        CompileTestBuilder
+                .unitTest()
+                .defineTestWithPassedInElement(SimpleTestProcessor1.class, PassInProcessorAndElementWithCustomAnnotation.class, CustomPassInAnnotation.class, new UnitTestForTestingAnnotationProcessors<SimpleTestProcessor1, TypeElement>() {
+                    @Override
+                    public void unitTest(SimpleTestProcessor1 unit, ProcessingEnvironment processingEnvironment, TypeElement typeElement) {
+
+                        MatcherAssert.assertThat(typeElement, Matchers.notNullValue());
+                        MatcherAssert.assertThat(typeElement.getQualifiedName().toString(), Matchers.is(PassInProcessorAndElementWithCustomAnnotation.class.getCanonicalName()));
 
                     }
                 })

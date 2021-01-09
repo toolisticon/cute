@@ -7,6 +7,7 @@ import javax.tools.Diagnostic;
 import javax.tools.FileObject;
 import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
+import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -493,6 +494,51 @@ public class CompileTestConfiguration {
         }
     }
 
+    public class PassInConfiguration {
+        private final Class<?> passedInClass;
+        private final Class<? extends Annotation> annotationToScanFor;
+
+        public PassInConfiguration(Class<?> passedInClass, Class<? extends Annotation> annotationToScanFor) {
+            this.passedInClass = passedInClass;
+            this.annotationToScanFor = annotationToScanFor;
+        }
+
+        public Class<?> getPassedInClass() {
+            return passedInClass;
+        }
+
+        public Class<? extends Annotation> getAnnotationToScanFor() {
+            return annotationToScanFor;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            PassInConfiguration that = (PassInConfiguration) o;
+
+            if (passedInClass != null ? !passedInClass.equals(that.passedInClass) : that.passedInClass != null)
+                return false;
+            return annotationToScanFor != null ? annotationToScanFor.equals(that.annotationToScanFor) : that.annotationToScanFor == null;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = passedInClass != null ? passedInClass.hashCode() : 0;
+            result = 31 * result + (annotationToScanFor != null ? annotationToScanFor.hashCode() : 0);
+            return result;
+        }
+
+        @Override
+        public String toString() {
+            return "PassInConfiguration{" +
+                    "passedInClass=" + passedInClass +
+                    ", annotationToScanFor=" + annotationToScanFor +
+                    '}';
+        }
+    }
+
     /**
      * The compiler options to use.
      */
@@ -537,6 +583,11 @@ public class CompileTestConfiguration {
      * Compilation succeeded or not
      */
     private Boolean compilationShouldSucceed;
+
+    /**
+     * The pass in configuration for unit tests.
+     */
+    private PassInConfiguration passInConfiguration;
 
     /**
      * Compiler Message checks.
@@ -586,6 +637,8 @@ public class CompileTestConfiguration {
 
         this.generatedJavaFileObjectChecks.addAll(source.getGeneratedJavaFileObjectChecks());
         this.generatedFileObjectChecks.addAll(source.getGeneratedFileObjectChecks());
+
+        this.passInConfiguration = source.passInConfiguration;
 
     }
 
@@ -708,6 +761,10 @@ public class CompileTestConfiguration {
 
     public void setExpectedThrownException(Class<? extends Throwable> expectedThrownException) {
         this.expectedThrownException = expectedThrownException;
+    }
+
+    public void setPassInConfiguration(Class<?> passedInClass, Class<? extends Annotation> annotationToScanFor) {
+        this.passInConfiguration = passedInClass == null ? null : new PassInConfiguration(passedInClass, annotationToScanFor);
     }
 
     public List<String> getCompilerOptions() {
@@ -844,9 +901,14 @@ public class CompileTestConfiguration {
         return expectedThrownException;
     }
 
+    public PassInConfiguration getPassInConfiguration() {
+        return passInConfiguration;
+    }
+
     public static CompileTestConfiguration cloneConfiguration(CompileTestConfiguration compileTestConfiguration) {
         return new CompileTestConfiguration(compileTestConfiguration);
     }
+
 
     @Override
     public String toString() {
@@ -862,6 +924,7 @@ public class CompileTestConfiguration {
                 ",\n\t compilerMessageChecks=" + compilerMessageChecks +
                 ",\n\t generatedJavaFileObjectChecks=" + generatedJavaFileObjectChecks +
                 ",\n\t generatedFileObjectChecks=" + generatedFileObjectChecks +
+                ",\n\t passInConfiguration=" + passInConfiguration +
                 "\n" +
                 '}';
     }
