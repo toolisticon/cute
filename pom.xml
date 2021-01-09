@@ -4,7 +4,7 @@
 
     <groupId>io.toolisticon.cute</groupId>
     <artifactId>cute-parent</artifactId>
-    <version>0.10.0</version>
+    <version>0.10.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>cute-parent</name>
