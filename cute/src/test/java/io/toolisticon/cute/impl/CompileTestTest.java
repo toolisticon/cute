@@ -5,6 +5,7 @@ import io.toolisticon.cute.Constants;
 import io.toolisticon.cute.GeneratedFileObjectMatcher;
 import io.toolisticon.cute.InvalidTestConfigurationException;
 import io.toolisticon.cute.JavaFileObjectUtils;
+import io.toolisticon.cute.PassIn;
 import io.toolisticon.cute.TestUtilities;
 import io.toolisticon.cute.UnitTest;
 import org.hamcrest.MatcherAssert;
@@ -14,6 +15,9 @@ import org.junit.Test;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.VariableElement;
 import javax.tools.Diagnostic;
 import javax.tools.FileObject;
 import javax.tools.JavaFileObject;
@@ -162,7 +166,7 @@ public class CompileTestTest {
     }
 
     @Test
-    public void executeTest_expectedComiplationShouldHaveSucceededButFailed() {
+    public void executeTest_expectedCompilationShouldHaveSucceededButFailed() {
         boolean assertionErrorWasThrown = false;
         try {
 
@@ -212,4 +216,125 @@ public class CompileTestTest {
 
     }
 
+    private static class PassInTestClass_MethodParameter {
+
+        public void testMethod(@PassIn String attribute) {
+
+        }
+
+    }
+
+    @Test
+    public void executeTest_expectedPassInToWork_withMethodParameter() {
+
+
+        CompileTestBuilder.unitTest()
+                .defineTestWithPassedInElement(PassInTestClass_MethodParameter.class, new UnitTest<VariableElement>() {
+                    @Override
+                    public void unitTest(ProcessingEnvironment processingEnvironment, VariableElement element) {
+
+                        MatcherAssert.assertThat(element, Matchers.notNullValue());
+                        MatcherAssert.assertThat(element.getKind(), Matchers.is(ElementKind.PARAMETER));
+
+
+                    }
+                })
+                .compilationShouldSucceed()
+                .executeTest();
+
+
+    }
+
+    private static class PassInTestClass_ConstructorParameter {
+
+        public PassInTestClass_ConstructorParameter(@PassIn String attribute) {
+
+        }
+
+    }
+
+    @Test
+    public void executeTest_expectedPassInToWork_withConstructorParameter() {
+
+
+        CompileTestBuilder.unitTest()
+                .defineTestWithPassedInElement(PassInTestClass_ConstructorParameter.class, new UnitTest<VariableElement>() {
+                    @Override
+                    public void unitTest(ProcessingEnvironment processingEnvironment, VariableElement element) {
+
+                        MatcherAssert.assertThat(element, Matchers.notNullValue());
+                        MatcherAssert.assertThat(element.getKind(), Matchers.is(ElementKind.PARAMETER));
+
+                    }
+                })
+                .compilationShouldSucceed()
+                .executeTest();
+
+
+    }
+
+    private static class PassInTestClass_Constructor {
+
+        @PassIn
+        public PassInTestClass_Constructor(String attribute) {
+
+        }
+
+    }
+
+    @Test
+    public void executeTest_expectedPassInToWork_withConstructor() {
+
+
+        CompileTestBuilder.unitTest()
+                .defineTestWithPassedInElement(PassInTestClass_Constructor.class, new UnitTest<ExecutableElement>() {
+                    @Override
+                    public void unitTest(ProcessingEnvironment processingEnvironment, ExecutableElement element) {
+
+                        MatcherAssert.assertThat(element, Matchers.notNullValue());
+                        MatcherAssert.assertThat(element.getParameters(), Matchers.hasSize(1));
+                        MatcherAssert.assertThat(element.getKind(), Matchers.is(ElementKind.CONSTRUCTOR));
+
+                    }
+                })
+                .compilationShouldSucceed()
+                .executeTest();
+
+
+    }
+
+    @PassIn
+    private static class PassInTestClass_WithMultiplePassInAnnotations {
+
+        @PassIn
+        public PassInTestClass_WithMultiplePassInAnnotations(String attribute) {
+
+        }
+
+    }
+
+    @Test
+    public void executeTest_expectedPassInToFail_withMultiplePassInAnnotations() {
+
+        boolean assertionErrorWasThrown = false;
+        try {
+            CompileTestBuilder.unitTest()
+                    .defineTestWithPassedInElement(PassInTestClass_WithMultiplePassInAnnotations.class, new UnitTest<ExecutableElement>() {
+                        @Override
+                        public void unitTest(ProcessingEnvironment processingEnvironment, ExecutableElement element) {
+
+                        }
+                    })
+                    .compilationShouldSucceed()
+                    .executeTest();
+
+        } catch (AssertionError e) {
+            TestUtilities.assertAssertionMessageContainsMessageTokensAssertion(e, Constants.Messages.UNIT_TEST_PASS_IN_PRECONDITION_MUST_FIND_EXACTLY_ONE_ELEMENT.getMessagePattern());
+            assertionErrorWasThrown = true;
+
+        }
+
+        MatcherAssert.assertThat("AssertionError about 'expecting compilation to fail but was successful' should have been thrown", assertionErrorWasThrown);
+
+    }
 }

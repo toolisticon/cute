@@ -671,8 +671,8 @@ public class CompileTestBuilder {
          * <p>
          * So please make sure that the {@link TestAnnotation} is used exactly once, when you are using a custom source files
          *
-         * @param unitTest the processor to use
-         * @param <ELEMENT_TYPE>    The expected element type (Must be TypeElement, if no custom source files are used)
+         * @param unitTest       the processor to use
+         * @param <ELEMENT_TYPE> The expected element type (Must be TypeElement, if no custom source files are used)
          * @return the UnitTestBuilder instance
          * @throws IllegalArgumentException if passed processor is null.
          * @throws IllegalStateException    if more than one Element is found or if ELEMENT_TYPE doesn't match type of the found element
@@ -687,12 +687,12 @@ public class CompileTestBuilder {
          * <p>
          * The {@link javax.annotation.processing.ProcessingEnvironment} and an Element of type ELEMENT_TYPE will passed to the UnitTestProcessor.unitTest method.
          * <p>
-         * The {@link TestAnnotation} will be used to look up this Element during.
+         * The passed customAnnotationTyoe will be used to look up this Element.
          * <p>
-         * So please make sure that the {@link TestAnnotation} is used exactly once, when you are using a custom source files
+         * So please make sure that the customAnnotationTyoe annotation is used exactly once in your custom source file that.
          *
          * @param customAnnotationType the annotation type to search the element for
-         * @param unitTest    the processor to use
+         * @param unitTest             the processor to use
          * @param <ELEMENT_TYPE>       The expected element type (Must be TypeElement, if no custom source files are used)
          * @return the UnitTestBuilder instance
          * @throws IllegalArgumentException if passed processor is null.
@@ -718,6 +718,62 @@ public class CompileTestBuilder {
         }
 
         /**
+         * Allows writing of unit tests.
+         * You can pass in a {@link UnitTest} instance that contains your test code in it's unitTest method.
+         * <p>
+         * The {@link javax.annotation.processing.ProcessingEnvironment} and an Element of type ELEMENT_TYPE will passed to the UnitTestProcessor.unitTest method.
+         * <p>
+         * The {@link PassIn} will be used to look up this Element.
+         * <p>
+         *
+         * @param classToScan    the class to search element annotated with {@link PassIn}
+         * @param unitTest       the processor to use
+         * @param <ELEMENT_TYPE> The expected element type (Must be TypeElement, if no custom source files are used)
+         * @return the UnitTestBuilder instance
+         * @throws IllegalArgumentException if passed processor is null.
+         * @throws IllegalStateException    if more than one Element is found or if ELEMENT_TYPE doesn't match type of the found element
+         */
+        public <ELEMENT_TYPE extends Element> UnitTestBuilder defineTestWithPassedInElement(Class<?> classToScan, UnitTest<ELEMENT_TYPE> unitTest) {
+            return defineTestWithPassedInElement(classToScan, PassIn.class, unitTest);
+        }
+
+        /**
+         * Allows writing of unit tests.
+         * You can pass in a {@link UnitTest} instance that contains your test code in it's unitTest method.
+         * <p>
+         * The {@link javax.annotation.processing.ProcessingEnvironment} and an Element of type ELEMENT_TYPE will passed to the UnitTestProcessor.unitTest method.
+         * <p>
+         * The {@link PassIn} will be used to look up this Element.
+         * <p>
+         *
+         * @param classToScan        the class to search element annotated with annotationToSearch
+         * @param annotationToSearch the annotation type to search for
+         * @param unitTest           the processor to use
+         * @param <ELEMENT_TYPE>     The expected element type (Must be TypeElement, if no custom source files are used)
+         * @return the UnitTestBuilder instance
+         * @throws IllegalArgumentException if passed processor is null.
+         * @throws IllegalStateException    if more than one Element is found or if ELEMENT_TYPE doesn't match type of the found element
+         */
+        public <ELEMENT_TYPE extends Element> UnitTestBuilder defineTestWithPassedInElement(Class<?> classToScan, Class<? extends Annotation> annotationToSearch, UnitTest<ELEMENT_TYPE> unitTest) {
+
+            if (unitTest == null) {
+                throw new IllegalArgumentException(Constants.Messages.IAE_PASSED_PARAMETER_MUST_NOT_BE_NULL.produceMessage("unitTestProcessor"));
+            }
+
+            if (classToScan == null) {
+                throw new IllegalArgumentException(Constants.Messages.IAE_PASSED_PARAMETER_MUST_NOT_BE_NULL.produceMessage("classToScan"));
+            }
+
+            CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
+
+            // remove existing processor
+            nextConfiguration.getProcessors().clear();
+            nextConfiguration.addProcessors(new UnitTestAnnotationProcessorClassWithPassIn<ELEMENT_TYPE>(classToScan, annotationToSearch != null ? annotationToSearch : PassIn.class, unitTest));
+
+            return createNextInstance(nextConfiguration);
+        }
+
+        /**
          * Allows unit
          * Provides a specific processor instance that can be used for unit testing.
          * Additionally it provides an element
@@ -727,10 +783,10 @@ public class CompileTestBuilder {
          * The processor should support {@link TestAnnotation} annotation processing if no custom source file is defined.
          * If custom source is used make sure {@link TestAnnotation} is used somewhere in the custom source file to make sure if annotation processor is used.
          *
-         * @param processorUnderTestClass                         the Processor which should be provided as a
+         * @param processorUnderTestClass                the Processor which should be provided as a
          * @param unitTestForTestingAnnotationProcessors the processor to use
-         * @param <PROCESSOR_UNDER_TEST>                          The processor type under test
-         * @param <ELEMENT_TYPE>                                  The expected element type to be processed
+         * @param <PROCESSOR_UNDER_TEST>                 The processor type under test
+         * @param <ELEMENT_TYPE>                         The expected element type to be processed
          * @return the UnitTestBuilder instance
          * @throws IllegalArgumentException if passed processor is null.
          * @throws IllegalStateException    if more than one Element is found or if ELEMENT_TYPE doesn't match type of the found element
@@ -745,11 +801,11 @@ public class CompileTestBuilder {
          * The processor should support annotation processing of passed annotation type if no custom source file is defined.
          * Please make sure to add a custom source files in which the customAnnotationType annotation is used exactly once.
          *
-         * @param processorUnderTestClass                         the Processor type
-         * @param customAnnotationType                            the custom annotation used to search the element to pass be passed in
+         * @param processorUnderTestClass                the Processor type
+         * @param customAnnotationType                   the custom annotation used to search the element to pass be passed in
          * @param unitTestForTestingAnnotationProcessors the processor to use
-         * @param <PROCESSOR_UNDER_TEST>                          The processor type under test
-         * @param <ELEMENT_TYPE>                                  The expected element type to be processed
+         * @param <PROCESSOR_UNDER_TEST>                 The processor type under test
+         * @param <ELEMENT_TYPE>                         The expected element type to be processed
          * @return the UnitTestBuilder instance
          * @throws IllegalArgumentException if passed processor or customAnnotationType is null.
          * @throws IllegalStateException    if more than one Element is found or if ELEMENT_TYPE doesn't match type of the found element
@@ -783,6 +839,67 @@ public class CompileTestBuilder {
             // remove existing processor
             nextConfiguration.getProcessors().clear();
             nextConfiguration.addProcessors(new UnitTestAnnotationProcessorClassForTestingAnnotationProcessors<PROCESSOR_UNDER_TEST, ELEMENT_TYPE>(processorUnderTest, customAnnotationType, unitTestForTestingAnnotationProcessors));
+
+            return createNextInstance(nextConfiguration);
+        }
+
+        /**
+         * Sets the processor to use.
+         * The processor should support annotation processing of passed annotation type if no custom source file is defined.
+         * Please make sure to add a custom source file in which the customAnnotationType annotation is used exactly once.
+         *
+         * @param processorUnderTestClass                the Processor type
+         * @param classToScan                            the type to search the PassIn element
+         * @param unitTestForTestingAnnotationProcessors the processor to use
+         * @param <PROCESSOR_UNDER_TEST>                 The processor type under test
+         * @param <ELEMENT_TYPE>                         The expected element type to be processed
+         * @return the UnitTestBuilder instance
+         * @throws IllegalArgumentException if passed processor or customAnnotationType is null.
+         * @throws IllegalStateException    if more than one Element is found or if ELEMENT_TYPE doesn't match type of the found element
+         */
+        public <PROCESSOR_UNDER_TEST extends Processor, ELEMENT_TYPE extends Element> UnitTestBuilder defineTestWithPassedInElement(Class<PROCESSOR_UNDER_TEST> processorUnderTestClass, Class<?> classToScan, UnitTestForTestingAnnotationProcessors<PROCESSOR_UNDER_TEST, ELEMENT_TYPE> unitTestForTestingAnnotationProcessors) {
+            return defineTestWithPassedInElement(processorUnderTestClass, classToScan, PassIn.class, unitTestForTestingAnnotationProcessors);
+        }
+
+        /**
+         * Sets the processor to use.
+         * The processor should support annotation processing of passed annotation type if no custom source file is defined.
+         * Please make sure to add a custom source file in which the customAnnotationType annotation is used exactly once.
+         *
+         * @param processorUnderTestClass                the Processor type
+         * @param classToScan                            the type to search the PassIn element
+         * @param annotationToSearch                     annotation to search
+         * @param unitTestForTestingAnnotationProcessors the processor to use
+         * @param <PROCESSOR_UNDER_TEST>                 The processor type under test
+         * @param <ELEMENT_TYPE>                         The expected element type to be processed
+         * @return the UnitTestBuilder instance
+         * @throws IllegalArgumentException if passed processor or customAnnotationType is null.
+         * @throws IllegalStateException    if more than one Element is found or if ELEMENT_TYPE doesn't match type of the found element
+         */
+        public <PROCESSOR_UNDER_TEST extends Processor, ELEMENT_TYPE extends Element> UnitTestBuilder defineTestWithPassedInElement(Class<PROCESSOR_UNDER_TEST> processorUnderTestClass, Class<?> classToScan, Class<? extends Annotation> annotationToSearch, UnitTestForTestingAnnotationProcessors<PROCESSOR_UNDER_TEST, ELEMENT_TYPE> unitTestForTestingAnnotationProcessors) {
+
+            if (unitTestForTestingAnnotationProcessors == null) {
+                throw new IllegalArgumentException(Constants.Messages.IAE_PASSED_PARAMETER_MUST_NOT_BE_NULL.produceMessage("unitTestProcessorForTestingAnnotationProcessors"));
+            }
+
+            if (processorUnderTestClass == null) {
+                throw new IllegalArgumentException(Constants.Messages.IAE_PASSED_PARAMETER_MUST_NOT_BE_NULL.produceMessage("processorUnderTestClass"));
+            }
+
+            CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
+
+            PROCESSOR_UNDER_TEST processorUnderTest = null;
+
+            try {
+                processorUnderTest = processorUnderTestClass.getDeclaredConstructor().newInstance();
+            } catch (Exception e) {
+                throw new IllegalArgumentException(Constants.Messages.IAE_CANNOT_INSTANTIATE_PROCESSOR.produceMessage(processorUnderTestClass.getCanonicalName()));
+            }
+
+
+            // remove existing processor
+            nextConfiguration.getProcessors().clear();
+            nextConfiguration.addProcessors(new UnitTestAnnotationProcessorClassForTestingAnnotationProcessorsWithPassIn<>(processorUnderTest, Constants.DEFAULT_ANNOTATION, classToScan, annotationToSearch, unitTestForTestingAnnotationProcessors));
 
             return createNextInstance(nextConfiguration);
         }

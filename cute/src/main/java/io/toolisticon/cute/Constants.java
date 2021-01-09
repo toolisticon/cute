@@ -35,6 +35,9 @@ public final class Constants {
         public final static Message UNIT_TEST_PRECONDITION_INCOMPATIBLE_ELEMENT_TYPE = new Message("PRECONDITION : Processed Element type doesn't match the one expected by your unit test processor");
         public final static Message UNIT_TEST_PRECONDITION_MUST_FIND_EXACTLY_ONE_ELEMENT = new Message("PRECONDITION: Expected to find exactly one element annotated with %s in processed sources files");
 
+        public final static Message UNIT_TEST_PASS_IN_PRECONDITION_MUST_FIND_EXACTLY_ONE_ELEMENT = new Message("PRECONDITION: Expected to find exactly one element annotated with %s in passed in class %s");
+
+
         public final static Message ASSERTION_GOT_UNEXPECTED_EXCEPTION_INSTEAD_OF_EXPECTED = new Message("Expected exception of type '%s' but exception of type '%s%s' was thrown instead.");
         public final static Message ASSERTION_GOT_UNEXPECTED_EXCEPTION = new Message("An unexpected exception of type '%s%s' has been thrown.");
         public final static Message ASSERTION_EXPECTED_EXCEPTION_NOT_THROWN = new Message("Expected exception of type '%s' to be thrown, but wasn't.");
