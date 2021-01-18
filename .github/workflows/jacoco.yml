@@ -33,7 +33,7 @@ jobs:
         run: ./mvnw clean install
 
       - name: Verify
-        run: ./mvnw verify -B -q
+        run: ./mvnw verify jacoco:report-aggregate -B -q
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1.0.2
