@@ -1,6 +1,5 @@
 package io.toolisticon.cute;
 
-import javax.annotation.processing.AbstractProcessor;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
@@ -13,7 +12,7 @@ import java.util.List;
 /**
  * Abstract base class for unit tests with passed in elements.
  */
-abstract class AbstractUnitTestAnnotationProcessorWithPassIn extends AbstractProcessor {
+abstract class AbstractUnitTestAnnotationProcessorWithPassIn extends AbstractUnitTestAnnotationProcessorClass {
 
 
     /**
@@ -26,13 +25,16 @@ abstract class AbstractUnitTestAnnotationProcessorWithPassIn extends AbstractPro
      */
     private final Class<? extends Annotation> annotationTypeUsedForScan;
 
-    AbstractUnitTestAnnotationProcessorWithPassIn(Class<?> classToScan, Class<? extends Annotation> annotationTypeUsedForScan) {
+    AbstractUnitTestAnnotationProcessorWithPassIn(Class<? extends Annotation> annotationTypeToUse, Class<?> classToScan, Class<? extends Annotation> annotationTypeUsedForScan) {
+        super(annotationTypeToUse);
+
         this.classToScan = classToScan;
         this.annotationTypeUsedForScan = annotationTypeUsedForScan;
     }
 
     /**
      * Gets the passed in element.
+     *
      * @return the passed in element
      */
     protected Element getPassedInElement() {

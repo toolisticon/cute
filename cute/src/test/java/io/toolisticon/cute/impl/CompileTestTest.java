@@ -337,4 +337,45 @@ public class CompileTestTest {
         MatcherAssert.assertThat("AssertionError about 'expecting compilation to fail but was successful' should have been thrown", assertionErrorWasThrown);
 
     }
+
+    @Test
+    public void executeTest_shouldThrowUnexpectedClassCastExceptionCorrectly() {
+
+        boolean assertionErrorWasThrown = false;
+        try {
+            CompileTestBuilder.unitTest()
+                    .defineTest(new UnitTest<Element>() {
+                        @Override
+                        public void unitTest(ProcessingEnvironment processingEnvironment, Element element) {
+                            throw new ClassCastException();
+                        }
+                    })
+                    .executeTest();
+
+        } catch (AssertionError e) {
+            TestUtilities.assertAssertionMessageContainsMessageTokensAssertion(e, Constants.Messages.ASSERTION_GOT_UNEXPECTED_EXCEPTION.getMessagePattern());
+            assertionErrorWasThrown = true;
+
+        }
+
+        MatcherAssert.assertThat("Should get unexpected ClassCastException assertion error", assertionErrorWasThrown);
+
+    }
+
+    @Test
+    public void executeTest_shouldHandleExpectedClassCastExceptionCorrectly() {
+
+
+        CompileTestBuilder.unitTest()
+                .defineTest(new UnitTest<Element>() {
+                    @Override
+                    public void unitTest(ProcessingEnvironment processingEnvironment, Element element) {
+                        throw new ClassCastException();
+                    }
+                })
+                .expectedThrownException(ClassCastException.class)
+                .executeTest();
+
+
+    }
 }

@@ -1,14 +1,11 @@
 package io.toolisticon.cute;
 
-import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.Processor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
-import javax.tools.Diagnostic;
 import java.lang.annotation.Annotation;
-import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -17,15 +14,8 @@ import java.util.Set;
  * @param <UNIT_PROCESSOR> the unit test processor to use
  * @param <ELEMENT_TYPE>   The expected type of the processed element
  */
-class UnitTestAnnotationProcessorClassForTestingAnnotationProcessors<UNIT_PROCESSOR extends Processor, ELEMENT_TYPE extends Element> extends AbstractProcessor {
+class UnitTestAnnotationProcessorClassForTestingAnnotationProcessors<UNIT_PROCESSOR extends Processor, ELEMENT_TYPE extends Element> extends AbstractUnitTestAnnotationProcessorClass {
 
-    private final Set<String> supportedAnnotationTypes = new HashSet<>();
-
-
-    /**
-     * The annotation type to search for.
-     */
-    private Class<? extends Annotation> annotationTypeToUse;
 
     /**
      * The unit test processor instance to use.
@@ -35,9 +25,8 @@ class UnitTestAnnotationProcessorClassForTestingAnnotationProcessors<UNIT_PROCES
 
 
     public UnitTestAnnotationProcessorClassForTestingAnnotationProcessors(UNIT_PROCESSOR processorUnderTest, Class<? extends Annotation> annotationTypeToUse, UnitTestForTestingAnnotationProcessors<UNIT_PROCESSOR, ELEMENT_TYPE> unitTestForTestingAnnotationProcessors) {
+        super(annotationTypeToUse);
         this.processorUnderTest = processorUnderTest;
-        this.annotationTypeToUse = annotationTypeToUse;
-        this.supportedAnnotationTypes.add(annotationTypeToUse.getCanonicalName());
         this.unitTestForTestingAnnotationProcessors = unitTestForTestingAnnotationProcessors;
     }
 
@@ -50,12 +39,6 @@ class UnitTestAnnotationProcessorClassForTestingAnnotationProcessors<UNIT_PROCES
     }
 
     @Override
-    public Set<String> getSupportedAnnotationTypes() {
-        return supportedAnnotationTypes;
-    }
-
-
-    @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
 
         // just try to execute tests if annotation is processed == annotations size is 1
@@ -63,29 +46,23 @@ class UnitTestAnnotationProcessorClassForTestingAnnotationProcessors<UNIT_PROCES
 
             Set<? extends Element> set = roundEnv.getElementsAnnotatedWith(annotationTypeToUse);
 
-            if (set.size() == 1) {
+            ELEMENT_TYPE element = (ELEMENT_TYPE) getElement(set);
 
-                try {
-                    unitTestForTestingAnnotationProcessors.unitTest(processorUnderTest, this.processingEnv, (ELEMENT_TYPE) set.iterator().next());
-                } catch (ClassCastException e) {
+            try {
+                unitTestForTestingAnnotationProcessors.unitTest(processorUnderTest, this.processingEnv, element);
+            } catch (ClassCastException e) {
+                if (e.getMessage() != null  && e.getMessage().contains("com.sun.tools.javac.code.Symbol$ClassSymbol")) {
                     throw new FailingAssertionException(Constants.Messages.UNIT_TEST_PRECONDITION_INCOMPATIBLE_ELEMENT_TYPE.produceMessage());
+                } else {
+                    throw e;
                 }
-
-            } else {
-
-                throw new AssertionError(Constants.Messages.UNIT_TEST_PRECONDITION_MUST_FIND_EXACTLY_ONE_ELEMENT.produceMessage(annotationTypeToUse.getCanonicalName()));
-
             }
+
 
         }
 
         return false;
     }
 
-    protected void triggerError(String message) {
-
-        this.processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, message);
-
-    }
 
 }

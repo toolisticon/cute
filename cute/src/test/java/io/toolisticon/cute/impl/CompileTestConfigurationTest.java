@@ -1,6 +1,7 @@
 package io.toolisticon.cute.impl;
 
 import io.toolisticon.cute.GeneratedFileObjectMatcher;
+import io.toolisticon.cute.TestAnnotation;
 import io.toolisticon.cute.common.SimpleTestProcessor1;
 import io.toolisticon.cute.common.SimpleTestProcessor2;
 import io.toolisticon.cute.common.SimpleTestProcessor3;
@@ -285,6 +286,20 @@ public class CompileTestConfigurationTest {
 
     private void assertGeneratedFileObjectChecks(CompileTestConfiguration configuration) {
         MatcherAssert.assertThat(configuration.getGeneratedFileObjectChecks(), Matchers.containsInAnyOrder(generatedFileObjectChecks3, generatedFileObjectChecks4));
+    }
+
+    @Test
+    public void passInConfigurationChecks_addAndGet() {
+
+        unit.setPassInConfiguration(CompileTestConfigurationTest.class, TestAnnotation.class);
+
+        // do assertion
+        assertPassInConfiguration(unit, CompileTestConfigurationTest.class, TestAnnotation.class);
+    }
+
+    private void assertPassInConfiguration(CompileTestConfiguration configuration, Class passedInClass, Class annotationToScanFor) {
+        MatcherAssert.assertThat(configuration.getPassInConfiguration().getPassedInClass(), Matchers.is(passedInClass));
+        MatcherAssert.assertThat(configuration.getPassInConfiguration().getAnnotationToScanFor(), Matchers.is(annotationToScanFor));
     }
 
     @Test

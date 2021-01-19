@@ -653,4 +653,72 @@ public class CompileTestBuilderTest {
 
     }
 
+    @Test
+    public void test_passInViaSourceCode_multipleAnnotated_withOnePassIn() {
+
+        CompileTestBuilder
+                .unitTest()
+                .useSource("/compiletests/passintest/PassInTestClass.java")
+                .<TypeElement>defineTest(new UnitTest<TypeElement>() {
+                    @Override
+                    public void unitTest(ProcessingEnvironment processingEnvironment, TypeElement element) {
+                        MatcherAssert.assertThat(element, Matchers.notNullValue());
+                        MatcherAssert.assertThat(element.getSimpleName().toString(), Matchers.is("InnerTestClass"));
+                    }
+                })
+                .executeTest();
+
+    }
+
+    @Test
+    public void test_passInViaSourceCode_multipleAnnotated_withoutPassIn() {
+
+        try {
+            CompileTestBuilder
+                    .unitTest()
+                    .useSource("/compiletests/passintest/PassInTestClassMultipleAnnotatedWithoutPassIn.java")
+                    .<TypeElement>defineTest(new UnitTest<TypeElement>() {
+                        @Override
+                        public void unitTest(ProcessingEnvironment processingEnvironment, TypeElement element) {
+                            throw new AssertionError("should have thrown assertion error!");
+                        }
+                    })
+                    .executeTest();
+
+        } catch (AssertionError e) {
+
+            MatcherAssert.assertThat(e.getMessage(), Matchers.containsString(String.format(Constants.Messages.UNIT_TEST_PRECONDITION_MUST_FIND_EXACTLY_ONE_ELEMENT.getMessagePattern(), TestAnnotation.class.getCanonicalName())));
+
+            return;
+        }
+
+        throw new AssertionError("Expected AssertionError to be thrown.");
+
+    }
+
+    @Test
+    public void test_passInViaSourceCode_multipleAnnotated_withMultiplePassIn() {
+
+        try {
+            CompileTestBuilder
+                    .unitTest()
+                    .useSource("/compiletests/passintest/PassInTestClassMultipleAnnotatedWithMultiplePassIn.java")
+                    .<TypeElement>defineTest(new UnitTest<TypeElement>() {
+                        @Override
+                        public void unitTest(ProcessingEnvironment processingEnvironment, TypeElement element) {
+                            throw new AssertionError("should have thrown assertion error!");
+                        }
+                    })
+                    .executeTest();
+
+        } catch (AssertionError e) {
+
+            MatcherAssert.assertThat(e.getMessage(), Matchers.containsString(String.format(Constants.Messages.UNIT_TEST_PRECONDITION_MUST_FIND_EXACTLY_ONE_ELEMENT_WITH_PASSIN_ANNOTATION.getMessagePattern(), TestAnnotation.class.getCanonicalName())));
+
+            return;
+        }
+
+        throw new AssertionError("Expected AssertionError to be thrown.");
+
+    }
 }

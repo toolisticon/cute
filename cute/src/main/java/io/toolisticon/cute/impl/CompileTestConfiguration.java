@@ -512,25 +512,6 @@ public class CompileTestConfiguration {
         }
 
         @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-
-            PassInConfiguration that = (PassInConfiguration) o;
-
-            if (passedInClass != null ? !passedInClass.equals(that.passedInClass) : that.passedInClass != null)
-                return false;
-            return annotationToScanFor != null ? annotationToScanFor.equals(that.annotationToScanFor) : that.annotationToScanFor == null;
-        }
-
-        @Override
-        public int hashCode() {
-            int result = passedInClass != null ? passedInClass.hashCode() : 0;
-            result = 31 * result + (annotationToScanFor != null ? annotationToScanFor.hashCode() : 0);
-            return result;
-        }
-
-        @Override
         public String toString() {
             return "PassInConfiguration{" +
                     "passedInClass=" + passedInClass +
