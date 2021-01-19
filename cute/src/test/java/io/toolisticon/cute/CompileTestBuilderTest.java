@@ -686,9 +686,7 @@ public class CompileTestBuilderTest {
                     .executeTest();
 
         } catch (AssertionError e) {
-
             MatcherAssert.assertThat(e.getMessage(), Matchers.containsString(String.format(Constants.Messages.UNIT_TEST_PRECONDITION_MUST_FIND_EXACTLY_ONE_ELEMENT.getMessagePattern(), TestAnnotation.class.getCanonicalName())));
-
             return;
         }
 
@@ -712,13 +710,137 @@ public class CompileTestBuilderTest {
                     .executeTest();
 
         } catch (AssertionError e) {
-
             MatcherAssert.assertThat(e.getMessage(), Matchers.containsString(String.format(Constants.Messages.UNIT_TEST_PRECONDITION_MUST_FIND_EXACTLY_ONE_ELEMENT_WITH_PASSIN_ANNOTATION.getMessagePattern(), TestAnnotation.class.getCanonicalName())));
-
             return;
         }
 
         throw new AssertionError("Expected AssertionError to be thrown.");
 
     }
+
+    @Test
+    public void test_passInViaSourceCode_withNonMatchingElementType() {
+
+        try {
+            CompileTestBuilder
+                    .unitTest()
+                    .useSource("/compiletests/passintest/PassInTestClass.java")
+                    .<ExecutableElement>defineTest(new UnitTest<ExecutableElement>() {
+                        @Override
+                        public void unitTest(ProcessingEnvironment processingEnvironment, ExecutableElement element) {
+                            throw new AssertionError("should have thrown assertion error!");
+                        }
+                    })
+                    .executeTest();
+
+        } catch (AssertionError e) {
+            MatcherAssert.assertThat(e.getMessage(), Matchers.containsString(Constants.Messages.UNIT_TEST_PRECONDITION_INCOMPATIBLE_ELEMENT_TYPE.getMessagePattern()));
+            return;
+        }
+
+        throw new AssertionError("Expected AssertionError to be thrown.");
+
+    }
+
+    @Test
+    public void test_passInViaSourceCode_withProcessorPassIn_withMatchingElementButClassCastException() {
+
+
+        CompileTestBuilder
+                .unitTest()
+                .useSource("/compiletests/passintest/PassInTestClass.java")
+                .<SimpleTestProcessor1, TypeElement>defineTest(SimpleTestProcessor1.class, new UnitTestForTestingAnnotationProcessors<SimpleTestProcessor1, TypeElement>() {
+                    @Override
+                    public void unitTest(SimpleTestProcessor1 unit, ProcessingEnvironment processingEnvironment, TypeElement element) {
+                        throw new ClassCastException("Test Class Cast Exception");
+                    }
+                })
+                .expectedThrownException(ClassCastException.class)
+                .executeTest();
+
+    }
+
+    @PassIn
+    static class PassInClass {
+
+    }
+
+    @Test
+    public void test_passIn_withNonMatchingElementType() {
+
+        try {
+            CompileTestBuilder
+                    .unitTest()
+                    .defineTestWithPassedInElement(PassInClass.class, new UnitTest<ExecutableElement>() {
+                        @Override
+                        public void unitTest(ProcessingEnvironment processingEnvironment, ExecutableElement element) {
+                            throw new AssertionError("should have thrown assertion error!");
+                        }
+                    })
+                    .executeTest();
+
+        } catch (AssertionError e) {
+            MatcherAssert.assertThat(e.getMessage(), Matchers.containsString(Constants.Messages.UNIT_TEST_PRECONDITION_INCOMPATIBLE_ELEMENT_TYPE.getMessagePattern()));
+            return;
+        }
+
+        throw new AssertionError("Expected AssertionError to be thrown.");
+
+    }
+
+    @Test
+    public void test_passIn_withMatchingElementButClassCastException() {
+
+        CompileTestBuilder
+                .unitTest()
+                .<TypeElement>defineTestWithPassedInElement(PassInClass.class, new UnitTest<TypeElement>() {
+                    @Override
+                    public void unitTest(ProcessingEnvironment processingEnvironment, TypeElement element) {
+                        throw new ClassCastException("Test Class Cast Exception");
+                    }
+                })
+                .expectedThrownException(ClassCastException.class)
+                .executeTest();
+
+    }
+
+    @Test
+    public void test_passIn_withProcessorPassIn_withNonMatchingElementType() {
+
+        try {
+            CompileTestBuilder
+                    .unitTest()
+                    .<SimpleTestProcessor1,ExecutableElement>defineTestWithPassedInElement(SimpleTestProcessor1.class, PassInClass.class, new UnitTestForTestingAnnotationProcessors<SimpleTestProcessor1, ExecutableElement>() {
+                        @Override
+                        public void unitTest(SimpleTestProcessor1 unit, ProcessingEnvironment processingEnvironment, ExecutableElement element) {
+                            throw new AssertionError("should have thrown assertion error!");
+                        }
+                    })
+                    .executeTest();
+
+        } catch (AssertionError e) {
+            MatcherAssert.assertThat(e.getMessage(), Matchers.containsString(Constants.Messages.UNIT_TEST_PRECONDITION_INCOMPATIBLE_ELEMENT_TYPE.getMessagePattern()));
+            return;
+        }
+
+        throw new AssertionError("Expected AssertionError to be thrown.");
+
+    }
+
+    @Test
+    public void test_passIn_withProcessorPassIn_withMatchingElementButClassCastException() {
+
+        CompileTestBuilder
+                .unitTest()
+                .<SimpleTestProcessor1,Element>defineTestWithPassedInElement(SimpleTestProcessor1.class, PassInClass.class, new UnitTestForTestingAnnotationProcessors<SimpleTestProcessor1, Element>() {
+                    @Override
+                    public void unitTest(SimpleTestProcessor1 unit, ProcessingEnvironment processingEnvironment, Element element) {
+                        throw new ClassCastException("Test Class Cast Exception");
+                    }
+                })
+                .expectedThrownException(ClassCastException.class)
+                .executeTest();
+
+    }
+
 }
