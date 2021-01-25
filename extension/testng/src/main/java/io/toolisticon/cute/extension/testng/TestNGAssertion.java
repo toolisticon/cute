@@ -1,4 +1,4 @@
-package io.toolisticon.cute.extension.junit5;
+package io.toolisticon.cute.extension.testng;
 
 import io.toolisticon.cute.extension.api.AssertionSpi;
 import io.toolisticon.spiap.api.Service;

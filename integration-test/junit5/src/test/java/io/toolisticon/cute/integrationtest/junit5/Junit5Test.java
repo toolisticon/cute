@@ -3,6 +3,10 @@ package io.toolisticon.cute.integrationtest.junit5;
 
 import io.toolisticon.cute.CompileTestBuilder;
 import io.toolisticon.cute.UnitTest;
+import io.toolisticon.cute.extension.api.AssertionSpiServiceLocator;
+import io.toolisticon.cute.extension.junit5.JUnit5Assertion;
+import org.hamcrest.MatcherAssert;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -14,6 +18,13 @@ import javax.tools.Diagnostic;
  * Test class to test testng extension.
  */
 public class Junit5Test {
+
+    @Test
+    public void testServiceLocator() {
+
+        MatcherAssert.assertThat(AssertionSpiServiceLocator.locate().getClass(), Matchers.is((Class) JUnit5Assertion.class));
+
+    }
 
     @Test
     public void warningMessageTest() {

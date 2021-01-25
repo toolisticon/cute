@@ -80,17 +80,6 @@
                 </executions>
             </plugin>
 
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-bundle-plugin</artifactId>
-                <extensions>true</extensions>
-                <configuration>
-                    <instructions>
-                        <Export-Package>io.toolisticon.cute.extension</Export-Package>
-                    </instructions>
-                </configuration>
-            </plugin>
-
         </plugins>
 
 
