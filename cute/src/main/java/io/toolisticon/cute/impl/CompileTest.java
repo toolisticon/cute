@@ -138,7 +138,7 @@ public class CompileTest {
                             if (generatedFileObjectCheck.getGeneratedFileObjectMatchers() != null) {
 
                                 try {
-                                    for (GeneratedFileObjectMatcher<FileObject> matcher : generatedFileObjectCheck.getGeneratedFileObjectMatchers()) {
+                                    for (GeneratedFileObjectMatcher matcher : generatedFileObjectCheck.getGeneratedFileObjectMatchers()) {
                                         if (!matcher.check(foundFileObject)) {
                                             // Throw Exception as fallback if not done by matcher
                                             throw new FailingAssertionException(Constants.Messages.MESSAGE_FO_COMPARISION_FAILED.produceMessage(matcher.getClass().getCanonicalName()));

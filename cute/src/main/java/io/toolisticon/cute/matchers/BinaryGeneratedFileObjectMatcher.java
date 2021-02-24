@@ -13,7 +13,7 @@ import java.util.regex.PatternSyntaxException;
 /**
  * Validates if a generated two FileObjects are equal by using binary comparision.
  */
-public class BinaryGeneratedFileObjectMatcher<T extends FileObject> implements GeneratedFileObjectMatcher<T> {
+public class BinaryGeneratedFileObjectMatcher implements GeneratedFileObjectMatcher {
 
     final FileObject expectedFileObject;
 
@@ -23,14 +23,14 @@ public class BinaryGeneratedFileObjectMatcher<T extends FileObject> implements G
      * @param expectedFileObject the expected java file object
      * @throws PatternSyntaxException If the expression's syntax is invalid
      */
-    BinaryGeneratedFileObjectMatcher(T expectedFileObject) {
+    BinaryGeneratedFileObjectMatcher(FileObject expectedFileObject) {
 
         this.expectedFileObject = expectedFileObject;
 
     }
 
     @Override
-    public boolean check(T fileObject) throws IOException {
+    public boolean check(FileObject fileObject) throws IOException {
 
         // Must not be null
         if (fileObject == null) {
@@ -71,7 +71,7 @@ public class BinaryGeneratedFileObjectMatcher<T extends FileObject> implements G
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        BinaryGeneratedFileObjectMatcher<?> that = (BinaryGeneratedFileObjectMatcher<?>) o;
+        BinaryGeneratedFileObjectMatcher that = (BinaryGeneratedFileObjectMatcher) o;
 
         return expectedFileObject != null ? expectedFileObject.equals(that.expectedFileObject) : that.expectedFileObject == null;
     }

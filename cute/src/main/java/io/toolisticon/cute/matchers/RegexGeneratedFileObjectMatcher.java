@@ -12,7 +12,7 @@ import java.util.regex.PatternSyntaxException;
 /**
  * Validates a generated file by using a regular expression.
  */
-class RegexGeneratedFileObjectMatcher implements GeneratedFileObjectMatcher<FileObject> {
+class RegexGeneratedFileObjectMatcher implements GeneratedFileObjectMatcher {
 
     final String patternString;
     private final Pattern pattern;

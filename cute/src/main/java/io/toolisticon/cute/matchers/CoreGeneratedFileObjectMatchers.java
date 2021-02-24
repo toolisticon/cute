@@ -26,7 +26,7 @@ public final class CoreGeneratedFileObjectMatchers {
      * @throws PatternSyntaxException   If the expression's syntax is invalid
      * @throws IllegalArgumentException if passed pattern is null
      */
-    public static GeneratedFileObjectMatcher<FileObject> createRegexMatcher(String pattern) {
+    public static GeneratedFileObjectMatcher createRegexMatcher(String pattern) {
 
         if (pattern == null) {
             throw new IllegalArgumentException(Constants.Messages.IAE_PASSED_PARAMETER_MUST_NOT_BE_NULL.produceMessage("pattern"));
@@ -41,7 +41,7 @@ public final class CoreGeneratedFileObjectMatchers {
      * @return the instance
      * @throws PatternSyntaxException If the expression's syntax is invalid
      */
-    public static GeneratedFileObjectMatcher<FileObject> createContainsSubstringsMatcher(String... stringsToSearch) {
+    public static  GeneratedFileObjectMatcher createContainsSubstringsMatcher(String... stringsToSearch) {
         return new ContainsStringsGeneratedFileOjectMatcher(stringsToSearch);
     }
 
@@ -52,11 +52,11 @@ public final class CoreGeneratedFileObjectMatchers {
      * @return the instance
      * @throws PatternSyntaxException If the expression's syntax is invalid
      */
-    public static GeneratedFileObjectMatcher<FileObject> createIsWellFormedXmlMatcher() {
+    public static GeneratedFileObjectMatcher createIsWellFormedXmlMatcher() {
         return new WellFormedXmlGeneratedFileObjectMatcher();
     }
 
-    public static <T extends FileObject> GeneratedFileObjectMatcher<T> createIgnoreLineEndingsMatcher(T expectedFileObject) {
+    public static <T extends FileObject> GeneratedFileObjectMatcher createIgnoreLineEndingsMatcher(T expectedFileObject) {
 
         if (expectedFileObject == null) {
             throw new IllegalArgumentException(Constants.Messages.IAE_PASSED_PARAMETER_MUST_NOT_BE_NULL.produceMessage("expected fileobject"));
@@ -65,7 +65,7 @@ public final class CoreGeneratedFileObjectMatchers {
         return new IgnoreLineEndingsGeneratedFileObjectMatcher(expectedFileObject);
     }
 
-    public static <T extends FileObject> GeneratedFileObjectMatcher<T> createBinaryMatcher(T expectedFileObject) {
+    public static <T extends FileObject> GeneratedFileObjectMatcher createBinaryMatcher(T expectedFileObject) {
 
         if (expectedFileObject == null) {
             throw new IllegalArgumentException(Constants.Messages.IAE_PASSED_PARAMETER_MUST_NOT_BE_NULL.produceMessage("expected fileobject"));
