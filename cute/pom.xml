@@ -2,12 +2,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>cute</artifactId>
-    <packaging>bundle</packaging>
+    <packaging>jar</packaging>
 
     <parent>
         <groupId>io.toolisticon.cute</groupId>
         <artifactId>cute-parent</artifactId>
-        <version>0.11.0</version>
+        <version>0.11.1</version>
     </parent>
 
     <name>cute</name>
@@ -48,18 +48,6 @@
 
         <plugins>
 
-
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-bundle-plugin</artifactId>
-                <extensions>true</extensions>
-                <configuration>
-                    <instructions>
-                        <Export-Package>io.toolisticon.cute</Export-Package>
-                    </instructions>
-                </configuration>
-            </plugin>
-
             <plugin>
                 <artifactId>maven-enforcer-plugin</artifactId>
                 <executions>
@@ -92,31 +80,6 @@
                     </execution>
                 </executions>
             </plugin>
-
-
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>build-helper-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>add-resource</id>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>add-resource</goal>
-                        </goals>
-                        <configuration>
-                            <resources>
-                                <resource>
-                                    <directory>target/generated-sources/annotations</directory>
-                                    <targetPath />
-                                </resource>
-                            </resources>
-                        </configuration>
-                    </execution>
-
-                </executions>
-            </plugin>
-
 
         </plugins>
 

@@ -13,7 +13,7 @@ import java.io.IOException;
 /**
  * Matcher to check if file contains well formed xml.
  */
-class WellFormedXmlGeneratedFileObjectMatcher implements GeneratedFileObjectMatcher<FileObject> {
+class WellFormedXmlGeneratedFileObjectMatcher implements GeneratedFileObjectMatcher {
 
     /**
      * Hidden constructor

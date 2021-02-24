@@ -4,7 +4,7 @@
 
     <groupId>io.toolisticon.cute</groupId>
     <artifactId>cute-parent</artifactId>
-    <version>0.11.0</version>
+    <version>0.11.1</version>
     <packaging>pom</packaging>
 
     <name>cute-parent</name>
@@ -18,12 +18,14 @@
         <module>cute</module>
         <module>integration-test</module>
 
+        <module>coverage</module>
+
     </modules>
 
     <parent>
         <groupId>io.toolisticon.maven</groupId>
-        <artifactId>maven-oss-parent</artifactId>
-        <version>0.7.0</version>
+        <artifactId>maven-oss-parent-for-github</artifactId>
+        <version>0.0.2</version>
     </parent>
 
     <organization>
@@ -80,10 +82,10 @@
         <java.compile.target.version>1.7</java.compile.target.version>
 
         <!-- dependencies: compile and runtime -->
-        <spiap.version>0.7.0</spiap.version>
+        <spiap.version>0.8.0</spiap.version>
 
         <!-- versions of test dependencies -->
-        <junit4.version>4.12</junit4.version>
+        <junit4.version>4.13.1</junit4.version>
         <junit5.version>5.3.1</junit5.version>
         <testng.version>6.14.3</testng.version>
 
@@ -95,11 +97,12 @@
         <maven-assembly-plugin.version>2.4</maven-assembly-plugin.version>
         <maven-bundle-plugin.version>2.5.3</maven-bundle-plugin.version>
         <maven-failsafe-plugin.version>2.18.1</maven-failsafe-plugin.version>
+        <maven-jacoco-plugin.version>0.8.2</maven-jacoco-plugin.version>
         <maven-processor-plugin.version>2.2.4</maven-processor-plugin.version>
         <maven-surefire-plugin.version>2.18.1</maven-surefire-plugin.version>
 
 
-        <maven-javadoc-plugin.version>3.1.0</maven-javadoc-plugin.version>
+        <maven-javadoc-plugin.version>3.2.0</maven-javadoc-plugin.version>
 
 
     </properties>
@@ -118,6 +121,7 @@
                             <goal>prepare-agent</goal>
                         </goals>
                     </execution>
+
                     <execution>
                         <id>report</id>
                         <phase>test</phase>
@@ -125,6 +129,7 @@
                             <goal>report</goal>
                         </goals>
                     </execution>
+
                 </executions>
             </plugin>
             <plugin>
@@ -170,10 +175,6 @@
             </plugin>
 
             <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-bundle-plugin</artifactId>
-            </plugin>
-            <plugin>
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <executions>
                     <execution>
@@ -207,17 +208,6 @@
                     </configuration>
                 </plugin>
 
-                <plugin>
-                    <groupId>org.apache.felix</groupId>
-                    <artifactId>maven-bundle-plugin</artifactId>
-                    <extensions>true</extensions>
-                    <configuration>
-                        <instructions>
-                            <Export-Package>io.toolisticon.cute</Export-Package>
-                        </instructions>
-                    </configuration>
-                    <version>${maven-bundle-plugin.version}</version>
-                </plugin>
 
                 <plugin>
                     <artifactId>maven-project-info-reports-plugin</artifactId>
@@ -230,7 +220,7 @@
                 <plugin>
                     <groupId>org.jacoco</groupId>
                     <artifactId>jacoco-maven-plugin</artifactId>
-                    <version>0.8.2</version>
+                    <version>${jacoco-maven-plugin.version}</version>
                 </plugin>
 
                 <plugin>

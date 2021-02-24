@@ -10,7 +10,7 @@ import java.io.IOException;
 /**
  * Validates if the generated file contains all passed Strings.
  */
-class ContainsStringsGeneratedFileOjectMatcher implements GeneratedFileObjectMatcher<FileObject> {
+class ContainsStringsGeneratedFileOjectMatcher implements GeneratedFileObjectMatcher {
 
 
     String[] stringsToCheck;

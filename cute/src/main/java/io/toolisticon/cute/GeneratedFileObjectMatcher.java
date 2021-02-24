@@ -6,9 +6,8 @@ import java.io.IOException;
 /**
  * Interface to allow custom checks in fluent api.
  *
- * @param <T> The type of the file object: Either FileObject or JavaFileObject.
  */
-public interface GeneratedFileObjectMatcher<T extends FileObject> {
+public interface GeneratedFileObjectMatcher {
 
     /**
      * Method to check
@@ -18,6 +17,6 @@ public interface GeneratedFileObjectMatcher<T extends FileObject> {
      * @throws IOException               might be thrown during access of passed fileObject
      * @throws FailingAssertionException can be thrown to provide a detailed assertion message in case of a failing assertion.
      */
-    boolean check(T fileObject) throws IOException;
+    boolean check(FileObject fileObject) throws IOException;
 
 }

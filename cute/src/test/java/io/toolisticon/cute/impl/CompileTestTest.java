@@ -56,7 +56,7 @@ public class CompileTestTest {
 
                 .expectThatFileObjectExists(StandardLocation.SOURCE_OUTPUT, "root", "Jupp.txt")
                 .expectThatFileObjectExists(StandardLocation.SOURCE_OUTPUT, "root", "Jupp.txt", JavaFileObjectUtils.readFromString("TATA!"))
-                .expectThatFileObjectExists(StandardLocation.SOURCE_OUTPUT, "root", "Jupp.txt", new GeneratedFileObjectMatcher<FileObject>() {
+                .expectThatFileObjectExists(StandardLocation.SOURCE_OUTPUT, "root", "Jupp.txt", new GeneratedFileObjectMatcher() {
                     @Override
                     public boolean check(FileObject fileObject) throws IOException {
                         return fileObject.getCharContent(false).toString().contains("TAT");
@@ -134,17 +134,17 @@ public class CompileTestTest {
                 .expectThatGeneratedClassExists("io.toolisticon.cute.CheckTest")
                 .expectThatJavaFileObjectExists(StandardLocation.SOURCE_OUTPUT, "io.toolisticon.cute.CheckTest", JavaFileObject.Kind.SOURCE)
                 .expectThatJavaFileObjectExists(StandardLocation.SOURCE_OUTPUT, "io.toolisticon.cute.CheckTest", JavaFileObject.Kind.SOURCE, JavaFileObjectUtils.readFromString("xyz", "package io.toolisticon.cute;\npublic class CheckTest{}"))
-                .expectThatJavaFileObjectExists(StandardLocation.SOURCE_OUTPUT, "io.toolisticon.cute.CheckTest", JavaFileObject.Kind.SOURCE, new GeneratedFileObjectMatcher<JavaFileObject>() {
+                .expectThatJavaFileObjectExists(StandardLocation.SOURCE_OUTPUT, "io.toolisticon.cute.CheckTest", JavaFileObject.Kind.SOURCE, new GeneratedFileObjectMatcher() {
                     @Override
-                    public boolean check(JavaFileObject fileObject) throws IOException {
+                    public boolean check(FileObject fileObject) throws IOException {
                         return fileObject.getCharContent(false).toString().contains("public class CheckTest{}");
                     }
                 })
                 .expectThatGeneratedSourceFileExists("io.toolisticon.cute.CheckTest")
                 .expectThatGeneratedSourceFileExists("io.toolisticon.cute.CheckTest", JavaFileObjectUtils.readFromString("xyz", "package io.toolisticon.cute;\npublic class CheckTest{}"))
-                .expectThatGeneratedSourceFileExists("io.toolisticon.cute.CheckTest", new GeneratedFileObjectMatcher<JavaFileObject>() {
+                .expectThatGeneratedSourceFileExists("io.toolisticon.cute.CheckTest", new GeneratedFileObjectMatcher() {
                     @Override
-                    public boolean check(JavaFileObject fileObject) throws IOException {
+                    public boolean check(FileObject fileObject) throws IOException {
                         return fileObject.getCharContent(false).toString().contains("public class CheckTest{}");
                     }
                 })

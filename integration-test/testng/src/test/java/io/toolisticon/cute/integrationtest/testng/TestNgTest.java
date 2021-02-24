@@ -2,6 +2,8 @@ package io.toolisticon.cute.integrationtest.testng;
 
 import io.toolisticon.cute.CompileTestBuilder;
 import io.toolisticon.cute.UnitTest;
+import io.toolisticon.cute.extension.api.AssertionSpiServiceLocator;
+import io.toolisticon.cute.extension.testng.TestNGAssertion;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
 import org.testng.Assert;
@@ -15,6 +17,13 @@ import javax.tools.Diagnostic;
  * Test class to test testng extension.
  */
 public class TestNgTest {
+
+    @Test
+    public void testServiceLocator() {
+
+        MatcherAssert.assertThat(AssertionSpiServiceLocator.locate().getClass(), Matchers.is((Class) TestNGAssertion.class));
+
+    }
 
     @Test
     public void warningMessageTest() {

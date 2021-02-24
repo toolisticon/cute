@@ -586,7 +586,7 @@ public class CompileTestConfigurationTest {
 
     }
 
-    private void generatedFileObjectCheck_notMatchingSingleField_withGeneratedFileObjectMatcher_singleTest(CompileTestConfiguration.GeneratedFileObjectCheck unit, JavaFileManager.Location location, String packageName, String relativeName, GeneratedFileObjectMatcher<FileObject>[] generatedFileObjectMatcher) {
+    private void generatedFileObjectCheck_notMatchingSingleField_withGeneratedFileObjectMatcher_singleTest(CompileTestConfiguration.GeneratedFileObjectCheck unit, JavaFileManager.Location location, String packageName, String relativeName, GeneratedFileObjectMatcher[] generatedFileObjectMatcher) {
 
         CompileTestConfiguration.GeneratedFileObjectCheck otherObj = new CompileTestConfiguration.GeneratedFileObjectCheck(CompileTestConfiguration.FileObjectCheckType.EXISTS, location,
                 packageName, packageName, generatedFileObjectMatcher);
@@ -638,7 +638,7 @@ public class CompileTestConfigurationTest {
 
     }
 
-    private void generatedJavaFileObjectCheck_notMatchingSingleField_withGeneratedFileObjectMatcher_singleTest(CompileTestConfiguration.GeneratedJavaFileObjectCheck unit, JavaFileManager.Location location, String className, JavaFileObject.Kind kind, GeneratedFileObjectMatcher<JavaFileObject> generatedFileObjectMatcher) {
+    private void generatedJavaFileObjectCheck_notMatchingSingleField_withGeneratedFileObjectMatcher_singleTest(CompileTestConfiguration.GeneratedJavaFileObjectCheck unit, JavaFileManager.Location location, String className, JavaFileObject.Kind kind, GeneratedFileObjectMatcher generatedFileObjectMatcher) {
 
         CompileTestConfiguration.GeneratedJavaFileObjectCheck otherObj = new CompileTestConfiguration.GeneratedJavaFileObjectCheck(CompileTestConfiguration.FileObjectCheckType.EXISTS, location,
                 className, kind, generatedFileObjectMatcher);

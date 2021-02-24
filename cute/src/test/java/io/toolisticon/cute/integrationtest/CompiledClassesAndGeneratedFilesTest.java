@@ -114,7 +114,7 @@ public class CompiledClassesAndGeneratedFilesTest {
                 .addProcessors(FileGeneratorProcessor.class)
                 .addSources(JavaFileObjectUtils.readFromResource("/integrationtest/CompiledClassesAndGeneratedFilesExistTestcase.java"))
                 .compilationShouldSucceed()
-                .expectThatFileObjectExists(StandardLocation.SOURCE_OUTPUT, "/META-INF", "jupp.txt", new GeneratedFileObjectMatcher<FileObject>() {
+                .expectThatFileObjectExists(StandardLocation.SOURCE_OUTPUT, "/META-INF", "jupp.txt", new GeneratedFileObjectMatcher() {
                     @Override
                     public boolean check(FileObject fileObject) throws IOException {
                         return true;
@@ -158,7 +158,7 @@ public class CompiledClassesAndGeneratedFilesTest {
                     .addProcessors(FileGeneratorProcessor.class)
                     .addSources(JavaFileObjectUtils.readFromResource("/integrationtest/CompiledClassesAndGeneratedFilesExistTestcase.java"))
                     .compilationShouldSucceed()
-                    .expectThatFileObjectExists(StandardLocation.SOURCE_OUTPUT, "/META-INF", "jupp.txt", new GeneratedFileObjectMatcher<FileObject>() {
+                    .expectThatFileObjectExists(StandardLocation.SOURCE_OUTPUT, "/META-INF", "jupp.txt", new GeneratedFileObjectMatcher() {
                         @Override
                         public boolean check(FileObject fileObject) throws IOException {
                             return false;
@@ -357,9 +357,9 @@ public class CompiledClassesAndGeneratedFilesTest {
                     .addProcessors(JavaFileGeneratorProcessor.class)
                     .addSources(JavaFileObjectUtils.readFromResource("/integrationtest/CompiledClassesAndGeneratedFilesExistTestcase.java"))
                     .compilationShouldSucceed()
-                    .expectThatJavaFileObjectExists(StandardLocation.SOURCE_OUTPUT, JavaFileGeneratorProcessor.PACKAGE_NAME + "." + JavaFileGeneratorProcessor.CLASS_NAME, JavaFileObject.Kind.SOURCE, new GeneratedFileObjectMatcher<JavaFileObject>() {
+                    .expectThatJavaFileObjectExists(StandardLocation.SOURCE_OUTPUT, JavaFileGeneratorProcessor.PACKAGE_NAME + "." + JavaFileGeneratorProcessor.CLASS_NAME, JavaFileObject.Kind.SOURCE, new GeneratedFileObjectMatcher() {
                         @Override
-                        public boolean check(JavaFileObject fileObject) throws IOException {
+                        public boolean check(FileObject fileObject) throws IOException {
                             return false;
                         }
                     })

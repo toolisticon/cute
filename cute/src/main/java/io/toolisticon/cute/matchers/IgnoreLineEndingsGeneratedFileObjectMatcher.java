@@ -6,6 +6,7 @@ import io.toolisticon.cute.GeneratedFileObjectMatcher;
 
 import javax.tools.FileObject;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -16,9 +17,9 @@ import java.util.regex.PatternSyntaxException;
  * Does validation line by line and ignores line endings.
  * (this is good for text files since windows and linux operation systems are using different line endings)
  */
-public class IgnoreLineEndingsGeneratedFileObjectMatcher<T extends FileObject> implements GeneratedFileObjectMatcher<T> {
+public class IgnoreLineEndingsGeneratedFileObjectMatcher implements GeneratedFileObjectMatcher {
 
-    final T expectedFileObject;
+    final FileObject expectedFileObject;
 
     /**
      * Hidden constructor.
@@ -26,14 +27,14 @@ public class IgnoreLineEndingsGeneratedFileObjectMatcher<T extends FileObject> i
      * @param expectedFileObject the expected java file object
      * @throws PatternSyntaxException If the expression's syntax is invalid
      */
-    IgnoreLineEndingsGeneratedFileObjectMatcher(T expectedFileObject) {
+    IgnoreLineEndingsGeneratedFileObjectMatcher(FileObject expectedFileObject) {
 
         this.expectedFileObject = expectedFileObject;
 
     }
 
     @Override
-    public boolean check(T fileObject) throws IOException {
+    public boolean check(FileObject fileObject) throws IOException {
 
         if (!contentEquals(fileObject.openInputStream(), expectedFileObject.openInputStream())) {
             throw new FailingAssertionException(Constants.Messages.GFOM_FILEOBJECTS_ARENT_EQUAL_BY_TEXTUAL_COMPARISION_WITH_IGNORE_LINEENDINGS.produceMessage());
@@ -75,7 +76,7 @@ public class IgnoreLineEndingsGeneratedFileObjectMatcher<T extends FileObject> i
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        IgnoreLineEndingsGeneratedFileObjectMatcher<?> that = (IgnoreLineEndingsGeneratedFileObjectMatcher<?>) o;
+        IgnoreLineEndingsGeneratedFileObjectMatcher that = (IgnoreLineEndingsGeneratedFileObjectMatcher) o;
 
         return expectedFileObject != null ? expectedFileObject.equals(that.expectedFileObject) : that.expectedFileObject == null;
     }
