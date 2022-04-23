@@ -3,12 +3,12 @@ package io.toolisticon.cute;
 import io.toolisticon.cute.impl.CommonUtilities;
 
 import javax.tools.SimpleJavaFileObject;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.io.StringBufferInputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -17,7 +17,7 @@ import java.util.List;
 
 /**
  * Utility class to create JavaFileObjects and therefore also FileObjects.
- * These files can be used for comparision or as source files during compilation.
+ * These files can be used for comparison or as source files during compilation.
  */
 public class JavaFileObjectUtils {
 
@@ -44,12 +44,12 @@ public class JavaFileObjectUtils {
         }
 
         @Override
-        public InputStream openInputStream() throws IOException {
-            return new StringBufferInputStream(this.content);
+        public InputStream openInputStream() {
+            return new ByteArrayInputStream(this.content.getBytes());
         }
 
         @Override
-        public Reader openReader(boolean ignoreEncodingErrors) throws IOException {
+        public Reader openReader(boolean ignoreEncodingErrors) {
             return new InputStreamReader(openInputStream());
         }
 
@@ -66,27 +66,21 @@ public class JavaFileObjectUtils {
      */
     public static class JavaSourceFromResource extends SimpleJavaFileObject {
 
-        private final static String JAVA_COMPATIBILTY_FILE_ENDING_SUFFIX = ".ct";
+        private final static String JAVA_COMPATIBILITY_FILE_ENDING_SUFFIX = ".ct";
 
         private final Class<?> relativeLocationRoot;
         private final String location;
 
-        private JavaSourceFromResource(String location) {
-
-            this(location, null);
-
-        }
-
         private JavaSourceFromResource(String location, Class<?> relativeLocationRoot) {
 
-            super(URI.create("resource://" + (location.endsWith(".java" + JAVA_COMPATIBILTY_FILE_ENDING_SUFFIX) ? location.substring(0, location.length() - JAVA_COMPATIBILTY_FILE_ENDING_SUFFIX.length()) : location)), Kind.SOURCE);
+            super(URI.create("resource://" + (location.endsWith(".java" + JAVA_COMPATIBILITY_FILE_ENDING_SUFFIX) ? location.substring(0, location.length() - JAVA_COMPATIBILITY_FILE_ENDING_SUFFIX.length()) : location)), Kind.SOURCE);
             this.relativeLocationRoot = relativeLocationRoot;
             this.location = location;
 
         }
 
         @Override
-        public InputStream openInputStream() throws IOException {
+        public InputStream openInputStream() {
 
             Class<?> relativeRoot = relativeLocationRoot != null ? relativeLocationRoot : JavaFileObjectUtils.class;
             InputStream inputStream = relativeRoot.getResourceAsStream(location);
@@ -99,7 +93,7 @@ public class JavaFileObjectUtils {
         }
 
         @Override
-        public Reader openReader(boolean ignoreEncodingErrors) throws IOException {
+        public Reader openReader(boolean ignoreEncodingErrors) {
             return new InputStreamReader(openInputStream());
         }
 
@@ -145,7 +139,7 @@ public class JavaFileObjectUtils {
      * <p>
      * Some IDEs like Eclipse don't like resource files ending with *.java.
      * In this case extend the file name by ".ct" suffix (f.e. "JavaClass.java.ct").
-     * The suffix will be ignored for looking up files via the compile test file manager.
+     * The suffix will be ignored for looking up files via the compile-test file manager.
      * *
      *
      * @param location             the location
@@ -167,7 +161,7 @@ public class JavaFileObjectUtils {
      * <p>
      * Some IDEs like Eclipse don't like resource files ending with *.java.
      * In this case extend the file name by ".ct" suffix (f.e. "JavaClass.java.ct").
-     * The suffix will be ignored for looking up files via the compile test file manager.
+     * The suffix will be ignored for looking up files via the compile-test file manager.
      *
      * @param location the location
      * @return The SimpleJavaFileObject for resource
@@ -187,20 +181,20 @@ public class JavaFileObjectUtils {
      * <p>
      * Some IDEs like Eclipse don't like resource files ending with *.java.
      * In this case extend the file name by ".ct" suffix (f.e. "JavaClass.java.ct").
-     * The suffix will be ignored for looking up files via the compile test file manager.
+     * The suffix will be ignored for looking up files via the compile-test file manager.
      *
      * @param locations the location
      * @return The SimpleJavaFileObject for resource
      */
     public static SimpleJavaFileObject[] readFromResources(String... locations) {
 
-        List<SimpleJavaFileObject> resourceFiles = new ArrayList<SimpleJavaFileObject>();
+        List<SimpleJavaFileObject> resourceFiles = new ArrayList<>();
 
         for (String location : locations) {
             resourceFiles.add(readFromResource(location));
         }
 
-        return resourceFiles.toArray(new SimpleJavaFileObject[resourceFiles.size()]);
+        return resourceFiles.toArray(new SimpleJavaFileObject[0]);
     }
 
     /**
@@ -225,7 +219,7 @@ public class JavaFileObjectUtils {
 
     /**
      * Read a java source file from resources.
-     * This one works great if you don't rely on the location, f.e. in case of comparision.
+     * This one works great if you don't rely on the location, f.e. in case of comparison.
      *
      * @param content content of the file
      * @return he SimpleJavaFileObject for passed content string
@@ -240,7 +234,7 @@ public class JavaFileObjectUtils {
 
 
     /**
-     * Read a java source file from resurces.
+     * Read a java source file from resources.
      *
      * @param url the location
      * @return The SimpleJavaFileObject for passed URL
@@ -269,7 +263,7 @@ public class JavaFileObjectUtils {
         byte[] buffer = new byte[10000];
         ByteArrayOutputStream os = new ByteArrayOutputStream();
 
-        int line = 0;
+        int line;
         // read bytes from stream, and store them in buffer
         while ((line = stream.read(buffer)) != -1) {
             // Writes bytes from byte array (buffer) into output stream.
@@ -279,7 +273,7 @@ public class JavaFileObjectUtils {
         os.flush();
         os.close();
 
-        return new String(os.toByteArray());
+        return os.toString();
     }
 
 

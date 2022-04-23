@@ -136,7 +136,7 @@ public class CompileTestBuilder {
          */
         public CompileMessageCheckBuilder<T> expectErrorMessage() {
             CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
-            return new CompileMessageCheckBuilder<T>(createNextInstance(nextConfiguration), Diagnostic.Kind.ERROR);
+            return new CompileMessageCheckBuilder<>(createNextInstance(nextConfiguration), Diagnostic.Kind.ERROR);
         }
 
         /**
@@ -146,7 +146,7 @@ public class CompileTestBuilder {
          */
         public CompileMessageCheckBuilder<T> expectMandatoryWarningMessage() {
             CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
-            return new CompileMessageCheckBuilder<T>(createNextInstance(nextConfiguration), Diagnostic.Kind.MANDATORY_WARNING);
+            return new CompileMessageCheckBuilder<>(createNextInstance(nextConfiguration), Diagnostic.Kind.MANDATORY_WARNING);
         }
 
         /**
@@ -156,7 +156,7 @@ public class CompileTestBuilder {
          */
         public CompileMessageCheckBuilder<T> expectWarningMessage() {
             CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
-            return new CompileMessageCheckBuilder<T>(createNextInstance(nextConfiguration), Diagnostic.Kind.WARNING);
+            return new CompileMessageCheckBuilder<>(createNextInstance(nextConfiguration), Diagnostic.Kind.WARNING);
         }
 
         /**
@@ -166,7 +166,7 @@ public class CompileTestBuilder {
          */
         public CompileMessageCheckBuilder<T> expectNoteMessage() {
             CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
-            return new CompileMessageCheckBuilder<T>(createNextInstance(nextConfiguration), Diagnostic.Kind.NOTE);
+            return new CompileMessageCheckBuilder<>(createNextInstance(nextConfiguration), Diagnostic.Kind.NOTE);
         }
 
         /**
@@ -178,7 +178,7 @@ public class CompileTestBuilder {
         public T expectWarningMessageThatContains(String... warningChecks) {
             CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
             if (warningChecks != null) {
-                nextConfiguration.addWarningMessageCheck(CompileTestConfiguration.ComparisionKind.CONTAINS, warningChecks);
+                nextConfiguration.addWarningMessageCheck(CompileTestConfiguration.ComparisonKind.CONTAINS, warningChecks);
             }
             return createNextInstance(nextConfiguration);
 
@@ -194,7 +194,7 @@ public class CompileTestBuilder {
 
             CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
             if (mandatoryWarningChecks != null) {
-                nextConfiguration.addMandatoryWarningMessageCheck(CompileTestConfiguration.ComparisionKind.CONTAINS, mandatoryWarningChecks);
+                nextConfiguration.addMandatoryWarningMessageCheck(CompileTestConfiguration.ComparisonKind.CONTAINS, mandatoryWarningChecks);
             }
             return createNextInstance(nextConfiguration);
 
@@ -210,7 +210,7 @@ public class CompileTestBuilder {
 
             CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
             if (errorChecksToSet != null) {
-                nextConfiguration.addErrorMessageCheck(CompileTestConfiguration.ComparisionKind.CONTAINS, errorChecksToSet);
+                nextConfiguration.addErrorMessageCheck(CompileTestConfiguration.ComparisonKind.CONTAINS, errorChecksToSet);
             }
             return createNextInstance(nextConfiguration);
 
@@ -226,7 +226,7 @@ public class CompileTestBuilder {
 
             CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
             if (noteChecksToSet != null) {
-                nextConfiguration.addNoteMessageCheck(CompileTestConfiguration.ComparisionKind.CONTAINS, noteChecksToSet);
+                nextConfiguration.addNoteMessageCheck(CompileTestConfiguration.ComparisonKind.CONTAINS, noteChecksToSet);
             }
             return createNextInstance(nextConfiguration);
 
@@ -323,7 +323,6 @@ public class CompileTestBuilder {
          * @param generatedFileObjectMatcher the matcher to use
          * @return the next builder instance
          */
-        @SafeVarargs
         public final T expectThatFileObjectExists(
                 JavaFileManager.Location location,
                 String packageName,
@@ -351,7 +350,7 @@ public class CompileTestBuilder {
                 String relativeName) {
 
             CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
-            nextConfiguration.addGeneratedFileObjectCheck(CompileTestConfiguration.FileObjectCheckType.DOESNT_EXIST, location, packageName, relativeName, null);
+            nextConfiguration.addGeneratedFileObjectCheck(CompileTestConfiguration.FileObjectCheckType.DOESNT_EXIST, location, packageName, relativeName);
             return createNextInstance(nextConfiguration);
 
         }
@@ -712,7 +711,7 @@ public class CompileTestBuilder {
 
             // remove existing processor
             nextConfiguration.getProcessors().clear();
-            nextConfiguration.addProcessors(new UnitTestAnnotationProcessorClass<ELEMENT_TYPE>(customAnnotationType, unitTest));
+            nextConfiguration.addProcessors(new UnitTestAnnotationProcessorClass<>(customAnnotationType, unitTest));
 
             return createNextInstance(nextConfiguration);
         }
@@ -768,7 +767,7 @@ public class CompileTestBuilder {
 
             // remove existing processor
             nextConfiguration.getProcessors().clear();
-            nextConfiguration.addProcessors(new UnitTestAnnotationProcessorClassWithPassIn<ELEMENT_TYPE>(classToScan, annotationToSearch != null ? annotationToSearch : PassIn.class, unitTest));
+            nextConfiguration.addProcessors(new UnitTestAnnotationProcessorClassWithPassIn<>(classToScan, annotationToSearch != null ? annotationToSearch : PassIn.class, unitTest));
 
             return createNextInstance(nextConfiguration);
         }
@@ -827,7 +826,7 @@ public class CompileTestBuilder {
 
             CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
 
-            PROCESSOR_UNDER_TEST processorUnderTest = null;
+            PROCESSOR_UNDER_TEST processorUnderTest;
 
             try {
                 processorUnderTest = processorUnderTestClass.getDeclaredConstructor().newInstance();
@@ -838,7 +837,7 @@ public class CompileTestBuilder {
 
             // remove existing processor
             nextConfiguration.getProcessors().clear();
-            nextConfiguration.addProcessors(new UnitTestAnnotationProcessorClassForTestingAnnotationProcessors<PROCESSOR_UNDER_TEST, ELEMENT_TYPE>(processorUnderTest, customAnnotationType, unitTestForTestingAnnotationProcessors));
+            nextConfiguration.addProcessors(new UnitTestAnnotationProcessorClassForTestingAnnotationProcessors<>(processorUnderTest, customAnnotationType, unitTestForTestingAnnotationProcessors));
 
             return createNextInstance(nextConfiguration);
         }
@@ -888,7 +887,7 @@ public class CompileTestBuilder {
 
             CompileTestConfiguration nextConfiguration = CompileTestConfiguration.cloneConfiguration(compileTestConfiguration);
 
-            PROCESSOR_UNDER_TEST processorUnderTest = null;
+            PROCESSOR_UNDER_TEST processorUnderTest;
 
             try {
                 processorUnderTest = processorUnderTestClass.getDeclaredConstructor().newInstance();
@@ -1010,7 +1009,7 @@ public class CompileTestBuilder {
         private final COMPILETESTBUILDER compileTestBuilder;
 
         private Diagnostic.Kind kind;
-        private CompileTestConfiguration.ComparisionKind comparisionKind;
+        private CompileTestConfiguration.ComparisonKind comparisonKind;
         private String expectedMessage;
         private Locale locale;
         private String source;
@@ -1067,7 +1066,7 @@ public class CompileTestBuilder {
         /**
          * Do check if compiler message is linked for a specific source
          *
-         * @param source
+         * @param source the source
          * @return the next immutable builder instance
          */
         public CompileMessageCheckBuilder<COMPILETESTBUILDER> atSource(String source) {
@@ -1086,10 +1085,10 @@ public class CompileTestBuilder {
         public COMPILETESTBUILDER thatContains(String expectedContainedMessageToken) {
             CompileMessageCheckBuilder<COMPILETESTBUILDER> nextBuilder = createNextBuilder();
 
-            nextBuilder.comparisionKind = CompileTestConfiguration.ComparisionKind.CONTAINS;
+            nextBuilder.comparisonKind = CompileTestConfiguration.ComparisonKind.CONTAINS;
             nextBuilder.expectedMessage = expectedContainedMessageToken;
 
-            CompileTestConfiguration.CompilerMessageCheck compilerMessageCheck = new CompileTestConfiguration.CompilerMessageCheck(nextBuilder.kind, nextBuilder.comparisionKind, nextBuilder.expectedMessage, nextBuilder.locale, nextBuilder.source, nextBuilder.lineNumber, nextBuilder.columnNumber);
+            CompileTestConfiguration.CompilerMessageCheck compilerMessageCheck = new CompileTestConfiguration.CompilerMessageCheck(nextBuilder.kind, nextBuilder.comparisonKind, nextBuilder.expectedMessage, nextBuilder.locale, nextBuilder.source, nextBuilder.lineNumber, nextBuilder.columnNumber);
 
             return compileTestBuilder.addCompilerMessageCheck(compilerMessageCheck);
         }
@@ -1103,10 +1102,10 @@ public class CompileTestBuilder {
         public COMPILETESTBUILDER thatIsEqualTo(String expectedMessage) {
             CompileMessageCheckBuilder<COMPILETESTBUILDER> nextBuilder = createNextBuilder();
 
-            nextBuilder.comparisionKind = CompileTestConfiguration.ComparisionKind.EQUALS;
+            nextBuilder.comparisonKind = CompileTestConfiguration.ComparisonKind.EQUALS;
             nextBuilder.expectedMessage = expectedMessage;
 
-            CompileTestConfiguration.CompilerMessageCheck compilerMessageCheck = new CompileTestConfiguration.CompilerMessageCheck(nextBuilder.kind, nextBuilder.comparisionKind, nextBuilder.expectedMessage, nextBuilder.locale, nextBuilder.source, nextBuilder.lineNumber, nextBuilder.columnNumber);
+            CompileTestConfiguration.CompilerMessageCheck compilerMessageCheck = new CompileTestConfiguration.CompilerMessageCheck(nextBuilder.kind, nextBuilder.comparisonKind, nextBuilder.expectedMessage, nextBuilder.locale, nextBuilder.source, nextBuilder.lineNumber, nextBuilder.columnNumber);
 
             return compileTestBuilder.addCompilerMessageCheck(compilerMessageCheck);
         }
@@ -1122,7 +1121,7 @@ public class CompileTestBuilder {
             CompileMessageCheckBuilder<COMPILETESTBUILDER> nextBuilder = new CompileMessageCheckBuilder<>(this.compileTestBuilder, this.kind);
 
             nextBuilder.kind = this.kind;
-            nextBuilder.comparisionKind = this.comparisionKind;
+            nextBuilder.comparisonKind = this.comparisonKind;
             nextBuilder.expectedMessage = this.expectedMessage;
             nextBuilder.locale = this.locale;
             nextBuilder.source = this.source;

@@ -6,16 +6,16 @@ import io.toolisticon.cute.GeneratedFileObjectMatcher;
 
 import javax.tools.FileObject;
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Objects;
 import java.util.regex.PatternSyntaxException;
 
 /**
  * Validates if file objects are matching.
  * Does validation line by line and ignores line endings.
- * (this is good for text files since windows and linux operation systems are using different line endings)
+ * (this is good for text files since windows and linux operation-systems are using different line endings)
  */
 public class IgnoreLineEndingsGeneratedFileObjectMatcher implements GeneratedFileObjectMatcher {
 
@@ -78,7 +78,7 @@ public class IgnoreLineEndingsGeneratedFileObjectMatcher implements GeneratedFil
 
         IgnoreLineEndingsGeneratedFileObjectMatcher that = (IgnoreLineEndingsGeneratedFileObjectMatcher) o;
 
-        return expectedFileObject != null ? expectedFileObject.equals(that.expectedFileObject) : that.expectedFileObject == null;
+        return Objects.equals(expectedFileObject, that.expectedFileObject);
     }
 
     @Override

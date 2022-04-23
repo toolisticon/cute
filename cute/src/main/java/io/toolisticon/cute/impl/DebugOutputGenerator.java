@@ -43,7 +43,7 @@ final class DebugOutputGenerator {
 
             stringBuilder.append(getDebugOutputHeader("UNEXPECTED EXCEPTION"))
                     .append("MESSAGE : ").append(message != null ? message : "<NO MESSSAGE>").append("\n")
-                    .append("STACKTRACE : ").append(stacktraceStringWriter.toString()).append("\n");
+                    .append("STACKTRACE : ").append(stacktraceStringWriter).append("\n");
         }
 
         if (compilationResult != null) {
@@ -83,7 +83,7 @@ final class DebugOutputGenerator {
     /**
      * Used to determine the build folder.
      * <p>
-     * Maybe "target" for Maven builds and a folder containing "build" in it's name for gradle.
+     * Maybe "target" for Maven builds and a folder containing "build" in its name for gradle.
      * Defaults to "target".
      *
      * @return the build folder name
@@ -95,7 +95,7 @@ final class DebugOutputGenerator {
         } else if (new File("build").isDirectory()) {
             return "build";
         } else {
-            // a folder containing build in it's name
+            // a folder containing build in its name
             File[] possibleBuildDirectories = new File(".").listFiles(new FileFilter() {
                 @Override
                 public boolean accept(File pathname) {
@@ -142,13 +142,12 @@ final class DebugOutputGenerator {
 
     private static String getGeneratedFileOverview(CompilationResult compilationResult) {
 
-        String stringBuilder = "{\n" +
+       return "{\n" +
                 "  'GENERATED JAVA FILE OBJECTS' : " +
                 createGeneratedFileObjectOverview(compilationResult.getCompileTestFileManager().getGeneratedJavaFileObjects()) +
                 ",\n  'GENERATED FILE OBJECTS' :" +
                 createGeneratedFileObjectOverview(compilationResult.getCompileTestFileManager().getGeneratedFileObjects()) +
                 "\n}";
-        return stringBuilder;
 
     }
 
