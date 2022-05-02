@@ -235,8 +235,8 @@ public class CompileTestConfigurationTest {
     @Test
     public void compilerMessageCheck_setAndGet() {
 
-        unit.addNoteMessageCheck(CompileTestConfiguration.ComparisionKind.CONTAINS, message1, message2);
-        unit.addNoteMessageCheck(CompileTestConfiguration.ComparisionKind.CONTAINS, message3);
+        unit.addNoteMessageCheck(CompileTestConfiguration.ComparisonKind.CONTAINS, message1, message2);
+        unit.addNoteMessageCheck(CompileTestConfiguration.ComparisonKind.CONTAINS, message3);
 
         // do assertion
         assertMessages(unit.getCompilerMessageChecks());

@@ -11,14 +11,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 /**
- * The compile test configuration to use for compilation test.
+ * The compile-test configuration to use for compilation test.
  */
 public class CompileTestConfiguration {
 
@@ -96,15 +96,15 @@ public class CompileTestConfiguration {
         }
     }
 
-    public enum ComparisionKind {
+    public enum ComparisonKind {
         EQUALS,
-        CONTAINS;
+        CONTAINS
     }
 
     public static class CompilerMessageCheck {
 
         private final Diagnostic.Kind kind;
-        private final ComparisionKind comparisionKind;
+        private final ComparisonKind comparisonKind;
         private final String expectedMessage;
         private final Locale locale;
         private final String source;
@@ -112,9 +112,9 @@ public class CompileTestConfiguration {
         private final Long column;
 
 
-        public CompilerMessageCheck(Diagnostic.Kind kind, ComparisionKind comparisionKind, String expectedMessage, Locale locale, String source, Long row, Long column) {
+        public CompilerMessageCheck(Diagnostic.Kind kind, ComparisonKind comparisonKind, String expectedMessage, Locale locale, String source, Long row, Long column) {
             this.kind = kind;
-            this.comparisionKind = comparisionKind;
+            this.comparisonKind = comparisonKind;
             this.expectedMessage = expectedMessage;
             this.locale = locale;
             this.source = source;
@@ -126,8 +126,8 @@ public class CompileTestConfiguration {
             return kind;
         }
 
-        public ComparisionKind getComparisionKind() {
-            return comparisionKind;
+        public ComparisonKind getComparisonKind() {
+            return comparisonKind;
         }
 
         public String getExpectedMessage() {
@@ -159,20 +159,20 @@ public class CompileTestConfiguration {
             CompilerMessageCheck that = (CompilerMessageCheck) o;
 
             if (kind != that.kind) return false;
-            if (comparisionKind != null ? !comparisionKind.equals(that.comparisionKind) : that.comparisionKind != null)
+            if (!Objects.equals(comparisonKind, that.comparisonKind))
                 return false;
-            if (expectedMessage != null ? !expectedMessage.equals(that.expectedMessage) : that.expectedMessage != null)
+            if (!Objects.equals(expectedMessage, that.expectedMessage))
                 return false;
-            if (locale != null ? !locale.equals(that.locale) : that.locale != null) return false;
-            if (source != null ? !source.equals(that.source) : that.source != null) return false;
-            if (row != null ? !row.equals(that.row) : that.row != null) return false;
-            return column != null ? column.equals(that.column) : that.column == null;
+            if (!Objects.equals(locale, that.locale)) return false;
+            if (!Objects.equals(source, that.source)) return false;
+            if (!Objects.equals(row, that.row)) return false;
+            return Objects.equals(column, that.column);
         }
 
         @Override
         public int hashCode() {
             int result = kind != null ? kind.hashCode() : 0;
-            result = 31 * result + (comparisionKind != null ? comparisionKind.hashCode() : 0);
+            result = 31 * result + (comparisonKind != null ? comparisonKind.hashCode() : 0);
             result = 31 * result + (expectedMessage != null ? expectedMessage.hashCode() : 0);
             result = 31 * result + (locale != null ? locale.hashCode() : 0);
             result = 31 * result + (source != null ? source.hashCode() : 0);
@@ -185,7 +185,7 @@ public class CompileTestConfiguration {
         public String toString() {
             return "CompilerMessageCheck{" +
                     "kind=" + kind +
-                    ", comparisionKind=" + comparisionKind +
+                    ", comparisonKind=" + comparisonKind +
                     ", expectedMessage='" + expectedMessage + '\'' +
                     ", locale=" + locale +
                     ", source='" + source + '\'' +
@@ -493,7 +493,7 @@ public class CompileTestConfiguration {
         }
     }
 
-    public class PassInConfiguration {
+    public static class PassInConfiguration {
         private final Class<?> passedInClass;
         private final Class<? extends Annotation> annotationToScanFor;
 
@@ -550,7 +550,7 @@ public class CompileTestConfiguration {
     private Set<AnnotationProcessorWrapper> wrappedProcessors = null;
 
     /**
-     * Global processor independant expected exceptions.
+     * Global processor independent expected exceptions.
      */
     private Class<? extends Throwable> expectedThrownException = null;
 
@@ -708,23 +708,23 @@ public class CompileTestConfiguration {
         this.modules = null;
     }
 
-    public void addWarningMessageCheck(ComparisionKind comparisonKind, String... messages) {
+    public void addWarningMessageCheck(ComparisonKind comparisonKind, String... messages) {
         addCompilerMessage(Diagnostic.Kind.WARNING, comparisonKind, messages);
     }
 
-    public void addMandatoryWarningMessageCheck(ComparisionKind comparisonKind, String... messages) {
+    public void addMandatoryWarningMessageCheck(ComparisonKind comparisonKind, String... messages) {
         addCompilerMessage(Diagnostic.Kind.MANDATORY_WARNING, comparisonKind, messages);
     }
 
-    public void addErrorMessageCheck(ComparisionKind comparisonKind, String... messages) {
+    public void addErrorMessageCheck(ComparisonKind comparisonKind, String... messages) {
         addCompilerMessage(Diagnostic.Kind.ERROR, comparisonKind, messages);
     }
 
-    public void addNoteMessageCheck(ComparisionKind comparisonKind, String... messages) {
+    public void addNoteMessageCheck(ComparisonKind comparisonKind, String... messages) {
         addCompilerMessage(Diagnostic.Kind.NOTE, comparisonKind, messages);
     }
 
-    private void addCompilerMessage(Diagnostic.Kind kind, ComparisionKind comparisonKind, String... messages) {
+    private void addCompilerMessage(Diagnostic.Kind kind, ComparisonKind comparisonKind, String... messages) {
         if (messages != null) {
             for (String message : messages) {
                 if (message != null) {
@@ -746,7 +746,6 @@ public class CompileTestConfiguration {
         this.generatedJavaFileObjectChecks.add(new GeneratedJavaFileObjectCheck(checkType, location, className, kind, null));
     }
 
-    @SafeVarargs
     public final void addGeneratedFileObjectCheck(FileObjectCheckType checkType, JavaFileManager.Location location, String packageName, String relativeName, GeneratedFileObjectMatcher... generatedFileObjectMatcher) {
         this.generatedFileObjectChecks.add(new GeneratedFileObjectCheck(checkType, location, packageName, relativeName, generatedFileObjectMatcher));
     }
@@ -818,7 +817,7 @@ public class CompileTestConfiguration {
         for (Class<? extends Processor> processorType : this.processorTypes) {
 
             try {
-                Processor processor = (Processor) processorType.getDeclaredConstructor().newInstance();
+                Processor processor = processorType.getDeclaredConstructor().newInstance();
 
                 wrappedProcessors.add(AnnotationProcessorWrapper.wrapProcessor(processor, expectedThrownException));
 
@@ -873,10 +872,9 @@ public class CompileTestConfiguration {
 
     public long countErrorMessageChecks() {
         long count = 0;
-        Iterator<CompilerMessageCheck> iterator = compilerMessageChecks.iterator();
 
-        while (iterator.hasNext()) {
-            if (Diagnostic.Kind.ERROR.equals(iterator.next().getKind())) {
+        for (CompilerMessageCheck compilerMessageCheck : compilerMessageChecks) {
+            if (Diagnostic.Kind.ERROR.equals(compilerMessageCheck.getKind())) {
                 count++;
             }
         }

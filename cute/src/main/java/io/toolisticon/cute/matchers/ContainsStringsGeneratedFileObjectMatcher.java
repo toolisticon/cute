@@ -10,7 +10,7 @@ import java.io.IOException;
 /**
  * Validates if the generated file contains all passed Strings.
  */
-class ContainsStringsGeneratedFileOjectMatcher implements GeneratedFileObjectMatcher {
+class ContainsStringsGeneratedFileObjectMatcher implements GeneratedFileObjectMatcher {
 
 
     String[] stringsToCheck;
@@ -18,7 +18,7 @@ class ContainsStringsGeneratedFileOjectMatcher implements GeneratedFileObjectMat
     /**
      * Hidden constructor
      */
-    ContainsStringsGeneratedFileOjectMatcher(String... stringsToCheck) {
+    ContainsStringsGeneratedFileObjectMatcher(String... stringsToCheck) {
         this.stringsToCheck = stringsToCheck;
     }
 
@@ -30,7 +30,7 @@ class ContainsStringsGeneratedFileOjectMatcher implements GeneratedFileObjectMat
         for (String stringToCheck : stringsToCheck) {
 
             if (!fileContent.contains(stringToCheck)) {
-                throw new FailingAssertionException(Constants.Messages.GFOM_COULDNT_FIND_SUBSTRING.produceMessage(stringToCheck, fileObject.getName().toString()));
+                throw new FailingAssertionException(Constants.Messages.GFOM_COULDNT_FIND_SUBSTRING.produceMessage(stringToCheck, fileObject.getName()));
             }
 
         }

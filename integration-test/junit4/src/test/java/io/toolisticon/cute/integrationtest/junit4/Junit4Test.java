@@ -32,7 +32,7 @@ public class Junit4Test {
 
         CompileTestBuilder
                 .unitTest()
-                .defineTest(new UnitTest() {
+                .defineTest(new UnitTest<Element>() {
                     @Override
                     public void unitTest(ProcessingEnvironment processingEnvironment, Element typeElement) {
                         processingEnvironment.getMessager().printMessage(Diagnostic.Kind.WARNING, "WARNING!");
@@ -50,9 +50,9 @@ public class Junit4Test {
 
         CompileTestBuilder
                 .unitTest()
-                .defineTest(new UnitTest() {
+                .defineTest(new UnitTest<Element>() {
                     @Override
-                    public void unitTest(ProcessingEnvironment processingEnvironment, Element typeElement) {
+                    public void unitTest(ProcessingEnvironment processingEnvironment, Element element) {
                         processingEnvironment.getMessager().printMessage(Diagnostic.Kind.ERROR, "ERROR!");
                     }
                 })
@@ -69,7 +69,7 @@ public class Junit4Test {
         try {
             CompileTestBuilder
                     .unitTest()
-                    .defineTest(new UnitTest() {
+                    .defineTest(new UnitTest<Element>() {
                         @Override
                         public void unitTest(ProcessingEnvironment processingEnvironment, Element typeElement) {
                             processingEnvironment.getMessager().printMessage(Diagnostic.Kind.ERROR, "ERROR!");

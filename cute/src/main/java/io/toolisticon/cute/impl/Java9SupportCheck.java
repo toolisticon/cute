@@ -13,7 +13,7 @@ final class Java9SupportCheck {
     static {
 
         // get ModuleFinderClass
-        Class moduleFinderClass = null;
+        Class<?> moduleFinderClass = null;
         try {
             moduleFinderClass = Class.forName("java.lang.module.ModuleFinder");
         } catch (Exception e) {
@@ -25,7 +25,7 @@ final class Java9SupportCheck {
     }
 
     /**
-     * Hiddden constructor.
+     * Hidden constructor.
      */
     private Java9SupportCheck() {
 

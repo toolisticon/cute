@@ -31,8 +31,8 @@ public class CoreGeneratedFileObjectMatchersTest {
     public void createContainsSubstringsMatcher() {
 
         GeneratedFileObjectMatcher unit = CoreGeneratedFileObjectMatchers.createContainsSubstringsMatcher("ABC", "DEF");
-        MatcherAssert.assertThat(unit, Matchers.isA(ContainsStringsGeneratedFileOjectMatcher.class));
-        MatcherAssert.assertThat(Arrays.asList(((ContainsStringsGeneratedFileOjectMatcher) unit).stringsToCheck), Matchers.contains("ABC", "DEF"));
+        MatcherAssert.assertThat(unit, Matchers.isA(ContainsStringsGeneratedFileObjectMatcher.class));
+        MatcherAssert.assertThat(Arrays.asList(((ContainsStringsGeneratedFileObjectMatcher) unit).stringsToCheck), Matchers.contains("ABC", "DEF"));
 
     }
 
