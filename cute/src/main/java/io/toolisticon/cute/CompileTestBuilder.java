@@ -26,7 +26,7 @@ public class CompileTestBuilder {
     public enum ExpectedFileObjectMatcherKind {
         /**
          * Does binary comparison.
-         * Be careful: tests using binary comparison may fail because of OS depending line-endings.
+         * Be careful: tests using binary comparison may fail because of line-endings depending on OS.
          */
         BINARY {
             @Override
@@ -626,6 +626,18 @@ public class CompileTestBuilder {
         }
 
         /**
+         * Add a source file for String.
+         * @param clazzName The package name
+         * @param content
+         * @return
+         */
+        public final CompilationTestBuilder addSource(String clazzName, String content) {
+
+            return addSources(JavaFileObjectUtils.readFromString(clazzName, content));
+
+        }
+
+        /**
          * {@inheritDoc}
          */
         protected CompilationTestBuilder createNextInstance(CompileTestConfiguration compileTestConfiguration) {
@@ -666,7 +678,7 @@ public class CompileTestBuilder {
          * <p>
          * The {@link javax.annotation.processing.ProcessingEnvironment} and an Element of type ELEMENT_TYPE will passed to the UnitTestProcessor.unitTest method.
          * <p>
-         * The {@link TestAnnotation} will be used to look up this Element during.
+         * The {@link TestAnnotation} will be used to look up this Element during compilation.
          * <p>
          * So please make sure that the {@link TestAnnotation} is used exactly once, when you are using a custom source files
          *
@@ -939,6 +951,18 @@ public class CompileTestBuilder {
          */
         public UnitTestBuilder useSource(String resource) {
             return useSource(JavaFileObjectUtils.readFromResource(resource));
+        }
+
+        /**
+         * Sets the source file used to apply processor on.
+         * The source file will be added from String.
+         *
+         * @param className The name of the file passed in as a class name (fqn or simple class name)
+         * @return the UnitTestBuilder instance
+         * @throws IllegalArgumentException if passed source is null.
+         */
+        public UnitTestBuilder useSource(String className, String content) {
+            return useSource(JavaFileObjectUtils.readFromString(className, content));
         }
 
         /**

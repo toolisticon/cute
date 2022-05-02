@@ -335,6 +335,54 @@ public class CompileTestBuilderTest {
     }
 
     @Test
+    public void test_addSourceFromString_compileTest() {
+
+        final String content ="package io.toolisticon.annotationprocessortoolkit.testhelper;" + System.lineSeparator()
+                        + "public class TestClass {" + System.lineSeparator()
+                        + "}";
+
+        CompileTestBuilder.CompilationTestBuilder builder = CompileTestBuilder
+                .compilationTest()
+                .addSource("io.toolisticon.annotationprocessortoolkit.testhelper.TestClass", content);
+
+        // Check if source name is correct
+        MatcherAssert.assertThat(builder.createCompileTestConfiguration().getSourceFiles().iterator().next().getName().toString(), Matchers.is("/io/toolisticon/annotationprocessortoolkit/testhelper/TestClass.java"));
+
+        // Check if classes are compiled in the end
+        builder.compilationShouldSucceed()
+                .expectThatJavaFileObjectExists(StandardLocation.CLASS_OUTPUT,"io.toolisticon.annotationprocessortoolkit.testhelper.TestClass", JavaFileObject.Kind.CLASS)
+                .executeTest();
+    }
+
+    @Test
+    public void test_addSourceFromString_unitTest() {
+
+        final String content ="package io.toolisticon.annotationprocessortoolkit.testhelper;" + System.lineSeparator()
+                + "import io.toolisticon.cute.PassIn;" + System.lineSeparator()
+                + "@PassIn" + System.lineSeparator()
+                + "public class TestClass {" + System.lineSeparator()
+                + "}";
+
+        CompileTestBuilder.UnitTestBuilder builder = CompileTestBuilder
+                .unitTest()
+                .useSource("io.toolisticon.annotationprocessortoolkit.testhelper.TestClass", content);
+
+        // Check if source name is correct
+        MatcherAssert.assertThat(builder.createCompileTestConfiguration().getSourceFiles().iterator().next().getName().toString(), Matchers.is("/io/toolisticon/annotationprocessortoolkit/testhelper/TestClass.java"));
+
+        // Check if classes are compiled in the end
+        builder.<TypeElement>defineTest(PassIn.class, new UnitTest<TypeElement>() {
+                    @Override
+                    public void unitTest(ProcessingEnvironment processingEnvironment, TypeElement element) {
+                        MatcherAssert.assertThat("io.toolisticon.annotationprocessortoolkit.testhelper.TestClass" , Matchers.is(element.getQualifiedName().toString()));
+                    }
+                }).compilationShouldSucceed()
+                .expectThatJavaFileObjectExists(StandardLocation.CLASS_OUTPUT,"io.toolisticon.annotationprocessortoolkit.testhelper.TestClass", JavaFileObject.Kind.CLASS)
+                .executeTest();
+
+    }
+
+    @Test
     public void test_useProcessors() {
 
         Class<? extends Processor> testProcessor1 = SimpleTestProcessor1.class;

@@ -3,6 +3,7 @@ package io.toolisticon.cute;
 import io.toolisticon.cute.impl.CommonUtilities;
 
 import javax.tools.SimpleJavaFileObject;
+import javax.tools.StandardLocation;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -38,10 +39,11 @@ public class JavaFileObjectUtils {
          * @param content the source content for the compilation unit represented by this file object
          */
         private JavaSourceFromString(String name, String content) {
-            super(URI.create("string://" + name.replace('.', '/') + Kind.SOURCE.extension),
+            super(URI.create("string://" + StandardLocation.SOURCE_PATH + "/" + name.replace('.', '/') + Kind.SOURCE.extension),
                     Kind.SOURCE);
             this.content = content;
         }
+
 
         @Override
         public InputStream openInputStream() {
@@ -249,6 +251,7 @@ public class JavaFileObjectUtils {
 
         return new JavaSourceFromUrl(url);
     }
+
 
     /**
      * Reads a String from an InputStream.
