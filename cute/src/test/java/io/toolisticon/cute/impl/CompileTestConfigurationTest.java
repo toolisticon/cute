@@ -114,7 +114,7 @@ public class CompileTestConfigurationTest {
     }
 
     private void assertSourceFiles(CompileTestConfiguration configuration) {
-        MatcherAssert.assertThat(configuration.getSourceFiles(), Matchers.containsInAnyOrder(sourceJavaFileObject1, sourceJavaFileObject2, sourceJavaFileObject3));
+        MatcherAssert.assertThat(configuration.getSourceFiles(), Matchers.contains(sourceJavaFileObject1, sourceJavaFileObject2, sourceJavaFileObject3));
     }
 
 

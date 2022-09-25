@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -527,7 +528,7 @@ public class CompileTestConfiguration {
     /**
      * The source files to use.
      */
-    private final Set<JavaFileObject> sourceFiles = new HashSet<>();
+    private final Set<JavaFileObject> sourceFiles = new LinkedHashSet<>();
 
     /**
      * The processors to use.
