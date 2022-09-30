@@ -31,7 +31,7 @@ public class TestNgTest {
         CompileTestBuilder
 
                 .unitTest()
-                .defineTest(new UnitTest() {
+                .defineTest(new UnitTest<Element>() {
                     @Override
                     public void unitTest(ProcessingEnvironment processingEnvironment, Element typeElement) {
                         processingEnvironment.getMessager().printMessage(Diagnostic.Kind.WARNING, "WARNING!");
@@ -49,9 +49,9 @@ public class TestNgTest {
 
         CompileTestBuilder
                 .unitTest()
-                .defineTest(new UnitTest() {
+                .defineTest(new UnitTest<Element>() {
                     @Override
-                    public void unitTest(ProcessingEnvironment processingEnvironment, Element typeElement) {
+                    public void unitTest(ProcessingEnvironment processingEnvironment, Element element) {
                         processingEnvironment.getMessager().printMessage(Diagnostic.Kind.ERROR, "ERROR!");
                     }
                 })
@@ -68,9 +68,9 @@ public class TestNgTest {
         try {
             CompileTestBuilder
                     .unitTest()
-                    .defineTest(new UnitTest() {
+                    .defineTest(new UnitTest<Element>() {
                         @Override
-                        public void unitTest(ProcessingEnvironment processingEnvironment, Element typeElement) {
+                        public void unitTest(ProcessingEnvironment processingEnvironment, Element element) {
                             processingEnvironment.getMessager().printMessage(Diagnostic.Kind.ERROR, "ERROR!");
                         }
                     })

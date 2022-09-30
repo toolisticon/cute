@@ -4,7 +4,6 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
-import javax.lang.model.element.VariableElement;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.List;
@@ -68,9 +67,7 @@ abstract class AbstractUnitTestAnnotationProcessorWithPassIn extends AbstractUni
             result.add(elementToScan);
 
             if (elementToScan.getKind() == ElementKind.CONSTRUCTOR || elementToScan.getKind() == ElementKind.METHOD) {
-                for (VariableElement parameters : ((ExecutableElement) elementToScan).getParameters()) {
-                    result.add(parameters);
-                }
+                result.addAll(((ExecutableElement) elementToScan).getParameters());
             }
 
             for (Element enclosedElement : elementToScan.getEnclosedElements()) {

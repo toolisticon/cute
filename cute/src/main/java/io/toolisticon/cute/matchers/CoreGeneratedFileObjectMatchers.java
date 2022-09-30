@@ -36,13 +36,13 @@ public final class CoreGeneratedFileObjectMatchers {
     }
 
     /**
-     * Static function to create a {@link ContainsStringsGeneratedFileOjectMatcher} instance.
+     * Static function to create a {@link ContainsStringsGeneratedFileObjectMatcher} instance.
      *
      * @return the instance
      * @throws PatternSyntaxException If the expression's syntax is invalid
      */
     public static  GeneratedFileObjectMatcher createContainsSubstringsMatcher(String... stringsToSearch) {
-        return new ContainsStringsGeneratedFileOjectMatcher(stringsToSearch);
+        return new ContainsStringsGeneratedFileObjectMatcher(stringsToSearch);
     }
 
 

@@ -170,7 +170,7 @@ public class CompileTestBuilderTest {
     }
 
 
-    private void assertCompilerMessages(Set<CompileTestConfiguration.CompilerMessageCheck> compilerMessageChecks, Diagnostic.Kind kind, CompileTestConfiguration.ComparisionKind comparisionKind, String... expectedMessages) {
+    private void assertCompilerMessages(Set<CompileTestConfiguration.CompilerMessageCheck> compilerMessageChecks, Diagnostic.Kind kind, CompileTestConfiguration.ComparisonKind comparisonKind, String... expectedMessages) {
 
         List<String> configuredExpectedMessages = new ArrayList<>();
 
@@ -178,7 +178,7 @@ public class CompileTestBuilderTest {
         while (iterator.hasNext()) {
             CompileTestConfiguration.CompilerMessageCheck element = iterator.next();
 
-            MatcherAssert.assertThat(element.getComparisionKind(), Matchers.is(comparisionKind));
+            MatcherAssert.assertThat(element.getComparisonKind(), Matchers.is(comparisonKind));
             MatcherAssert.assertThat(element.getKind(), Matchers.is(kind));
 
             configuredExpectedMessages.add(element.getExpectedMessage());
@@ -197,12 +197,12 @@ public class CompileTestBuilderTest {
                 .expectWarningMessageThatContains("WARN1");
 
 
-        assertCompilerMessages(builder.createCompileTestConfiguration().getCompilerMessageChecks(), Diagnostic.Kind.WARNING, CompileTestConfiguration.ComparisionKind.CONTAINS, "WARN1");
+        assertCompilerMessages(builder.createCompileTestConfiguration().getCompilerMessageChecks(), Diagnostic.Kind.WARNING, CompileTestConfiguration.ComparisonKind.CONTAINS, "WARN1");
 
         CompileTestBuilder.CompilationTestBuilder builder2 = builder
                 .expectWarningMessageThatContains("WARN2");
 
-        assertCompilerMessages(builder2.createCompileTestConfiguration().getCompilerMessageChecks(), Diagnostic.Kind.WARNING, CompileTestConfiguration.ComparisionKind.CONTAINS, "WARN1", "WARN2");
+        assertCompilerMessages(builder2.createCompileTestConfiguration().getCompilerMessageChecks(), Diagnostic.Kind.WARNING, CompileTestConfiguration.ComparisonKind.CONTAINS, "WARN1", "WARN2");
 
 
         CompileTestBuilder.CompilationTestBuilder builder3 = builder2
@@ -210,7 +210,7 @@ public class CompileTestBuilderTest {
                 .expectWarningMessageThatContains(null);
 
 
-        assertCompilerMessages(builder3.createCompileTestConfiguration().getCompilerMessageChecks(), Diagnostic.Kind.WARNING, CompileTestConfiguration.ComparisionKind.CONTAINS, "WARN1", "WARN2");
+        assertCompilerMessages(builder3.createCompileTestConfiguration().getCompilerMessageChecks(), Diagnostic.Kind.WARNING, CompileTestConfiguration.ComparisonKind.CONTAINS, "WARN1", "WARN2");
 
 
     }
@@ -221,13 +221,13 @@ public class CompileTestBuilderTest {
                 .compilationTest()
                 .expectMandatoryWarningMessageThatContains("MWARN1");
 
-        assertCompilerMessages(builder.createCompileTestConfiguration().getCompilerMessageChecks(), Diagnostic.Kind.MANDATORY_WARNING, CompileTestConfiguration.ComparisionKind.CONTAINS, "MWARN1");
+        assertCompilerMessages(builder.createCompileTestConfiguration().getCompilerMessageChecks(), Diagnostic.Kind.MANDATORY_WARNING, CompileTestConfiguration.ComparisonKind.CONTAINS, "MWARN1");
 
 
         CompileTestBuilder.CompilationTestBuilder builder2 = builder
                 .expectMandatoryWarningMessageThatContains("MWARN2");
 
-        assertCompilerMessages(builder2.createCompileTestConfiguration().getCompilerMessageChecks(), Diagnostic.Kind.MANDATORY_WARNING, CompileTestConfiguration.ComparisionKind.CONTAINS, "MWARN1", "MWARN2");
+        assertCompilerMessages(builder2.createCompileTestConfiguration().getCompilerMessageChecks(), Diagnostic.Kind.MANDATORY_WARNING, CompileTestConfiguration.ComparisonKind.CONTAINS, "MWARN1", "MWARN2");
 
 
         CompileTestBuilder.CompilationTestBuilder builder3 = builder2
@@ -235,7 +235,7 @@ public class CompileTestBuilderTest {
                 .expectMandatoryWarningMessageThatContains(null);
 
 
-        assertCompilerMessages(builder3.createCompileTestConfiguration().getCompilerMessageChecks(), Diagnostic.Kind.MANDATORY_WARNING, CompileTestConfiguration.ComparisionKind.CONTAINS, "MWARN1", "MWARN2");
+        assertCompilerMessages(builder3.createCompileTestConfiguration().getCompilerMessageChecks(), Diagnostic.Kind.MANDATORY_WARNING, CompileTestConfiguration.ComparisonKind.CONTAINS, "MWARN1", "MWARN2");
 
 
     }
@@ -247,14 +247,14 @@ public class CompileTestBuilderTest {
                 .expectNoteMessageThatContains("NOTE1");
 
 
-        assertCompilerMessages(builder.createCompileTestConfiguration().getCompilerMessageChecks(), Diagnostic.Kind.NOTE, CompileTestConfiguration.ComparisionKind.CONTAINS, "NOTE1");
+        assertCompilerMessages(builder.createCompileTestConfiguration().getCompilerMessageChecks(), Diagnostic.Kind.NOTE, CompileTestConfiguration.ComparisonKind.CONTAINS, "NOTE1");
 
 
         CompileTestBuilder.CompilationTestBuilder builder2 = builder
                 .expectNoteMessageThatContains("NOTE2");
 
 
-        assertCompilerMessages(builder2.createCompileTestConfiguration().getCompilerMessageChecks(), Diagnostic.Kind.NOTE, CompileTestConfiguration.ComparisionKind.CONTAINS, "NOTE1", "NOTE2");
+        assertCompilerMessages(builder2.createCompileTestConfiguration().getCompilerMessageChecks(), Diagnostic.Kind.NOTE, CompileTestConfiguration.ComparisonKind.CONTAINS, "NOTE1", "NOTE2");
 
 
         CompileTestBuilder.CompilationTestBuilder builder3 = builder2
@@ -262,7 +262,7 @@ public class CompileTestBuilderTest {
                 .expectNoteMessageThatContains(null);
 
 
-        assertCompilerMessages(builder3.createCompileTestConfiguration().getCompilerMessageChecks(), Diagnostic.Kind.NOTE, CompileTestConfiguration.ComparisionKind.CONTAINS, "NOTE1", "NOTE2");
+        assertCompilerMessages(builder3.createCompileTestConfiguration().getCompilerMessageChecks(), Diagnostic.Kind.NOTE, CompileTestConfiguration.ComparisonKind.CONTAINS, "NOTE1", "NOTE2");
 
 
     }
@@ -274,20 +274,20 @@ public class CompileTestBuilderTest {
                 .expectErrorMessageThatContains("ERROR1");
 
 
-        assertCompilerMessages(builder.createCompileTestConfiguration().getCompilerMessageChecks(), Diagnostic.Kind.ERROR, CompileTestConfiguration.ComparisionKind.CONTAINS, "ERROR1");
+        assertCompilerMessages(builder.createCompileTestConfiguration().getCompilerMessageChecks(), Diagnostic.Kind.ERROR, CompileTestConfiguration.ComparisonKind.CONTAINS, "ERROR1");
 
 
         CompileTestBuilder.CompilationTestBuilder builder2 = builder
                 .expectErrorMessageThatContains("ERROR2");
 
-        assertCompilerMessages(builder2.createCompileTestConfiguration().getCompilerMessageChecks(), Diagnostic.Kind.ERROR, CompileTestConfiguration.ComparisionKind.CONTAINS, "ERROR1", "ERROR2");
+        assertCompilerMessages(builder2.createCompileTestConfiguration().getCompilerMessageChecks(), Diagnostic.Kind.ERROR, CompileTestConfiguration.ComparisonKind.CONTAINS, "ERROR1", "ERROR2");
 
 
         CompileTestBuilder.CompilationTestBuilder builder3 = builder2
                 .expectErrorMessageThatContains()
                 .expectErrorMessageThatContains(null);
 
-        assertCompilerMessages(builder3.createCompileTestConfiguration().getCompilerMessageChecks(), Diagnostic.Kind.ERROR, CompileTestConfiguration.ComparisionKind.CONTAINS, "ERROR1", "ERROR2");
+        assertCompilerMessages(builder3.createCompileTestConfiguration().getCompilerMessageChecks(), Diagnostic.Kind.ERROR, CompileTestConfiguration.ComparisonKind.CONTAINS, "ERROR1", "ERROR2");
 
 
     }
@@ -331,6 +331,54 @@ public class CompileTestBuilderTest {
 
         MatcherAssert.assertThat(builder.createCompileTestConfiguration().getSourceFiles().iterator().next().getName().toString(), Matchers.is(resource));
 
+
+    }
+
+    @Test
+    public void test_addSourceFromString_compileTest() {
+
+        final String content ="package io.toolisticon.annotationprocessortoolkit.testhelper;" + System.lineSeparator()
+                        + "public class TestClass {" + System.lineSeparator()
+                        + "}";
+
+        CompileTestBuilder.CompilationTestBuilder builder = CompileTestBuilder
+                .compilationTest()
+                .addSource("io.toolisticon.annotationprocessortoolkit.testhelper.TestClass", content);
+
+        // Check if source name is correct
+        MatcherAssert.assertThat(builder.createCompileTestConfiguration().getSourceFiles().iterator().next().getName().toString(), Matchers.is("/io/toolisticon/annotationprocessortoolkit/testhelper/TestClass.java"));
+
+        // Check if classes are compiled in the end
+        builder.compilationShouldSucceed()
+                .expectThatJavaFileObjectExists(StandardLocation.CLASS_OUTPUT,"io.toolisticon.annotationprocessortoolkit.testhelper.TestClass", JavaFileObject.Kind.CLASS)
+                .executeTest();
+    }
+
+    @Test
+    public void test_addSourceFromString_unitTest() {
+
+        final String content ="package io.toolisticon.annotationprocessortoolkit.testhelper;" + System.lineSeparator()
+                + "import io.toolisticon.cute.PassIn;" + System.lineSeparator()
+                + "@PassIn" + System.lineSeparator()
+                + "public class TestClass {" + System.lineSeparator()
+                + "}";
+
+        CompileTestBuilder.UnitTestBuilder builder = CompileTestBuilder
+                .unitTest()
+                .useSource("io.toolisticon.annotationprocessortoolkit.testhelper.TestClass", content);
+
+        // Check if source name is correct
+        MatcherAssert.assertThat(builder.createCompileTestConfiguration().getSourceFiles().iterator().next().getName().toString(), Matchers.is("/io/toolisticon/annotationprocessortoolkit/testhelper/TestClass.java"));
+
+        // Check if classes are compiled in the end
+        builder.<TypeElement>defineTest(PassIn.class, new UnitTest<TypeElement>() {
+                    @Override
+                    public void unitTest(ProcessingEnvironment processingEnvironment, TypeElement element) {
+                        MatcherAssert.assertThat("io.toolisticon.annotationprocessortoolkit.testhelper.TestClass" , Matchers.is(element.getQualifiedName().toString()));
+                    }
+                }).compilationShouldSucceed()
+                .expectThatJavaFileObjectExists(StandardLocation.CLASS_OUTPUT,"io.toolisticon.annotationprocessortoolkit.testhelper.TestClass", JavaFileObject.Kind.CLASS)
+                .executeTest();
 
     }
 
@@ -648,7 +696,7 @@ public class CompileTestBuilderTest {
         MatcherAssert.assertThat(compilerMessageCheck.getLineNumber(), Matchers.is(5L));
         MatcherAssert.assertThat(compilerMessageCheck.getColumnNumber(), Matchers.is(6L));
         MatcherAssert.assertThat(compilerMessageCheck.getLocale(), Matchers.is(Locale.ENGLISH));
-        MatcherAssert.assertThat(compilerMessageCheck.getComparisionKind(), Matchers.is(CompileTestConfiguration.ComparisionKind.CONTAINS));
+        MatcherAssert.assertThat(compilerMessageCheck.getComparisonKind(), Matchers.is(CompileTestConfiguration.ComparisonKind.CONTAINS));
         MatcherAssert.assertThat(compilerMessageCheck.getExpectedMessage(), Matchers.is("ABC"));
 
     }

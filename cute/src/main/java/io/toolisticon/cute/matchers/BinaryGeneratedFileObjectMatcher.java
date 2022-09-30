@@ -8,6 +8,7 @@ import javax.tools.FileObject;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Objects;
 import java.util.regex.PatternSyntaxException;
 
 /**
@@ -73,7 +74,7 @@ public class BinaryGeneratedFileObjectMatcher implements GeneratedFileObjectMatc
 
         BinaryGeneratedFileObjectMatcher that = (BinaryGeneratedFileObjectMatcher) o;
 
-        return expectedFileObject != null ? expectedFileObject.equals(that.expectedFileObject) : that.expectedFileObject == null;
+        return Objects.equals(expectedFileObject, that.expectedFileObject);
     }
 
     @Override

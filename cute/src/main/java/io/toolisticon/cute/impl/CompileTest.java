@@ -40,7 +40,7 @@ public class CompileTest {
     }
 
     /**
-     * The compile test execution main method.
+     * The compile-test execution main method.
      */
     public void executeTest() {
 
@@ -49,14 +49,14 @@ public class CompileTest {
 
         try {
 
-            // Do tests now
+            // Execute tests now
             compilationResult = compile(compileTestConfiguration);
 
 
             // Check if all processors have been applied
             checkIfProcessorsHaveBeenApplied(compilationResult.getDiagnostics());
 
-            // check if error messages and shouldSucceed aren't set contradictionary
+            // check if error messages and shouldSucceed aren't set contradictory
             if (compileTestConfiguration.getCompilationShouldSucceed() != null
                     && compileTestConfiguration.getCompilationShouldSucceed()
                     && compileTestConfiguration.countErrorMessageChecks() > 0) {
@@ -196,7 +196,7 @@ public class CompileTest {
     /**
      * Init the compilation and compile.
      *
-     * @param compileTestConfiguration the compile test configuration to use
+     * @param compileTestConfiguration the compile-test configuration to use
      * @return the compilation result
      */
     public static CompilationResult compile(CompileTestConfiguration compileTestConfiguration) {
@@ -280,7 +280,7 @@ public class CompileTest {
 
 
                     // Check message
-                    switch (messageToCheck.getComparisionKind()) {
+                    switch (messageToCheck.getComparisonKind()) {
 
                         case EQUALS: {
                             if (!localizedMessage.equals(messageToCheck.getExpectedMessage())) {

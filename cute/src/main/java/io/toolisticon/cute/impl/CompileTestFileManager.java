@@ -69,11 +69,11 @@ class CompileTestFileManager extends ForwardingJavaFileManager<StandardJavaFileM
     }
 
     List<JavaFileObject> getGeneratedJavaFileObjects() {
-        return new ArrayList<JavaFileObject>(generatedJavaFileObjectCache.getEntries());
+        return new ArrayList<>(generatedJavaFileObjectCache.getEntries());
     }
 
     List<FileObject> getGeneratedFileObjects() {
-        return new ArrayList<FileObject>(generatedFileObjectCache.getEntries());
+        return new ArrayList<>(generatedFileObjectCache.getEntries());
     }
 
     @Override
@@ -82,8 +82,7 @@ class CompileTestFileManager extends ForwardingJavaFileManager<StandardJavaFileM
     }
 
     @Override
-    public JavaFileObject getJavaFileForOutput(Location location, String className, JavaFileObject.Kind kind, FileObject sibling) throws IOException {
-
+    public JavaFileObject getJavaFileForOutput(Location location, String className, JavaFileObject.Kind kind, FileObject sibling) {
 
         JavaFileObject result = new InMemoryOutputJavaFileObject(uriForJavaFileObject(location, className, kind), kind);
         generatedJavaFileObjectCache.addFileObject(result.toUri(), result);
@@ -92,7 +91,7 @@ class CompileTestFileManager extends ForwardingJavaFileManager<StandardJavaFileM
     }
 
     @Override
-    public FileObject getFileForOutput(Location location, String packageName, String relativeName, FileObject sibling) throws IOException {
+    public FileObject getFileForOutput(Location location, String packageName, String relativeName, FileObject sibling) {
         JavaFileObject result = new InMemoryOutputJavaFileObject(uriForFileObject(location, packageName, relativeName), JavaFileObject.Kind.OTHER);
         generatedFileObjectCache.addFileObject(result.toUri(), result);
         return result;
@@ -198,27 +197,27 @@ class CompileTestFileManager extends ForwardingJavaFileManager<StandardJavaFileM
         }
 
         @Override
-        public InputStream openInputStream() throws IOException {
+        public InputStream openInputStream() {
             return new ByteArrayInputStream(content);
         }
 
         @Override
-        public OutputStream openOutputStream() throws IOException {
+        public OutputStream openOutputStream() {
             return new InMemoryOutputStream(this);
         }
 
         @Override
-        public Reader openReader(boolean ignoreEncodingErrors) throws IOException {
+        public Reader openReader(boolean ignoreEncodingErrors) {
             return new InputStreamReader(openInputStream());
         }
 
         @Override
-        public CharSequence getCharContent(boolean ignoreEncodingErrors) throws IOException {
+        public CharSequence getCharContent(boolean ignoreEncodingErrors){
             return new String(content);
         }
 
         @Override
-        public Writer openWriter() throws IOException {
+        public Writer openWriter(){
             return new OutputStreamWriter(openOutputStream());
         }
     }
@@ -244,7 +243,7 @@ class CompileTestFileManager extends ForwardingJavaFileManager<StandardJavaFileM
         }
 
         @Override
-        public void write(byte[] b) throws IOException {
+        public void write( byte[] b) throws IOException {
             super.write(b);
             outputStreamCallback.setContent(this.toByteArray());
         }

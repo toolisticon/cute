@@ -31,9 +31,9 @@ public class Junit5Test {
 
         CompileTestBuilder
                 .unitTest()
-                .defineTest(new UnitTest() {
+                .defineTest(new UnitTest<Element>() {
                     @Override
-                    public void unitTest(ProcessingEnvironment processingEnvironment, Element typeElement) {
+                    public void unitTest(ProcessingEnvironment processingEnvironment, Element element) {
                         processingEnvironment.getMessager().printMessage(Diagnostic.Kind.WARNING, "WARNING!");
                     }
                 })
@@ -49,9 +49,9 @@ public class Junit5Test {
 
         CompileTestBuilder
                 .unitTest()
-                .defineTest(new UnitTest() {
+                .defineTest(new UnitTest<Element>() {
                     @Override
-                    public void unitTest(ProcessingEnvironment processingEnvironment, Element typeElement) {
+                    public void unitTest(ProcessingEnvironment processingEnvironment, Element element) {
                         processingEnvironment.getMessager().printMessage(Diagnostic.Kind.ERROR, "ERROR!");
                     }
                 })
@@ -68,9 +68,9 @@ public class Junit5Test {
         try {
             CompileTestBuilder
                     .unitTest()
-                    .defineTest(new UnitTest() {
+                    .defineTest(new UnitTest<Element>() {
                         @Override
-                        public void unitTest(ProcessingEnvironment processingEnvironment, Element typeElement) {
+                        public void unitTest(ProcessingEnvironment processingEnvironment, Element element) {
                             processingEnvironment.getMessager().printMessage(Diagnostic.Kind.ERROR, "ERROR!");
                         }
                     })

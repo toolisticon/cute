@@ -10,9 +10,9 @@ import javax.tools.StandardLocation;
 import java.io.IOException;
 
 /**
- * Unit test for {@link ContainsStringsGeneratedFileOjectMatcher}.
+ * Unit test for {@link ContainsStringsGeneratedFileObjectMatcher}.
  */
-public class ContainsStringsGeneratedFileOjectMatcherTest {
+public class ContainsStringsGeneratedFileObjectMatcherTest {
 
     @Test
     public void testForContainingStrings_valid() throws IOException {
