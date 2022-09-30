@@ -327,7 +327,7 @@
                     <plugin>
                         <artifactId>maven-javadoc-plugin</artifactId>
                         <configuration>
-                            <additionalparam>-Xdoclint:none</additionalparam>
+                            <doclint>none</doclint>
                             <source>8</source>
                         </configuration>
                     </plugin>
@@ -397,6 +397,7 @@
                             <reportOutputDirectory>${project.basedir}/docs/assets/javadoc</reportOutputDirectory>
                             <destDir>${project.version}</destDir>
                             <excludePackageNames>io.toolisticon.example.*</excludePackageNames>
+                            <doclint>none</doclint>
                         </configuration>
                     </plugin>
                 </plugins>
