@@ -1,6 +1,7 @@
 package io.toolisticon.cute.impl;
 
 import io.toolisticon.cute.Constants;
+import io.toolisticon.cute.CuteFluentApi;
 import io.toolisticon.cute.FailingAssertionException;
 import io.toolisticon.cute.GeneratedFileObjectMatcher;
 import io.toolisticon.cute.InvalidTestConfigurationException;
@@ -16,6 +17,8 @@ import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.ToolProvider;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -28,15 +31,19 @@ public class CompileTest {
     // Messages
 
 
-    private final CompileTestConfiguration compileTestConfiguration;
+    private final CuteFluentApi.CompilerTestBB compileTestConfiguration;
+
+    private final Set<AnnotationProcessorWrapper> wrappedAnnotationProcessors;
 
     /**
      * Main constructor.
      *
      * @param compileTestConfiguration the configuration used during tests.
      */
-    public CompileTest(final CompileTestConfiguration compileTestConfiguration) {
+    public CompileTest(final CuteFluentApi.CompilerTestBB compileTestConfiguration) {
         this.compileTestConfiguration = compileTestConfiguration;
+        this.wrappedAnnotationProcessors = AnnotationProcessorWrapper.getWrappedProcessors(compileTestConfiguration);
+
     }
 
     /**
@@ -50,25 +57,25 @@ public class CompileTest {
         try {
 
             // Execute tests now
-            compilationResult = compile(compileTestConfiguration);
+            compilationResult = compile(compileTestConfiguration, wrappedAnnotationProcessors);
 
 
             // Check if all processors have been applied
             checkIfProcessorsHaveBeenApplied(compilationResult.getDiagnostics());
 
             // check if error messages and shouldSucceed aren't set contradictory
-            if (compileTestConfiguration.getCompilationShouldSucceed() != null
-                    && compileTestConfiguration.getCompilationShouldSucceed()
+            if (compileTestConfiguration.compilationSucceeded() != null
+                    && compileTestConfiguration.compilationSucceeded()
                     && compileTestConfiguration.countErrorMessageChecks() > 0) {
                 throw new InvalidTestConfigurationException(Constants.Messages.MESSAGE_COMPILATION_SHOULD_SUCCEED_AND_ERROR_MESSAGE_EXPECTED.produceMessage());
             }
 
 
             // Check if compilation succeeded
-            if (compileTestConfiguration.getCompilationShouldSucceed() != null && !compileTestConfiguration.getCompilationShouldSucceed().equals(compilationResult.getCompilationSucceeded())) {
+            if (compileTestConfiguration.compilationSucceeded() != null && !compileTestConfiguration.compilationSucceeded().equals(compilationResult.getCompilationSucceeded())) {
 
                 throw new FailingAssertionException(
-                        compileTestConfiguration.getCompilationShouldSucceed()
+                        compileTestConfiguration.compilationSucceeded()
                                 ? Constants.Messages.MESSAGE_COMPILATION_SHOULD_HAVE_SUCCEEDED_BUT_FAILED.produceMessage() + "\nERRORS:\n" + CompileTestUtilities.getMessages(compilationResult.getDiagnostics(), Diagnostic.Kind.ERROR)
                                 : Constants.Messages.MESSAGE_COMPILATION_SHOULD_HAVE_FAILED_BUT_SUCCEEDED.produceMessage()
                 );
@@ -80,8 +87,8 @@ public class CompileTest {
             checkMessages(compilationResult.getDiagnostics());
 
 
-            for (CompileTestConfiguration.GeneratedJavaFileObjectCheck generatedJavaFileObjectCheck : this.compileTestConfiguration.getGeneratedJavaFileObjectChecks()) {
-                if (CompileTestConfiguration.FileObjectCheckType.EXISTS.equals(generatedJavaFileObjectCheck.getCheckType())) {
+            for (CuteFluentApi.GeneratedJavaFileObjectCheckBB generatedJavaFileObjectCheck : this.compileTestConfiguration.javaFileObjectChecks()) {
+                if (CuteFluentApi.FileObjectCheckType.EXISTS.equals(generatedJavaFileObjectCheck.getCheckType())) {
                     if (!compilationResult.getCompileTestFileManager().existsExpectedJavaFileObject(generatedJavaFileObjectCheck.getLocation(), generatedJavaFileObjectCheck.getClassName(), generatedJavaFileObjectCheck.getKind())) {
                         throw new FailingAssertionException(Constants.Messages.MESSAGE_JFO_DOESNT_EXIST.produceMessage(getJavaFileObjectInfoString(generatedJavaFileObjectCheck)));
                     } else {
@@ -122,9 +129,9 @@ public class CompileTest {
 
             }
 
-            for (CompileTestConfiguration.GeneratedFileObjectCheck generatedFileObjectCheck : this.compileTestConfiguration.getGeneratedFileObjectChecks()) {
+            for (CuteFluentApi.GeneratedFileObjectCheckBB generatedFileObjectCheck : this.compileTestConfiguration.fileObjectChecks()) {
 
-                if (CompileTestConfiguration.FileObjectCheckType.EXISTS.equals(generatedFileObjectCheck.getCheckType())) {
+                if (CuteFluentApi.FileObjectCheckType.EXISTS.equals(generatedFileObjectCheck.getCheckType())) {
 
                     if (!compilationResult.getCompileTestFileManager().existsExpectedFileObject(generatedFileObjectCheck.getLocation(), generatedFileObjectCheck.getPackageName(), generatedFileObjectCheck.getRelativeName())) {
                         throw new FailingAssertionException(Constants.Messages.MESSAGE_FO_DOESNT_EXIST.produceMessage(getFileObjectInfoString(generatedFileObjectCheck)));
@@ -185,11 +192,11 @@ public class CompileTest {
     }
 
 
-    static String getJavaFileObjectInfoString(CompileTestConfiguration.GeneratedJavaFileObjectCheck generatedJavaFileObjectCheck) {
+    static String getJavaFileObjectInfoString(CuteFluentApi.GeneratedJavaFileObjectCheckBB generatedJavaFileObjectCheck) {
         return generatedJavaFileObjectCheck.getLocation() + "; " + generatedJavaFileObjectCheck.getClassName() + "; " + generatedJavaFileObjectCheck.getKind();
     }
 
-    static String getFileObjectInfoString(CompileTestConfiguration.GeneratedFileObjectCheck generatedFileObjectCheck) {
+    static String getFileObjectInfoString(CuteFluentApi.GeneratedFileObjectCheckBB generatedFileObjectCheck) {
         return generatedFileObjectCheck.getLocation() + "; " + generatedFileObjectCheck.getPackageName() + "; " + generatedFileObjectCheck.getRelativeName();
     }
 
@@ -199,7 +206,7 @@ public class CompileTest {
      * @param compileTestConfiguration the compile-test configuration to use
      * @return the compilation result
      */
-    public static CompilationResult compile(CompileTestConfiguration compileTestConfiguration) {
+    public static CompilationResult compile(CuteFluentApi.CompilerTestBB compileTestConfiguration, Set<AnnotationProcessorWrapper> wrappedAnnotationProcessors) {
 
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
         DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
@@ -214,17 +221,17 @@ public class CompileTest {
                 null,
                 javaFileManager,
                 diagnostics,
-                compileTestConfiguration.getCompilerOptions().isEmpty() ? null : compileTestConfiguration.getNormalizedCompilerOptions(),
+                compileTestConfiguration.compilerOptions().isEmpty() ? null : compileTestConfiguration.getNormalizedCompilerOptions(),
                 null,
-                compileTestConfiguration.getSourceFiles());
+                compileTestConfiguration.sourceFiles());
 
-        compilationTask.setProcessors(compileTestConfiguration.getWrappedProcessors());
+        compilationTask.setProcessors(wrappedAnnotationProcessors);
 
         // handle java 9 module support via SPI to be backward compatible with older Java versions prior to java 9
         if (!Java9SupportCheck.UNSUPPORTED_JAVA_VERSION) {
             ModuleSupportSpi moduleService = ModuleSupportSpiServiceLocator.locate();
             if (moduleService != null) {
-                moduleService.applyModulePath(stdJavaFileManager, compilationTask, compileTestConfiguration.getModules());
+                moduleService.applyModulePath(stdJavaFileManager, compilationTask, compileTestConfiguration.modules());
             }
         }
 
@@ -244,7 +251,7 @@ public class CompileTest {
         Set<String> messages = CompileTestUtilities.getMessages(diagnostics, Diagnostic.Kind.NOTE);
 
         outer:
-        for (AnnotationProcessorWrapper processor : compileTestConfiguration.getWrappedProcessors()) {
+        for (AnnotationProcessorWrapper processor : this.wrappedAnnotationProcessors) {
 
             for (String message : messages) {
                 if (message.equals(processor.getProcessorWasAppliedMessage())) {
@@ -265,49 +272,49 @@ public class CompileTest {
     void checkMessages(DiagnosticCollector<JavaFileObject> diagnostics) {
 
         // Just check messages of matching kind
-        Map<Diagnostic.Kind, List<CompileTestConfiguration.CompilerMessageCheck>> compileMessageChecks = compileTestConfiguration.getCompilerMessageCheckByKindMap();
+        Map<Diagnostic.Kind, List<CuteFluentApi.CompilerMessageCheckBB>> compileMessageChecks = getCompilerMessageCheckByKindMap(compileTestConfiguration);
 
-        for (Map.Entry<Diagnostic.Kind, List<CompileTestConfiguration.CompilerMessageCheck>> entry : compileMessageChecks.entrySet()) {
+        for (Map.Entry<Diagnostic.Kind, List<CuteFluentApi.CompilerMessageCheckBB>> entry : compileMessageChecks.entrySet()) {
 
             Set<Diagnostic> filteredDiagnostics = CompileTestUtilities.getDiagnosticByKind(diagnostics, entry.getKey());
 
             outer:
-            for (CompileTestConfiguration.CompilerMessageCheck messageToCheck : entry.getValue()) {
+            for (CuteFluentApi.CompilerMessageCheckBB messageToCheck : entry.getValue()) {
 
                 for (Diagnostic element : filteredDiagnostics) {
 
-                    String localizedMessage = element.getMessage(messageToCheck.getLocale());
+                    String localizedMessage = element.getMessage(messageToCheck.withLocale());
 
 
                     // Check message
-                    switch (messageToCheck.getComparisonKind()) {
+                    switch (messageToCheck.getComparisonType()) {
 
                         case EQUALS: {
-                            if (!localizedMessage.equals(messageToCheck.getExpectedMessage())) {
+                            if (!localizedMessage.equals(messageToCheck.getSearchString().get(0))) {
                                 continue;
                             }
                             break;
                         }
                         case CONTAINS:
                         default: {
-                            if (!localizedMessage.contains(messageToCheck.getExpectedMessage())) {
+                            if (!messageToCheck.getSearchString().stream().allMatch(e -> localizedMessage.contains(e))) {
                                 continue;
                             }
                         }
                     }
 
                     // check source
-                    if (messageToCheck.getSource() != null && !messageToCheck.getSource().equals(((FileObject) element.getSource()).getName())) {
+                    if (messageToCheck.atSource() != null && !messageToCheck.atSource().equals(((FileObject) element.getSource()).getName())) {
                         continue;
                     }
 
                     // check line
-                    if (messageToCheck.getLineNumber() != null && element.getLineNumber() != messageToCheck.getLineNumber()) {
+                    if (messageToCheck.atLine() != null && element.getLineNumber() != messageToCheck.atLine()) {
                         continue;
                     }
 
                     // check column
-                    if (messageToCheck.getColumnNumber() != null && element.getColumnNumber() != messageToCheck.getColumnNumber()) {
+                    if (messageToCheck.atColumn() != null && element.getColumnNumber() != messageToCheck.atColumn()) {
                         continue;
                     }
 
@@ -317,7 +324,7 @@ public class CompileTest {
                 }
 
                 // Not found ==> assertion fails
-                throw new FailingAssertionException(Constants.Messages.MESSAGE_HAVENT_FOUND_MESSSAGE.produceMessage(messageToCheck.getExpectedMessage(), messageToCheck.getKind().name()));
+                throw new FailingAssertionException(Constants.Messages.MESSAGE_HAVENT_FOUND_MESSSAGE.produceMessage(messageToCheck.getSearchString(), messageToCheck.getKind().name()));
 
             }
 
@@ -325,5 +332,23 @@ public class CompileTest {
 
     }
 
+
+    public Map<Diagnostic.Kind, List<CuteFluentApi.CompilerMessageCheckBB>> getCompilerMessageCheckByKindMap(CuteFluentApi.CompilerTestBB compilerTestBB) {
+        Map<Diagnostic.Kind, List<CuteFluentApi.CompilerMessageCheckBB>> map = new HashMap<>();
+
+        for (CuteFluentApi.CompilerMessageCheckBB compilerMessageCheck : compilerTestBB.compilerMessageChecks()) {
+
+            List<CuteFluentApi.CompilerMessageCheckBB> checkByKindList = map.get(compilerMessageCheck.getKind());
+            if (checkByKindList == null) {
+                checkByKindList = new ArrayList<>();
+                map.put(Diagnostic.Kind.valueOf(compilerMessageCheck.getKind().name()), checkByKindList);
+
+            }
+
+            checkByKindList.add(compilerMessageCheck);
+        }
+
+        return map;
+    }
 
 }

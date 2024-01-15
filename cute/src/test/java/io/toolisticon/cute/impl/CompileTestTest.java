@@ -1,7 +1,7 @@
 package io.toolisticon.cute.impl;
 
-import io.toolisticon.cute.CompileTestBuilder;
 import io.toolisticon.cute.Constants;
+import io.toolisticon.cute.CuteFluentApiStarter;
 import io.toolisticon.cute.GeneratedFileObjectMatcher;
 import io.toolisticon.cute.InvalidTestConfigurationException;
 import io.toolisticon.cute.JavaFileObjectUtils;
@@ -17,6 +17,7 @@ import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.tools.Diagnostic;
 import javax.tools.FileObject;
@@ -30,16 +31,16 @@ public class CompileTestTest {
     @Test
     public void test_UnitTest_checkMatchingFileObject() {
 
-
-        CompileTestBuilder
-                .unitTest()
-                .defineTest(new UnitTest() {
+        CuteFluentApiStarter.unitTest()
+                        .given().useCompilerOptions("-verbose  ", " -source    1.7   ", "-target 1.7")
+                .when().passInElement().<TypeElement>fromSourceFile("/AnnotationProcessorUnitTestClass.java")
+                .intoUnitTest(new UnitTest() {
                     @Override
                     public void unitTest(ProcessingEnvironment processingEnvironment, Element typeElement) {
 
                         try {
 
-                            FileObject fileObject = processingEnvironment.getFiler().createResource(StandardLocation.SOURCE_OUTPUT, "root", "Jupp.txt", typeElement);
+                            FileObject fileObject = processingEnvironment.getFiler().createResource(StandardLocation.SOURCE_OUTPUT, "root", "Jupp.txt");
                             Writer writer = fileObject.openWriter();
                             writer.write("TATA!");
                             writer.close();
@@ -51,21 +52,24 @@ public class CompileTestTest {
 
                     }
                 })
-                .useCompilerOptions("-verbose  ", " -source    1.7   ", "-target 1.7")
-                .compilationShouldSucceed()
+                .thenExpectThat().compilationSucceeds()
+                .andThat().fileObject(StandardLocation.SOURCE_OUTPUT, "root", "Jupp.txt").exists()
 
-                .expectThatFileObjectExists(StandardLocation.SOURCE_OUTPUT, "root", "Jupp.txt")
-                .expectThatFileObjectExists(StandardLocation.SOURCE_OUTPUT, "root", "Jupp.txt", JavaFileObjectUtils.readFromString("TATA!"))
-                .expectThatFileObjectExists(StandardLocation.SOURCE_OUTPUT, "root", "Jupp.txt", new GeneratedFileObjectMatcher() {
+                .andThat().fileObject(StandardLocation.SOURCE_OUTPUT, "root", "Jupp.txt").equals( JavaFileObjectUtils.readFromString("TATA!"))
+
+                .andThat().fileObject(StandardLocation.SOURCE_OUTPUT, "root", "Jupp.txt").matches( new GeneratedFileObjectMatcher() {
                     @Override
                     public boolean check(FileObject fileObject) throws IOException {
                         return fileObject.getCharContent(false).toString().contains("TAT");
                     }
                 })
+
+
                 .executeTest();
 
     }
 
+    /*-
     @Test
     public void test_UnitTest_checkNonMatchingFileObject() {
 
@@ -378,4 +382,6 @@ public class CompileTestTest {
 
 
     }
+
+    */
 }

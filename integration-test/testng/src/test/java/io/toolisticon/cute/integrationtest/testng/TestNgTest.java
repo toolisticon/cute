@@ -1,6 +1,5 @@
 package io.toolisticon.cute.integrationtest.testng;
 
-import io.toolisticon.cute.CompileTestBuilder;
 import io.toolisticon.cute.UnitTest;
 import io.toolisticon.cute.extension.api.AssertionSpiServiceLocator;
 import io.toolisticon.cute.extension.testng.TestNGAssertion;

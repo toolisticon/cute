@@ -1,8 +1,7 @@
 package io.toolisticon.cute.integrationtest.java9;
 
-import io.toolisticon.cute.CompileTestBuilder;
 import io.toolisticon.cute.JavaFileObjectUtils;
-import io.toolisticon.cute.integrationtest.java9.namednonmodule.NamedAutomaticModuleTestClass;
+import io.toolisticon.cute.integrationtest.javanine.namednonmodule.NamedAutomaticModuleTestClass;
 import org.junit.Test;
 
 /**
@@ -19,7 +18,7 @@ public class IntegrationTest {
                 .addSources(
                         JavaFileObjectUtils.readFromResource("/testcases/bindRegularJavaModule/Test.java"),
                         JavaFileObjectUtils.readFromResource("/testcases/bindRegularJavaModule/module-info.java"))
-                .useModules("io.toolisticon.cute.integrationtest.java9.regularmodule")
+                .useModules("io.toolisticon.cute.integrationtest.javanine.regularmodule")
                 .compilationShouldSucceed()
                 .executeTest();
 
@@ -34,9 +33,9 @@ public class IntegrationTest {
                 .addSources(
                         JavaFileObjectUtils.readFromResource("/testcases/accessNotExportedClass/Test.java"),
                         JavaFileObjectUtils.readFromResource("/testcases/accessNotExportedClass/module-info.java"))
-                .useModules("io.toolisticon.cute.integrationtest.java9.regularmodule")
+                .useModules("io.toolisticon.cute.integrationtest.javanine.regularmodule")
                 .compilationShouldFail()
-                .expectErrorMessageThatContains("io.toolisticon.cute.integrationtest.java9.regularmodule.notexported", "is not visible")
+                .expectErrorMessageThatContains("io.toolisticon.cute.integrationtest.javanine.regularmodule.notexported", "is not visible")
                 .executeTest();
 
     }
@@ -51,7 +50,7 @@ public class IntegrationTest {
                 .addSources(
                         JavaFileObjectUtils.readFromResource("/testcases/bindNamedAutomaticJavaModule/Test.java"),
                         JavaFileObjectUtils.readFromResource("/testcases/bindNamedAutomaticJavaModule/module-info.java"))
-                .useModules("integration.test.java9.namedautomaticmodule")
+                .useModules("integration.test.javanine.namedautomaticmodule")
                 .compilationShouldSucceed()
                 .executeTest();
 
@@ -67,7 +66,7 @@ public class IntegrationTest {
                 .addSources(
                         JavaFileObjectUtils.readFromResource("/testcases/bindUnnamedAutomaticJavaModule/Test.java"),
                         JavaFileObjectUtils.readFromResource("/testcases/bindUnnamedAutomaticJavaModule/module-info.java"))
-                .useModules("integration.test.java9.unnamedautomaticmodule")
+                .useModules("integration.test.javanine.unnamedautomaticmodule")
                 .compilationShouldSucceed()
                 .executeTest();
 

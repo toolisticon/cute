@@ -1,5 +1,6 @@
 package io.toolisticon.cute.impl;
 
+import io.toolisticon.cute.CuteFluentApi;
 import io.toolisticon.cute.FailingAssertionException;
 import io.toolisticon.cute.extension.api.ModuleSupportSpi;
 import io.toolisticon.cute.extension.api.ModuleSupportSpiServiceLocator;
@@ -28,7 +29,7 @@ final class DebugOutputGenerator {
 
     }
 
-    static String getDebugOutput(CompilationResult compilationResult, CompileTestConfiguration compileTestConfiguration, FailingAssertionException failingAssertionException) {
+    static String getDebugOutput(CompilationResult compilationResult, CuteFluentApi.CompilerTestBB compileTestConfiguration, FailingAssertionException failingAssertionException) {
 
         StringBuilder stringBuilder = new StringBuilder();
 
@@ -61,7 +62,7 @@ final class DebugOutputGenerator {
         // Compile test configuration
         stringBuilder.append(getDebugOutputHeader("COMPILE TEST CONFIGURATION")).append(compileTestConfiguration.toString());
 
-        if (!Java9SupportCheck.UNSUPPORTED_JAVA_VERSION && compileTestConfiguration.getModules() != null) {
+        if (!Java9SupportCheck.UNSUPPORTED_JAVA_VERSION && compileTestConfiguration.modules() != null) {
 
             ModuleSupportSpi moduleSupportSpi = ModuleSupportSpiServiceLocator.locate();
             if (moduleSupportSpi != null) {

@@ -11,7 +11,7 @@ import java.util.Set;
  *
  * @param <ELEMENT_TYPE> The expected type of the processed element
  */
-class UnitTestAnnotationProcessorClass<ELEMENT_TYPE extends Element> extends AbstractUnitTestAnnotationProcessorClass {
+public class UnitTestAnnotationProcessorClass<ELEMENT_TYPE extends Element> extends AbstractUnitTestAnnotationProcessorClass {
 
     /**
      * The unit test processor instance to use.

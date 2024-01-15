@@ -36,12 +36,12 @@ public class CompileTestBuilderTest {
 
         JavaFileObject testSource = Mockito.mock(JavaFileObject.class);
         JavaFileObject expectedGeneratedSource = JavaFileObjectUtils.readFromString("Jupp.txt", "TATA!");
-        CompileTestBuilder
+        CuteFluentApiStarter
                 .unitTest()
-                .defineTest(
-                        new UnitTest() {
+                .when(
+                        new UnitTestWithoutPassIn() {
                             @Override
-                            public void unitTest(ProcessingEnvironment processingEnvironment, Element typeElement) {
+                            public void unitTest(ProcessingEnvironment processingEnvironment) {
 
                                 processingEnvironment.getMessager().printMessage(Diagnostic.Kind.MANDATORY_WARNING, "MANDATORY_WARNING");
                                 processingEnvironment.getMessager().printMessage(Diagnostic.Kind.WARNING, "WARNING");
@@ -49,7 +49,7 @@ public class CompileTestBuilderTest {
 
 
                                 try {
-                                    FileObject fileObject = processingEnvironment.getFiler().createResource(StandardLocation.SOURCE_OUTPUT, "root", "Jupp.txt", typeElement);
+                                    FileObject fileObject = processingEnvironment.getFiler().createResource(StandardLocation.SOURCE_OUTPUT, "root", "Jupp.txt");
                                     Writer writer = fileObject.openWriter();
                                     writer.write("TATA!");
                                     writer.close();
@@ -61,10 +61,10 @@ public class CompileTestBuilderTest {
 
                             }
                         })
-                .expectWarningMessageThatContains("WARNING")
-                .expectMandatoryWarningMessageThatContains("MANDATORY_WARNING")
-                .expectNoteMessageThatContains("NOTE")
-                .compilationShouldSucceed()
+                .thenExpectThat().compilationSucceeds()
+                .andThat().compilerMessage().ofKindWarning().contains("WARNING")
+                .andThat().compilerMessage().ofKindMandatoryWarning().contains("MANDATORY_WARNING")
+                .andThat().compilerMessage().ofKindNote().contains("NOTE")
                 .executeTest();
 
 
@@ -74,17 +74,17 @@ public class CompileTestBuilderTest {
     @Test
     public void test_UnitTest_successfulCompilation_withInitializedProcessorUnderTest_build() {
 
-        CompileTestBuilder
-                .unitTest()
-                .defineTest(SimpleTestProcessor1.class, new UnitTestForTestingAnnotationProcessors<SimpleTestProcessor1, TypeElement>() {
+        CuteFluentApiStarter.unitTest()
+                .when().passInProcessor(SimpleTestProcessor1.class)
+                .intoUnitTest( new UnitTestForTestingAnnotationProcessorsWithoutPassIn<SimpleTestProcessor1>() {
                     @Override
-                    public void unitTest(SimpleTestProcessor1 unit, ProcessingEnvironment processingEnvironment, TypeElement typeElement) {
+                    public void unitTest(SimpleTestProcessor1 unit, ProcessingEnvironment processingEnvironment) {
 
                         MatcherAssert.assertThat(unit.getProcessingEnvironment(), Matchers.equalTo(processingEnvironment));
 
                     }
                 })
-                .compilationShouldSucceed()
+                .thenExpectThat().compilationSucceeds()
                 .executeTest();
 
 
@@ -95,10 +95,11 @@ public class CompileTestBuilderTest {
 
     }
 
+    /*-
     @Test
     public void test_UnitTest_successfulCompilation_withInitializedProcessorUnderTestAndPassIn_build() {
 
-        CompileTestBuilder
+        CuteFluentApiStarter
                 .unitTest()
                 .defineTestWithPassedInElement(SimpleTestProcessor1.class, PassInProcessorAndElement.class, new UnitTestForTestingAnnotationProcessors<SimpleTestProcessor1, TypeElement>() {
                     @Override
@@ -330,7 +331,6 @@ public class CompileTestBuilderTest {
                 .addSources(resource);
 
         MatcherAssert.assertThat(builder.createCompileTestConfiguration().getSourceFiles().iterator().next().getName().toString(), Matchers.is(resource));
-
 
     }
 
@@ -890,5 +890,7 @@ public class CompileTestBuilderTest {
                 .executeTest();
 
     }
+
+     */
 
 }

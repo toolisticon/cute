@@ -18,7 +18,7 @@ import java.util.Locale;
  * Compile test builder.
  * Implemented with immutable state / configuration, so it's safe to create a base configuration in test class and to further specify the tests in the unit test method.
  */
-public class CompileTestBuilder {
+public class CompileTestBuilderOld {
 
     /**
      * Configures how FileObjects should be compared.
@@ -250,7 +250,7 @@ public class CompileTestBuilder {
         /**
          * Adds a check if a specific generated FileObject exists.
          *
-         * @param location     the location (usually a {@link javax.tools.StandardLocation})
+         * @param location     the location (usually a {@link StandardLocation})
          * @param packageName  the package name
          * @param relativeName the relative name to the passed package
          * @return the next builder instance
@@ -315,7 +315,7 @@ public class CompileTestBuilder {
 
         /**
          * Adds a check if a specific generated FileObject exists.
-         * Additionally checks if file object matches with passed matcher.
+         * Additionally, checks if file object matches with passed matcher.
          *
          * @param location                   the location (usually from javax.tools.StandardLocation)
          * @param packageName                the package name
@@ -470,7 +470,7 @@ public class CompileTestBuilder {
          * Adds a check if a specific generated JavaFileObject exists.
          * Additionally checks if java file object matches with passed matcher.
          *
-         * @param location                     the location (usually a {@link javax.tools.StandardLocation})
+         * @param location                     the location (usually a {@link StandardLocation})
          * @param className                    the class name
          * @param kind                         the kind of the JavaFileObject
          * @param generatedJavaFileObjectCheck the matcher to use

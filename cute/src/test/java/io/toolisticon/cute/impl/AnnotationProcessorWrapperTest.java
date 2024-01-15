@@ -1,9 +1,10 @@
 package io.toolisticon.cute.impl;
 
 
-import io.toolisticon.cute.CompileTestBuilder;
+import io.toolisticon.cute.CuteFluentApiStarter;
 import io.toolisticon.cute.TestAnnotation;
 import io.toolisticon.cute.UnitTest;
+import io.toolisticon.cute.UnitTestWithoutPassIn;
 import io.toolisticon.cute.testcases.TestAnnotationProcessor;
 import io.toolisticon.cute.testcases.TestAnnotationProcessorWithMissingNoArgConstructor;
 import org.hamcrest.MatcherAssert;
@@ -234,15 +235,11 @@ public class AnnotationProcessorWrapperTest {
     @Test
     public void process_withoutExpectedExceptionShouldSucceed() {
 
+        CuteFluentApiStarter.unitTest().when(
+                        processingEnvironment -> {
 
-        CompileTestBuilder.unitTest().defineTest(
-                new UnitTest() {
-                    @Override
-                    public void unitTest(ProcessingEnvironment processingEnvironment, Element typeElement) {
-
-                    }
-                })
-                .compilationShouldSucceed()
+                        })
+                .thenExpectThat().compilationSucceeds()
                 .executeTest();
 
 
@@ -253,14 +250,10 @@ public class AnnotationProcessorWrapperTest {
     public void process_testExpectedExceptionIsThrown_assertionShouldSucceed() {
 
 
-        CompileTestBuilder.unitTest().defineTest(
-                new UnitTest() {
-                    @Override
-                    public void unitTest(ProcessingEnvironment processingEnvironment, Element typeElement) {
-                        throw new IllegalArgumentException();
-                    }
-                })
-                .expectedThrownException(IllegalArgumentException.class)
+        CuteFluentApiStarter.unitTest().when(processingEnvironment -> {
+            throw new IllegalArgumentException();
+        })
+                .thenExpectThat().exceptionIsThrown(IllegalArgumentException.class)
                 .executeTest();
 
 
@@ -270,14 +263,13 @@ public class AnnotationProcessorWrapperTest {
     public void process_testExpectedExceptionNotThrown_assertionShouldFail() {
 
         try {
-            CompileTestBuilder.unitTest().defineTest(
-                    new UnitTest() {
+            CuteFluentApiStarter.unitTest().when(new UnitTestWithoutPassIn() {
                         @Override
-                        public void unitTest(ProcessingEnvironment processingEnvironment, Element typeElement) {
+                        public void unitTest(ProcessingEnvironment processingEnvironment) {
 
                         }
                     })
-                    .expectedThrownException(IllegalArgumentException.class)
+                    .thenExpectThat().exceptionIsThrown(IllegalArgumentException.class)
                     .executeTest();
         } catch (Exception e) {
             MatcherAssert.assertThat(e.getMessage(), Matchers.containsString("Expected exception of type 'java.lang.IllegalArgumentException'"));
@@ -289,14 +281,13 @@ public class AnnotationProcessorWrapperTest {
     public void process_testUnexpectedExceptionWasThrown_assertionShouldFail() {
 
         try {
-            CompileTestBuilder.unitTest().defineTest(
-                    new UnitTest() {
+            CuteFluentApiStarter.unitTest().when(new UnitTestWithoutPassIn() {
                         @Override
-                        public void unitTest(ProcessingEnvironment processingEnvironment, Element typeElement) {
+                        public void unitTest(ProcessingEnvironment processingEnvironment) {
                             throw new IllegalStateException();
                         }
                     })
-                    .expectedThrownException(IllegalArgumentException.class)
+                    .thenExpectThat().exceptionIsThrown(IllegalArgumentException.class)
                     .executeTest();
         } catch (Throwable e) {
             MatcherAssert.assertThat(e.getMessage(), Matchers.containsString("Expected exception of type 'java.lang.IllegalArgumentException' but exception of type 'java.lang.IllegalStateException' was thrown instead"));
@@ -308,13 +299,11 @@ public class AnnotationProcessorWrapperTest {
     public void process_testUnexpectedExceptionWasThrownWhenExpectedExceptionNotSet_assertionShouldFail() {
 
         try {
-            CompileTestBuilder.unitTest().defineTest(
-                    new UnitTest() {
-                        @Override
-                        public void unitTest(ProcessingEnvironment processingEnvironment, Element typeElement) {
-                            throw new IllegalStateException();
-                        }
-                    })
+            CuteFluentApiStarter.unitTest().when(
+                            processingEnvironment -> {
+                                throw new IllegalStateException();
+                            })
+                    .thenExpectThat().compilationFails()
                     .executeTest();
         } catch (Throwable e) {
             MatcherAssert.assertThat(e.getMessage(), Matchers.containsString("An unexpected exception of type 'java.lang.IllegalStateException'"));

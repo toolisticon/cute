@@ -1,4 +1,4 @@
-package io.toolisticon.cute.integrationtest.java9.regularmodule;
+package io.toolisticon.cute.integrationtest.javanine.regularmodule;
 
 public class RegularModuleTestClass {
 

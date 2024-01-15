@@ -102,6 +102,13 @@ public class CompileTestConfiguration {
         CONTAINS
     }
 
+    public enum CompilerMessageKind {
+        NOTE,
+        WARNING,
+        MANDATORY_WARNING,
+        ERROR;
+    }
+
     public static class CompilerMessageCheck {
 
         private final Diagnostic.Kind kind;
@@ -519,6 +526,8 @@ public class CompileTestConfiguration {
                     '}';
         }
     }
+
+
 
     /**
      * The compiler options to use.

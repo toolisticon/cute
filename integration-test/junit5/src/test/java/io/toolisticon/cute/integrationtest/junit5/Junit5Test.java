@@ -1,7 +1,6 @@
 package io.toolisticon.cute.integrationtest.junit5;
 
 
-import io.toolisticon.cute.CompileTestBuilder;
 import io.toolisticon.cute.UnitTest;
 import io.toolisticon.cute.extension.api.AssertionSpiServiceLocator;
 import io.toolisticon.cute.extension.junit5.JUnit5Assertion;

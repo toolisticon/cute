@@ -1,7 +1,12 @@
 package io.toolisticon.cute.impl;
 
-import io.toolisticon.cute.CompileTestBuilder;
+import io.toolisticon.cute.CuteFluentApi;
+import io.toolisticon.cute.CuteFluentApiStarter;
+import io.toolisticon.cute.TestAnnotation;
 import io.toolisticon.cute.UnitTest;
+import io.toolisticon.cute.UnitTestForTestingAnnotationProcessors;
+import io.toolisticon.cute.UnitTestWithoutPassIn;
+import io.toolisticon.cute.common.SimpleTestProcessor1;
 import org.junit.Test;
 
 import javax.annotation.processing.ProcessingEnvironment;
@@ -13,34 +18,36 @@ import javax.tools.Diagnostic;
  */
 public class CompilerMessageCheckTest {
 
-    CompileTestBuilder.UnitTestBuilder builder = CompileTestBuilder.unitTest();
+    CuteFluentApi.UnitTestRootInterface builder = CuteFluentApiStarter.unitTest();
 
     @Test
     public void testComplexCompilerMessageCheck_findMessage_withAll() {
 
-        builder.compilationShouldSucceed().<TypeElement>defineTest(new UnitTest<TypeElement>() {
-            @Override
-            public void unitTest(ProcessingEnvironment processingEnvironment, TypeElement element) {
-                processingEnvironment.getMessager().printMessage(Diagnostic.Kind.WARNING, "ABC", element);
-            }
-        })
-                .expectWarningMessage().atSource("/AnnotationProcessorUnitTestClass.java").atLineNumber(13L).atColumnNumber(8L).thatIsEqualTo("ABC")
-
+        builder.when()
+                .passInElement().<TypeElement>fromSourceFile("/AnnotationProcessorUnitTestClass.java")
+                .intoUnitTest(new UnitTest<TypeElement>() {
+                    @Override
+                    public void unitTest(ProcessingEnvironment processingEnvironment, TypeElement element) {
+                        processingEnvironment.getMessager().printMessage(Diagnostic.Kind.WARNING, "ABC", element);
+                    }
+                })
+                .thenExpectThat().compilationSucceeds()
+                .andThat().compilerMessage().ofKindWarning().atSource("/AnnotationProcessorUnitTestClass.java").atLine(13).atColumn(8).equals("ABC")
                 .executeTest();
-
     }
 
     @Test(expected = AssertionError.class)
     public void testComplexCompilerMessageCheck_dontFindMessage_withAll_wrongSource() {
 
-        builder.compilationShouldSucceed().<TypeElement>defineTest(new UnitTest<TypeElement>() {
-            @Override
-            public void unitTest(ProcessingEnvironment processingEnvironment, TypeElement element) {
-                processingEnvironment.getMessager().printMessage(Diagnostic.Kind.WARNING, "ABC", element);
-            }
-        })
-                .expectWarningMessage().atSource("/XYZ.java").atLineNumber(13L).atColumnNumber(8L).thatIsEqualTo("ABC")
-
+        builder.when().passInElement().<TypeElement>fromSourceFile("/AnnotationProcessorUnitTestClass.java")
+                .intoUnitTest(new UnitTest<TypeElement>() {
+                    @Override
+                    public void unitTest(ProcessingEnvironment processingEnvironment, TypeElement element) {
+                        processingEnvironment.getMessager().printMessage(Diagnostic.Kind.WARNING, "ABC", element);
+                    }
+                })
+                .thenExpectThat().compilationSucceeds()
+                .andThat().compilerMessage().ofKindWarning().atSource("/XYZ.java").atLine(13).atColumn(8).equals("ABC")
                 .executeTest();
 
     }
@@ -48,14 +55,14 @@ public class CompilerMessageCheckTest {
     @Test(expected = AssertionError.class)
     public void testComplexCompilerMessageCheck_dontFindMessage_withAll_wrongLine() {
 
-        builder.compilationShouldSucceed().<TypeElement>defineTest(new UnitTest<TypeElement>() {
-            @Override
-            public void unitTest(ProcessingEnvironment processingEnvironment, TypeElement element) {
-                processingEnvironment.getMessager().printMessage(Diagnostic.Kind.WARNING, "ABC", element);
-            }
-        })
-                .expectWarningMessage().atSource("/AnnotationProcessorUnitTestClass.java").atLineNumber(3L).atColumnNumber(8L).thatIsEqualTo("ABC")
-
+        builder.when().passInElement().<TypeElement>fromSourceFile("/AnnotationProcessorUnitTestClass.java")
+                .intoUnitTest(new UnitTest<TypeElement>() {
+                    @Override
+                    public void unitTest(ProcessingEnvironment processingEnvironment, TypeElement element) {
+                        processingEnvironment.getMessager().printMessage(Diagnostic.Kind.WARNING, "ABC", element);
+                    }
+                }).thenExpectThat().compilationSucceeds()
+                .andThat().compilerMessage().ofKindWarning().atSource("/AnnotationProcessorUnitTestClass.java").atLine(3).atColumn(8).equals("ABC")
                 .executeTest();
 
     }
@@ -63,13 +70,14 @@ public class CompilerMessageCheckTest {
     @Test(expected = AssertionError.class)
     public void testComplexCompilerMessageCheck_dontFindMessage_withAll_wrongColumn() {
 
-        builder.compilationShouldSucceed().<TypeElement>defineTest(new UnitTest<TypeElement>() {
-            @Override
-            public void unitTest(ProcessingEnvironment processingEnvironment, TypeElement element) {
-                processingEnvironment.getMessager().printMessage(Diagnostic.Kind.WARNING, "ABC", element);
-            }
-        })
-                .expectWarningMessage().atSource("/AnnotationProcessorUnitTestClass.java").atLineNumber(13L).atColumnNumber(7L).thatIsEqualTo("ABC")
+        builder.when().passInElement().<TypeElement>fromSourceFile("/AnnotationProcessorUnitTestClass.java")
+                .intoUnitTest(new UnitTest<TypeElement>() {
+                    @Override
+                    public void unitTest(ProcessingEnvironment processingEnvironment, TypeElement element) {
+                        processingEnvironment.getMessager().printMessage(Diagnostic.Kind.WARNING, "ABC", element);
+                    }
+                }).thenExpectThat().compilationSucceeds()
+                .andThat().compilerMessage().ofKindWarning().atSource("/AnnotationProcessorUnitTestClass.java").atLine(13).atColumn(7).equals("ABC")
 
                 .executeTest();
 
@@ -78,13 +86,14 @@ public class CompilerMessageCheckTest {
     @Test(expected = AssertionError.class)
     public void testComplexCompilerMessageCheck_dontFindMessage_withAll_wrongMessage() {
 
-        builder.compilationShouldSucceed().<TypeElement>defineTest(new UnitTest<TypeElement>() {
-            @Override
-            public void unitTest(ProcessingEnvironment processingEnvironment, TypeElement element) {
-                processingEnvironment.getMessager().printMessage(Diagnostic.Kind.WARNING, "ABC", element);
-            }
-        })
-                .expectWarningMessage().atSource("/AnnotationProcessorUnitTestClass.java").atLineNumber(13L).atColumnNumber(8L).thatIsEqualTo("BC")
+        builder.when().passInElement().<TypeElement>fromSourceFile("/AnnotationProcessorUnitTestClass.java")
+                .intoUnitTest(new UnitTest<TypeElement>() {
+                    @Override
+                    public void unitTest(ProcessingEnvironment processingEnvironment, TypeElement element) {
+                        processingEnvironment.getMessager().printMessage(Diagnostic.Kind.WARNING, "ABC", element);
+                    }
+                }).thenExpectThat().compilationSucceeds()
+                .andThat().compilerMessage().ofKindWarning().atSource("/AnnotationProcessorUnitTestClass.java").atLine(13).atColumn(8).equals("BC")
 
                 .executeTest();
 
@@ -93,18 +102,32 @@ public class CompilerMessageCheckTest {
     @Test
     public void testComplexCompilerMessageCheck_findMessageSubstring_withAll() {
 
-        builder.compilationShouldSucceed().<TypeElement>defineTest(new UnitTest<TypeElement>() {
-            @Override
-            public void unitTest(ProcessingEnvironment processingEnvironment, TypeElement element) {
-                processingEnvironment.getMessager().printMessage(Diagnostic.Kind.WARNING, "ABC", element);
-            }
-        })
-                .expectWarningMessage().atSource("/AnnotationProcessorUnitTestClass.java").atLineNumber(13L).atColumnNumber(8L).thatContains("BC")
-
+        builder.when().passInElement().<TypeElement>fromSourceFile("/AnnotationProcessorUnitTestClass.java")
+                .intoUnitTest(new UnitTest<TypeElement>() {
+                    @Override
+                    public void unitTest(ProcessingEnvironment processingEnvironment, TypeElement element) {
+                        processingEnvironment.getMessager().printMessage(Diagnostic.Kind.WARNING, "ABC", element);
+                    }
+                }).thenExpectThat().compilationSucceeds()
+                .andThat().compilerMessage().ofKindWarning().atSource("/AnnotationProcessorUnitTestClass.java").atLine(13).atColumn(8).contains("BC")
                 .executeTest();
 
     }
 
+    public void xyx(){
+        builder.when()
+                .passInProcessor(SimpleTestProcessor1.class)
+                .andPassInElement().<TypeElement>fromSourceFile("/AnnotationProcessorUnitTestClass.java")
+                .intoUnitTest(new UnitTestForTestingAnnotationProcessors<SimpleTestProcessor1, TypeElement>() {
+                    @Override
+                    public void unitTest(SimpleTestProcessor1 unit, ProcessingEnvironment processingEnvironment, TypeElement element) {
 
+                    }
+                })
+                .thenExpectThat()
+                .compilationSucceeds()
+                .andThat().compilerMessage().ofKindWarning().atSource("/AnnotationProcessorUnitTestClass.java").atLine(13).atColumn(8).contains("BC")
+                .executeTest();
+    }
 
 }
