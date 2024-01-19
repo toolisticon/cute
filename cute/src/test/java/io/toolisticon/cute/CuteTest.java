@@ -1,6 +1,7 @@
 package io.toolisticon.cute;
 
 import io.toolisticon.cute.common.SimpleTestProcessor1;
+import io.toolisticon.fluapigen.validation.api.ValidatorException;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
 import org.junit.Test;
@@ -18,7 +19,10 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.Arrays;
 
-public class CompileTestBuilderTest {
+/**
+ * Unit tests for {@link Cute}.
+ */
+public class CuteTest {
 
     @Test
     public void test_UnitTest_successfulCompilation_build() {
@@ -913,9 +917,59 @@ public class CompileTestBuilderTest {
     }
 
 
-    @Test
-    public void testasasas() {
-        //CuteFluentApiStarter.unitTest().when().passInElement().fromSourceFiles().intoUnitTest().passInElement().fromSourceFile().
+    @Test(expected = ValidatorException.class)
+    public void blackBoxTest_nullValuedProcessor() {
+        Cute.blackBoxTest().given().processors(null);
     }
+
+    @Test(expected = ValidatorException.class)
+    public void blackBoxTest_nullValuedProcessorInArray() {
+        Cute.blackBoxTest().given().processors(null, null);
+    }
+
+    @Test()
+    public void blackBoxTest_emptyProcessors_shouldJustCompileCode() {
+        Cute.blackBoxTest().given().processors()
+                .andSourceFiles("/TestClass.java")
+                .whenCompiled()
+                .thenExpectThat()
+                .compilationSucceeds()
+                .andThat().generatedClass("io.toolisticon.cute.TestClass").exists()
+                .executeTest();
+    }
+
+    @Test()
+    public void blackBoxTest_noProcessors_shouldJustCompileCode() {
+        Cute.blackBoxTest().given().noProcessors()
+                .andSourceFiles("/TestClass.java")
+                .whenCompiled()
+                .thenExpectThat()
+                .compilationSucceeds()
+                .andThat().generatedClass("io.toolisticon.cute.TestClass").exists()
+                .executeTest();
+    }
+
+    @Test
+    public void blackBoxTest_executeTest_WithoutChecks_SuccessfulCompilation() {
+        Cute.blackBoxTest().given().noProcessors()
+                .andSourceFiles("/TestClass.java")
+                .executeTest();
+    }
+
+    @Test
+    public void blackBoxTest_executeTest_WithoutChecks_FailedCompilation() {
+        try {
+            Cute.blackBoxTest().given().noProcessors()
+                    .andSourceFiles("/BrokenTestClass.java")
+                    .executeTest();
+
+        } catch (AssertionError e) {
+            if (e.getMessage().contains("Compilation should have succeeded but failed")) {
+                return;
+            }
+        }
+        throw new AssertionError("Should have got Assertion error that compilation was expected to be successful but failed");
+    }
+
 
 }
