@@ -664,7 +664,7 @@
                 <groupId>io.toolisticon.fluapigen</groupId>
                 <artifactId>fluapigen-api</artifactId>
                 <version>${fluapigen.version}</version>
-                <scope>provided</scope>
+                <scope>compile</scope>
             </dependency>
 
 

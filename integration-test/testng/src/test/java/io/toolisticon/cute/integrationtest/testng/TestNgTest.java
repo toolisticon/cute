@@ -1,6 +1,8 @@
 package io.toolisticon.cute.integrationtest.testng;
 
+import io.toolisticon.cute.Cute;
 import io.toolisticon.cute.UnitTest;
+import io.toolisticon.cute.UnitTestWithoutPassIn;
 import io.toolisticon.cute.extension.api.AssertionSpiServiceLocator;
 import io.toolisticon.cute.extension.testng.TestNGAssertion;
 import org.hamcrest.MatcherAssert;
@@ -27,17 +29,17 @@ public class TestNgTest {
     @Test
     public void warningMessageTest() {
 
-        CompileTestBuilder
-
+        Cute
                 .unitTest()
-                .defineTest(new UnitTest<Element>() {
+                .when(new UnitTestWithoutPassIn() {
                     @Override
-                    public void unitTest(ProcessingEnvironment processingEnvironment, Element typeElement) {
+                    public void unitTest(ProcessingEnvironment processingEnvironment) {
                         processingEnvironment.getMessager().printMessage(Diagnostic.Kind.WARNING, "WARNING!");
                     }
                 })
-                .expectWarningMessageThatContains("WARNING!")
-                .compilationShouldSucceed()
+                .thenExpectThat()
+                .compilationSucceeds()
+                .andThat().compilerMessage().ofKindWarning().contains("WARNING!")
                 .executeTest();
 
 
@@ -46,16 +48,16 @@ public class TestNgTest {
     @Test
     public void successfullFailingCompilationTest_ByErrorMessage() {
 
-        CompileTestBuilder
+        Cute
                 .unitTest()
-                .defineTest(new UnitTest<Element>() {
+                .when(new UnitTestWithoutPassIn() {
                     @Override
-                    public void unitTest(ProcessingEnvironment processingEnvironment, Element element) {
+                    public void unitTest(ProcessingEnvironment processingEnvironment) {
                         processingEnvironment.getMessager().printMessage(Diagnostic.Kind.ERROR, "ERROR!");
                     }
                 })
-                .expectErrorMessageThatContains("ERROR!")
-                .compilationShouldFail()
+                .thenExpectThat().compilationFails()
+                .andThat().compilerMessage().ofKindError().contains("ERROR!")
                 .executeTest();
 
 
@@ -65,15 +67,15 @@ public class TestNgTest {
     public void failingCompilationTest_ByErrorMessage() {
 
         try {
-            CompileTestBuilder
+            Cute
                     .unitTest()
-                    .defineTest(new UnitTest<Element>() {
+                    .when(new UnitTestWithoutPassIn() {
                         @Override
-                        public void unitTest(ProcessingEnvironment processingEnvironment, Element element) {
+                        public void unitTest(ProcessingEnvironment processingEnvironment) {
                             processingEnvironment.getMessager().printMessage(Diagnostic.Kind.ERROR, "ERROR!");
                         }
                     })
-                    .compilationShouldSucceed()
+                    .thenExpectThat().compilationSucceeds()
                     .executeTest();
 
             Assert.fail("Should have failed");

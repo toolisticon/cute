@@ -1,7 +1,8 @@
 package io.toolisticon.cute.integrationtest.junit5;
 
 
-import io.toolisticon.cute.UnitTest;
+import io.toolisticon.cute.Cute;
+import io.toolisticon.cute.UnitTestWithoutPassIn;
 import io.toolisticon.cute.extension.api.AssertionSpiServiceLocator;
 import io.toolisticon.cute.extension.junit5.JUnit5Assertion;
 import org.hamcrest.MatcherAssert;
@@ -10,7 +11,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import javax.annotation.processing.ProcessingEnvironment;
-import javax.lang.model.element.Element;
 import javax.tools.Diagnostic;
 
 /**
@@ -28,34 +28,36 @@ public class Junit5Test {
     @Test
     public void warningMessageTest() {
 
-        CompileTestBuilder
+        Cute
                 .unitTest()
-                .defineTest(new UnitTest<Element>() {
+                .when(new UnitTestWithoutPassIn() {
                     @Override
-                    public void unitTest(ProcessingEnvironment processingEnvironment, Element element) {
+                    public void unitTest(ProcessingEnvironment processingEnvironment) {
                         processingEnvironment.getMessager().printMessage(Diagnostic.Kind.WARNING, "WARNING!");
                     }
                 })
-                .expectWarningMessageThatContains("WARNING!")
-                .compilationShouldSucceed()
+                .thenExpectThat()
+                .compilationSucceeds()
+                .andThat().compilerMessage().ofKindWarning().contains("WARNING!")
                 .executeTest();
 
 
     }
 
     @Test
-    public void successfullFailingCompilationTest_ByErrorMessage() {
+    public void successfulFailingCompilationTest_ByErrorMessage() {
 
-        CompileTestBuilder
+        Cute
                 .unitTest()
-                .defineTest(new UnitTest<Element>() {
+                .when(new UnitTestWithoutPassIn() {
                     @Override
-                    public void unitTest(ProcessingEnvironment processingEnvironment, Element element) {
+                    public void unitTest(ProcessingEnvironment processingEnvironment) {
                         processingEnvironment.getMessager().printMessage(Diagnostic.Kind.ERROR, "ERROR!");
                     }
                 })
-                .expectErrorMessageThatContains("ERROR!")
-                .compilationShouldFail()
+                .thenExpectThat()
+                .compilationFails()
+                .andThat().compilerMessage().ofKindError().contains("ERROR!")
                 .executeTest();
 
 
@@ -65,20 +67,20 @@ public class Junit5Test {
     public void failingCompilationTest_ByErrorMessage() {
 
         try {
-            CompileTestBuilder
+            Cute
                     .unitTest()
-                    .defineTest(new UnitTest<Element>() {
+                    .when(new UnitTestWithoutPassIn() {
                         @Override
-                        public void unitTest(ProcessingEnvironment processingEnvironment, Element element) {
+                        public void unitTest(ProcessingEnvironment processingEnvironment) {
                             processingEnvironment.getMessager().printMessage(Diagnostic.Kind.ERROR, "ERROR!");
                         }
                     })
-                    .compilationShouldSucceed()
+                    .thenExpectThat().compilationSucceeds()
                     .executeTest();
 
             Assertions.fail("Should have failed");
         } catch (AssertionError error) {
-            Assertions.assertEquals(error.getMessage(), "Compilation should have succeeded but failed");
+            Assertions.assertTrue(error.getMessage().startsWith("Compilation should have succeeded but failed"));
         }
 
     }

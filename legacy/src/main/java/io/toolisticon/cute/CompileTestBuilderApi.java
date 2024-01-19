@@ -873,6 +873,9 @@ public class CompileTestBuilderApi {
             if (backingBean.testType() == CuteApi.TestType.UNIT && backingBean.sourceFiles().size() == 0) {
                 backingBean.sourceFiles().add(JavaFileObjectUtils.readFromResource("/AnnotationProcessorUnitTestClass.java"));
             }
+            if (backingBean.testType() == CuteApi.TestType.BLACK_BOX && backingBean.sourceFiles().size() == 0) {
+                throw new IllegalStateException("There must be at least one source file present to execute a black box test!");
+            }
             new CompileTest(backingBean).executeTest();
         }
     }

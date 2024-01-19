@@ -88,6 +88,7 @@
                                     </excludes>
                                     <includes>
                                         <include>io.toolisticon.cute:*</include>
+                                        <include>io.toolisticon.fluapigen:fluapigen-api:compile:*</include>
                                         <include>*:*:*:*:test:*</include>
                                         <include>*:*:*:*:provided:*</include>
                                     </includes>

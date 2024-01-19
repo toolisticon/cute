@@ -24,7 +24,6 @@
         <dependency>
             <groupId>io.toolisticon.fluapigen</groupId>
             <artifactId>fluapigen-api</artifactId>
-            <scope>compile</scope>
         </dependency>
 
         <!-- Test dependencies -->
