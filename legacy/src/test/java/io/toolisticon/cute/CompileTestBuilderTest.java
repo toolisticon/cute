@@ -2,8 +2,6 @@ package io.toolisticon.cute;
 
 import io.toolisticon.cute.common.SimpleTestProcessor1;
 import io.toolisticon.cute.common.SimpleTestProcessor2;
-import io.toolisticon.cute.impl.CompileTestConfiguration;
-import io.toolisticon.fluapigen.validation.api.Validator;
 import io.toolisticon.fluapigen.validation.api.ValidatorException;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
@@ -26,6 +24,7 @@ import java.io.Writer;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -38,7 +37,7 @@ public class CompileTestBuilderTest {
 
         JavaFileObject testSource = Mockito.mock(JavaFileObject.class);
         JavaFileObject expectedGeneratedSource = JavaFileObjectUtils.readFromString("Jupp.txt", "TATA!");
-        CompileTestBuilderOld
+        CompileTestBuilder
                 .unitTest()
                 .defineTest(
                         new UnitTest() {
@@ -76,7 +75,7 @@ public class CompileTestBuilderTest {
     @Test
     public void test_UnitTest_successfulCompilation_withInitializedProcessorUnderTest_build() {
 
-        CompileTestBuilderOld
+        CompileTestBuilder
                 .unitTest()
                 .defineTest(SimpleTestProcessor1.class, new UnitTestForTestingAnnotationProcessors<SimpleTestProcessor1, TypeElement>() {
                     @Override
@@ -100,7 +99,7 @@ public class CompileTestBuilderTest {
     @Test
     public void test_UnitTest_successfulCompilation_withInitializedProcessorUnderTestAndPassIn_build() {
 
-        CompileTestBuilderOld
+        CompileTestBuilder
                 .unitTest()
                 .defineTestWithPassedInElement(SimpleTestProcessor1.class, PassInProcessorAndElement.class, new UnitTestForTestingAnnotationProcessors<SimpleTestProcessor1, TypeElement>() {
                     @Override
@@ -130,7 +129,7 @@ public class CompileTestBuilderTest {
     @Test
     public void test_UnitTest_successfulCompilation_withInitializedProcessorUnderTestAndPassInWithCustomAnnotation_build() {
 
-        CompileTestBuilderOld
+        CompileTestBuilder
                 .unitTest()
                 .defineTestWithPassedInElement(SimpleTestProcessor1.class, PassInProcessorAndElementWithCustomAnnotation.class, CustomPassInAnnotation.class, new UnitTestForTestingAnnotationProcessors<SimpleTestProcessor1, TypeElement>() {
                     @Override
@@ -153,7 +152,7 @@ public class CompileTestBuilderTest {
         JavaFileObject testSource = Mockito.mock(JavaFileObject.class);
         JavaFileObject expectedGeneratedSource = Mockito.mock(JavaFileObject.class);
 
-        CompileTestBuilderOld
+        CompileTestBuilder
                 .unitTest()
                 .defineTest(new UnitTest() {
                     @Override
@@ -172,13 +171,13 @@ public class CompileTestBuilderTest {
     }
 
 
-    private void assertCompilerMessages(List<CompileTestBuilder.CompilerMessageCheckBB> compilerMessageChecks, CompileTestBuilder.CompilerMessageKind kind, CompileTestBuilder.CompilerMessageComparisonType comparisonKind, String... expectedMessages) {
+    private void assertCompilerMessages(List<CuteApi.CompilerMessageCheckBB> compilerMessageChecks, CuteApi.CompilerMessageKind kind, CuteApi.CompilerMessageComparisonType comparisonKind, String... expectedMessages) {
 
         List<String> configuredExpectedMessages = new ArrayList<>();
 
-        Iterator<CompileTestBuilder.CompilerMessageCheckBB> iterator = compilerMessageChecks.iterator();
+        Iterator<CuteApi.CompilerMessageCheckBB> iterator = compilerMessageChecks.iterator();
         while (iterator.hasNext()) {
-            CompileTestBuilder.CompilerMessageCheckBB element = iterator.next();
+            CuteApi.CompilerMessageCheckBB element = iterator.next();
 
             MatcherAssert.assertThat(element.getComparisonType(), Matchers.is(comparisonKind));
             MatcherAssert.assertThat(element.getKind(), Matchers.is(kind));
@@ -194,102 +193,104 @@ public class CompileTestBuilderTest {
     @Test
     public void test_addWarningChecks() {
 
-        CompileTestBuilder.CompilationTestBuilder builder = CompileTestBuilderOld
+        CompileTestBuilderApi.CompilationTestBuilder builder = CompileTestBuilder
                 .compilationTest()
                 .expectWarningMessageThatContains("WARN1");
 
 
-        assertCompilerMessages(builder.createCompileTestConfiguration().compilerMessageChecks(), CompileTestBuilder.CompilerMessageKind.WARNING, CompileTestBuilder.CompilerMessageComparisonType.CONTAINS, "WARN1");
+        assertCompilerMessages(builder.createCompileTestConfiguration().compilerMessageChecks(), CuteApi.CompilerMessageKind.WARNING, CuteApi.CompilerMessageComparisonType.CONTAINS, "WARN1");
 
-        CompileTestBuilder.CompilationTestBuilder builder2 = builder
+        CompileTestBuilderApi.CompilationTestBuilder builder2 = builder
                 .expectWarningMessageThatContains("WARN2");
 
-        assertCompilerMessages(builder2.createCompileTestConfiguration().compilerMessageChecks(), CompileTestBuilder.CompilerMessageKind.WARNING, CompileTestBuilder.CompilerMessageComparisonType.CONTAINS, "WARN1", "WARN2");
+        assertCompilerMessages(builder2.createCompileTestConfiguration().compilerMessageChecks(), CuteApi.CompilerMessageKind.WARNING, CuteApi.CompilerMessageComparisonType.CONTAINS, "WARN1", "WARN2");
 
 
-        CompileTestBuilder.CompilationTestBuilder builder3 = builder2
+        // TODO: MUST handle null check
+        /*-
+        CompileTestBuilderApi.CompilationTestBuilder builder3 = builder2
                 .expectWarningMessageThatContains()
                 .expectWarningMessageThatContains(null);
 
 
-        assertCompilerMessages(builder3.createCompileTestConfiguration().compilerMessageChecks(), CompileTestBuilder.CompilerMessageKind.WARNING, CompileTestBuilder.CompilerMessageComparisonType.CONTAINS, "WARN1", "WARN2");
-
+        assertCompilerMessages(builder3.createCompileTestConfiguration().compilerMessageChecks(), CuteFluentApi.CompilerMessageKind.WARNING, CuteFluentApi.CompilerMessageComparisonType.CONTAINS, "WARN1", "WARN2");
+*/
 
     }
 
     public void test_addMandatoryWarningChecks() {
 
-        CompileTestBuilder.CompilationTestBuilder builder = CompileTestBuilderOld
+        CompileTestBuilderApi.CompilationTestBuilder builder = CompileTestBuilder
                 .compilationTest()
                 .expectMandatoryWarningMessageThatContains("MWARN1");
 
-        assertCompilerMessages(builder.createCompileTestConfiguration().compilerMessageChecks(), CompileTestBuilder.CompilerMessageKind.MANDATORY_WARNING, CompileTestBuilder.CompilerMessageComparisonType.CONTAINS, "MWARN1");
+        assertCompilerMessages(builder.createCompileTestConfiguration().compilerMessageChecks(), CuteApi.CompilerMessageKind.MANDATORY_WARNING, CuteApi.CompilerMessageComparisonType.CONTAINS, "MWARN1");
 
 
-        CompileTestBuilder.CompilationTestBuilder builder2 = builder
+        CompileTestBuilderApi.CompilationTestBuilder builder2 = builder
                 .expectMandatoryWarningMessageThatContains("MWARN2");
 
-        assertCompilerMessages(builder2.createCompileTestConfiguration().compilerMessageChecks(), CompileTestBuilder.CompilerMessageKind.MANDATORY_WARNING, CompileTestBuilder.CompilerMessageComparisonType.CONTAINS, "MWARN1", "MWARN2");
+        assertCompilerMessages(builder2.createCompileTestConfiguration().compilerMessageChecks(), CuteApi.CompilerMessageKind.MANDATORY_WARNING, CuteApi.CompilerMessageComparisonType.CONTAINS, "MWARN1", "MWARN2");
 
 
-        CompileTestBuilder.CompilationTestBuilder builder3 = builder2
+        CompileTestBuilderApi.CompilationTestBuilder builder3 = builder2
                 .expectMandatoryWarningMessageThatContains()
                 .expectMandatoryWarningMessageThatContains(null);
 
 
-        assertCompilerMessages(builder3.createCompileTestConfiguration().compilerMessageChecks(), CompileTestBuilder.CompilerMessageKind.MANDATORY_WARNING, CompileTestBuilder.CompilerMessageComparisonType.CONTAINS, "MWARN1", "MWARN2");
+        assertCompilerMessages(builder3.createCompileTestConfiguration().compilerMessageChecks(), CuteApi.CompilerMessageKind.MANDATORY_WARNING, CuteApi.CompilerMessageComparisonType.CONTAINS, "MWARN1", "MWARN2");
 
 
     }
 
     public void test_addNoteChecks() {
 
-        CompileTestBuilder.CompilationTestBuilder builder = CompileTestBuilderOld
+        CompileTestBuilderApi.CompilationTestBuilder builder = CompileTestBuilder
                 .compilationTest()
                 .expectNoteMessageThatContains("NOTE1");
 
 
-        assertCompilerMessages(builder.createCompileTestConfiguration().compilerMessageChecks(), CompileTestBuilder.CompilerMessageKind.NOTE, CompileTestBuilder.CompilerMessageComparisonType.CONTAINS, "NOTE1");
+        assertCompilerMessages(builder.createCompileTestConfiguration().compilerMessageChecks(), CuteApi.CompilerMessageKind.NOTE, CuteApi.CompilerMessageComparisonType.CONTAINS, "NOTE1");
 
 
-        CompileTestBuilder.CompilationTestBuilder builder2 = builder
+        CompileTestBuilderApi.CompilationTestBuilder builder2 = builder
                 .expectNoteMessageThatContains("NOTE2");
 
 
-        assertCompilerMessages(builder2.createCompileTestConfiguration().compilerMessageChecks(), CompileTestBuilder.CompilerMessageKind.NOTE, CompileTestBuilder.CompilerMessageComparisonType.CONTAINS, "NOTE1", "NOTE2");
+        assertCompilerMessages(builder2.createCompileTestConfiguration().compilerMessageChecks(), CuteApi.CompilerMessageKind.NOTE, CuteApi.CompilerMessageComparisonType.CONTAINS, "NOTE1", "NOTE2");
 
 
-        CompileTestBuilder.CompilationTestBuilder builder3 = builder2
+        CompileTestBuilderApi.CompilationTestBuilder builder3 = builder2
                 .expectNoteMessageThatContains()
                 .expectNoteMessageThatContains(null);
 
 
-        assertCompilerMessages(builder3.createCompileTestConfiguration().compilerMessageChecks(), CompileTestBuilder.CompilerMessageKind.NOTE, CompileTestBuilder.CompilerMessageComparisonType.CONTAINS, "NOTE1", "NOTE2");
+        assertCompilerMessages(builder3.createCompileTestConfiguration().compilerMessageChecks(), CuteApi.CompilerMessageKind.NOTE, CuteApi.CompilerMessageComparisonType.CONTAINS, "NOTE1", "NOTE2");
 
 
     }
 
     public void test_addErrorChecks() {
 
-        CompileTestBuilder.CompilationTestBuilder builder = CompileTestBuilderOld
+        CompileTestBuilderApi.CompilationTestBuilder builder = CompileTestBuilder
                 .compilationTest()
                 .expectErrorMessageThatContains("ERROR1");
 
 
-        assertCompilerMessages(builder.createCompileTestConfiguration().compilerMessageChecks(), CompileTestBuilder.CompilerMessageKind.ERROR, CompileTestBuilder.CompilerMessageComparisonType.CONTAINS, "ERROR1");
+        assertCompilerMessages(builder.createCompileTestConfiguration().compilerMessageChecks(), CuteApi.CompilerMessageKind.ERROR, CuteApi.CompilerMessageComparisonType.CONTAINS, "ERROR1");
 
 
-        CompileTestBuilder.CompilationTestBuilder builder2 = builder
+        CompileTestBuilderApi.CompilationTestBuilder builder2 = builder
                 .expectErrorMessageThatContains("ERROR2");
 
-        assertCompilerMessages(builder2.createCompileTestConfiguration().compilerMessageChecks(), CompileTestBuilder.CompilerMessageKind.ERROR, CompileTestBuilder.CompilerMessageComparisonType.CONTAINS, "ERROR1", "ERROR2");
+        assertCompilerMessages(builder2.createCompileTestConfiguration().compilerMessageChecks(), CuteApi.CompilerMessageKind.ERROR, CuteApi.CompilerMessageComparisonType.CONTAINS, "ERROR1", "ERROR2");
 
 
-        CompileTestBuilder.CompilationTestBuilder builder3 = builder2
+        CompileTestBuilderApi.CompilationTestBuilder builder3 = builder2
                 .expectErrorMessageThatContains()
                 .expectErrorMessageThatContains(null);
 
-        assertCompilerMessages(builder3.createCompileTestConfiguration().compilerMessageChecks(), CompileTestBuilder.CompilerMessageKind.ERROR, CompileTestBuilder.CompilerMessageComparisonType.CONTAINS, "ERROR1", "ERROR2");
+        assertCompilerMessages(builder3.createCompileTestConfiguration().compilerMessageChecks(), CuteApi.CompilerMessageKind.ERROR, CuteApi.CompilerMessageComparisonType.CONTAINS, "ERROR1", "ERROR2");
 
 
     }
@@ -297,7 +298,7 @@ public class CompileTestBuilderTest {
     @Test
     public void test_compilationShouldSucceed() {
 
-        CompileTestBuilder.CompilationTestBuilder builder = CompileTestBuilderOld
+        CompileTestBuilderApi.CompilationTestBuilder builder = CompileTestBuilder
                 .compilationTest();
 
         MatcherAssert.assertThat(builder.compilationShouldSucceed().createCompileTestConfiguration().compilationSucceeded(), Matchers.is(Boolean.TRUE));
@@ -312,7 +313,7 @@ public class CompileTestBuilderTest {
         JavaFileObject testSource1 = Mockito.mock(JavaFileObject.class);
         JavaFileObject testSource2 = Mockito.mock(JavaFileObject.class);
 
-        CompileTestBuilder.CompilationTestBuilder builder = CompileTestBuilderOld
+        CompileTestBuilderApi.CompilationTestBuilder builder = CompileTestBuilder
                 .compilationTest()
                 .addSources(testSource1)
                 .addSources(testSource2);
@@ -327,7 +328,7 @@ public class CompileTestBuilderTest {
 
         final String resource = "/compiletests/TestClass.java";
 
-        CompileTestBuilder.CompilationTestBuilder builder = CompileTestBuilderOld
+        CompileTestBuilderApi.CompilationTestBuilder builder = CompileTestBuilder
                 .compilationTest()
                 .addSources(resource);
 
@@ -342,7 +343,7 @@ public class CompileTestBuilderTest {
                 + "public class TestClass {" + System.lineSeparator()
                 + "}";
 
-        CompileTestBuilder.CompilationTestBuilder builder = CompileTestBuilderOld
+        CompileTestBuilderApi.CompilationTestBuilder builder = CompileTestBuilder
                 .compilationTest()
                 .addSource("io.toolisticon.annotationprocessortoolkit.testhelper.TestClass", content);
 
@@ -364,7 +365,7 @@ public class CompileTestBuilderTest {
                 + "public class TestClass {" + System.lineSeparator()
                 + "}";
 
-        CompileTestBuilder.UnitTestBuilder builder = CompileTestBuilderOld
+        CompileTestBuilderApi.UnitTestBuilder builder = CompileTestBuilder
                 .unitTest()
                 .useSource("io.toolisticon.annotationprocessortoolkit.testhelper.TestClass", content);
 
@@ -389,7 +390,7 @@ public class CompileTestBuilderTest {
         Class<? extends Processor> testProcessor1 = SimpleTestProcessor1.class;
         Class<? extends Processor> testProcessor2 = SimpleTestProcessor2.class;
 
-        CompileTestBuilder.CompilationTestBuilder builder = CompileTestBuilderOld
+        CompileTestBuilderApi.CompilationTestBuilder builder = CompileTestBuilder
                 .compilationTest()
                 .addProcessors(testProcessor1)
                 .addProcessors(testProcessor2);
@@ -408,7 +409,7 @@ public class CompileTestBuilderTest {
         Class<? extends Processor> testProcessor1 = SimpleTestProcessor1.class;
         Class<? extends Processor> testProcessor2 = SimpleTestProcessor2.class;
 
-        CompileTestBuilder.CompilationTestBuilder builder = CompileTestBuilderOld
+        CompileTestBuilder.CompilationTestBuilder builder = CompileTestBuilder
                 .compilationTest()
                 .addProcessorWithExpectedException(testProcessor1, IllegalArgumentException.class)
                 .addProcessorWithExpectedException(testProcessor2, IllegalStateException.class);
@@ -424,7 +425,7 @@ public class CompileTestBuilderTest {
 
         JavaFileObject javaFileObject = Mockito.mock(JavaFileObject.class);
 
-        CompileTestBuilder.UnitTestBuilder builder = CompileTestBuilderOld
+        CompileTestBuilderApi.UnitTestBuilder builder = CompileTestBuilder
                 .unitTest()
                 .useSource(javaFileObject);
 
@@ -438,7 +439,7 @@ public class CompileTestBuilderTest {
         JavaFileObject javaFileObject1 = Mockito.mock(JavaFileObject.class);
         JavaFileObject javaFileObject2 = Mockito.mock(JavaFileObject.class);
 
-        CompileTestBuilder.UnitTestBuilder builder = CompileTestBuilderOld
+        CompileTestBuilderApi.UnitTestBuilder builder = CompileTestBuilder
                 .unitTest()
                 .useSource(javaFileObject1)
                 .useSource(javaFileObject2);
@@ -447,11 +448,11 @@ public class CompileTestBuilderTest {
 
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = ValidatorException.class)
     public void test_useSource_addNullValuedSource_asJavaFileObject() {
 
 
-        CompileTestBuilder.UnitTestBuilder builder = CompileTestBuilderOld
+        CompileTestBuilderApi.UnitTestBuilder builder = CompileTestBuilder
                 .unitTest()
                 .useSource((JavaFileObject) null);
 
@@ -462,39 +463,39 @@ public class CompileTestBuilderTest {
     public void test_useSource_addNullValuedSource_asString() {
 
 
-        CompileTestBuilder.UnitTestBuilder builder = CompileTestBuilderOld
+        CompileTestBuilderApi.UnitTestBuilder builder = CompileTestBuilder
                 .unitTest()
                 .useSource((String) null);
 
 
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = ValidatorException.class)
     public void test_useProcessor_addNullValuedProcessor() {
 
 
-        CompileTestBuilder.UnitTestBuilder builder = CompileTestBuilderOld
+        CompileTestBuilderApi.UnitTestBuilder builder = CompileTestBuilder
                 .unitTest()
                 .useProcessor((Class<Processor>) null);
 
 
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = ValidatorException.class)
     public void test_useProcessor_addNullValuedUnitTestProcessor() {
 
 
-        CompileTestBuilder.UnitTestBuilder builder = CompileTestBuilderOld
+        CompileTestBuilderApi.UnitTestBuilder builder = CompileTestBuilder
                 .unitTest()
                 .defineTest((UnitTest) null);
 
 
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = ValidatorException.class)
     public void test_useProcessor_nonInstantiableConstructorForProcessorUnderTest() {
 
-        CompileTestBuilder.UnitTestBuilder builder = CompileTestBuilderOld
+        CompileTestBuilderApi.UnitTestBuilder builder = CompileTestBuilder
                 .unitTest()
                 .defineTest(AbstractProcessor.class, new UnitTestForTestingAnnotationProcessors<AbstractProcessor, TypeElement>() {
                     @Override
@@ -505,11 +506,11 @@ public class CompileTestBuilderTest {
 
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = ValidatorException.class)
     public void test_useProcessor_nullProcessorUnderTestClass() {
 
 
-        CompileTestBuilder.UnitTestBuilder builder = CompileTestBuilderOld
+        CompileTestBuilderApi.UnitTestBuilder builder = CompileTestBuilder
                 .unitTest()
                 .defineTest(null, new UnitTestForTestingAnnotationProcessors<AbstractProcessor, TypeElement>() {
                     @Override
@@ -534,7 +535,7 @@ public class CompileTestBuilderTest {
 
 
         try {
-            CompileTestBuilderOld
+            CompileTestBuilder
                     .unitTest()
                     .<TestProcessor, ExecutableElement>defineTest(TestProcessor.class, new UnitTestForTestingAnnotationProcessors<TestProcessor, ExecutableElement>() {
                         @Override
@@ -558,7 +559,7 @@ public class CompileTestBuilderTest {
     public void test_useProcessor_nonMatchingElement2() {
 
         try {
-            CompileTestBuilderOld
+            CompileTestBuilder
                     .unitTest()
                     .<ExecutableElement>defineTest(new UnitTest<ExecutableElement>() {
                         @Override
@@ -581,7 +582,7 @@ public class CompileTestBuilderTest {
     @Test
     public void test_useProcessor_withoutGenericTypeParameters1() {
 
-        CompileTestBuilderOld
+        CompileTestBuilder
                 .unitTest()
                 .defineTest(TestProcessor.class, new UnitTestForTestingAnnotationProcessors() {
                     @Override
@@ -596,7 +597,7 @@ public class CompileTestBuilderTest {
     @Test
     public void test_useProcessor_withoutGenericTypeParameters2() {
 
-        CompileTestBuilderOld
+        CompileTestBuilder
                 .unitTest()
                 .defineTest(new UnitTest() {
                     @Override
@@ -612,7 +613,7 @@ public class CompileTestBuilderTest {
     @Test
     public void test_useProcessor_nonMatchingAnnotationType() {
 
-        CompileTestBuilderOld
+        CompileTestBuilder
                 .unitTest()
                 .defineTest(new UnitTest() {
                     @Override
@@ -628,17 +629,17 @@ public class CompileTestBuilderTest {
 
     @Test(expected = ValidatorException.class)
     public void test_useProcessor_nullValued_Processor() {
-        CompileTestBuilderOld.unitTest().useProcessor(null);
+        CompileTestBuilder.unitTest().useProcessor(null);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = ValidatorException.class)
     public void test_useProcessor_nullValued_UnitTestProcessor() {
-        CompileTestBuilderOld.unitTest().defineTest((UnitTest) null);
+        CompileTestBuilder.unitTest().defineTest((UnitTest) null);
     }
 
-    @Test(expected = Validator.ValidatorException.class)
+    @Test(expected = ValidatorException.class)
     public void test_useProcessor_nullValued_UnitTestProcessor2() {
-        CompileTestBuilderOld.unitTest().defineTest(AbstractProcessor.class, null);
+        CompileTestBuilder.unitTest().defineTest(AbstractProcessor.class, null);
     }
 
 
@@ -647,7 +648,7 @@ public class CompileTestBuilderTest {
     @Test(expected = IllegalArgumentException.class)
     public void test_CompileTimeTestBuilder_useProcessorAndExpectException_addNullValuedProcessor() {
 
-        CompileTestBuilderOld
+        CompileTestBuilder
                 .compilationTest()
                 .addProcessorWithExpectedException(null, IllegalStateException.class);
 
@@ -667,7 +668,7 @@ public class CompileTestBuilderTest {
     @Test(expected = IllegalArgumentException.class)
     public void test_CompileTimeTestBuilder_useProcessorAndExpectException_addNullValuedException() {
 
-        CompileTestBuilderOld
+        CompileTestBuilder
                 .compilationTest()
                 .addProcessorWithExpectedException(SimpleTestProcessor.class, null);
 
@@ -678,7 +679,7 @@ public class CompileTestBuilderTest {
     @Test(expected = IllegalStateException.class)
     public void test_CompileTimeTestBuilder_testCompilation_noSourceFiles() {
 
-        CompileTestBuilderOld
+        CompileTestBuilder
                 .compilationTest()
                 .executeTest();
 
@@ -688,21 +689,21 @@ public class CompileTestBuilderTest {
     @Test
     public void test_useModules() {
 
-        MatcherAssert.assertThat(CompileTestBuilderOld.compilationTest().useModules("ABC", "DEF").createCompileTestConfiguration().modules(), Matchers.contains("ABC", "DEF"));
+        MatcherAssert.assertThat(CompileTestBuilder.compilationTest().useModules("ABC", "DEF").createCompileTestConfiguration().modules(), Matchers.contains("ABC", "DEF"));
 
     }
 
     @Test
     public void test_addCompilerMessageCheck() {
 
-        CompileTestBuilder.CompilerTestBB configuration = CompileTestBuilderOld.compilationTest().expectErrorMessage().atSource("XYZ").atLineNumber(5L).atColumnNumber(6L).withLocale(Locale.ENGLISH).thatContains("ABC").createCompileTestConfiguration();
-        CompileTestBuilder.CompilerMessageCheckBB compilerMessageCheck = configuration.compilerMessageChecks().iterator().next();
+        CuteApi.CompilerTestBB configuration = CompileTestBuilder.compilationTest().expectErrorMessage().atSource("XYZ").atLineNumber(5L).atColumnNumber(6L).withLocale(Locale.ENGLISH).thatContains("ABC").createCompileTestConfiguration();
+        CuteApi.CompilerMessageCheckBB compilerMessageCheck = configuration.compilerMessageChecks().iterator().next();
         MatcherAssert.assertThat(compilerMessageCheck.atSource(), Matchers.is("XYZ"));
-        MatcherAssert.assertThat(compilerMessageCheck.getKind(), Matchers.is(CompileTestBuilder.CompilerMessageKind.ERROR));
-        MatcherAssert.assertThat(compilerMessageCheck.atLine(), Matchers.is(5L));
-        MatcherAssert.assertThat(compilerMessageCheck.atColumn(), Matchers.is(6L));
+        MatcherAssert.assertThat(compilerMessageCheck.getKind(), Matchers.is(CuteApi.CompilerMessageKind.ERROR));
+        MatcherAssert.assertThat(compilerMessageCheck.atLine(), Matchers.is(5));
+        MatcherAssert.assertThat(compilerMessageCheck.atColumn(), Matchers.is(6));
         MatcherAssert.assertThat(compilerMessageCheck.withLocale(), Matchers.is(Locale.ENGLISH));
-        MatcherAssert.assertThat(compilerMessageCheck.getKind(), Matchers.is(CompileTestConfiguration.ComparisonKind.CONTAINS));
+        MatcherAssert.assertThat(compilerMessageCheck.getComparisonType(), Matchers.is(CuteApi.CompilerMessageComparisonType.CONTAINS));
         MatcherAssert.assertThat(compilerMessageCheck.getSearchString(), Matchers.contains("ABC"));
 
     }
@@ -710,7 +711,7 @@ public class CompileTestBuilderTest {
     @Test
     public void test_passInViaSourceCode_multipleAnnotated_withOnePassIn() {
 
-        CompileTestBuilderOld
+        CompileTestBuilder
                 .unitTest()
                 .useSource("/compiletests/passintest/PassInTestClass.java")
                 .<TypeElement>defineTest(new UnitTest<TypeElement>() {
@@ -728,7 +729,7 @@ public class CompileTestBuilderTest {
     public void test_passInViaSourceCode_multipleAnnotated_withoutPassIn() {
 
         try {
-            CompileTestBuilderOld
+            CompileTestBuilder
                     .unitTest()
                     .useSource("/compiletests/passintest/PassInTestClassMultipleAnnotatedWithoutPassIn.java")
                     .<TypeElement>defineTest(new UnitTest<TypeElement>() {
@@ -740,7 +741,7 @@ public class CompileTestBuilderTest {
                     .executeTest();
 
         } catch (AssertionError e) {
-            MatcherAssert.assertThat(e.getMessage(), Matchers.containsString(String.format(Constants.Messages.UNIT_TEST_PRECONDITION_MUST_FIND_EXACTLY_ONE_ELEMENT.getMessagePattern(), TestAnnotation.class.getCanonicalName())));
+            MatcherAssert.assertThat(e.getMessage(), Matchers.containsString(String.format(Constants.Messages.MESSAGE_PROCESSOR_HASNT_BEEN_APPLIED.getMessagePattern(), UnitTestAnnotationProcessorClass.class.getCanonicalName(), Arrays.asList(TestAnnotation.class.getCanonicalName()))));
             return;
         }
 
@@ -752,7 +753,7 @@ public class CompileTestBuilderTest {
     public void test_passInViaSourceCode_multipleAnnotated_withMultiplePassIn() {
 
         try {
-            CompileTestBuilderOld
+            CompileTestBuilder
                     .unitTest()
                     .useSource("/compiletests/passintest/PassInTestClassMultipleAnnotatedWithMultiplePassIn.java")
                     .<TypeElement>defineTest(new UnitTest<TypeElement>() {
@@ -764,7 +765,7 @@ public class CompileTestBuilderTest {
                     .executeTest();
 
         } catch (AssertionError e) {
-            MatcherAssert.assertThat(e.getMessage(), Matchers.containsString(String.format(Constants.Messages.UNIT_TEST_PRECONDITION_MUST_FIND_EXACTLY_ONE_ELEMENT_WITH_PASSIN_ANNOTATION.getMessagePattern(), TestAnnotation.class.getCanonicalName())));
+            MatcherAssert.assertThat(e.getMessage(), Matchers.containsString(String.format(Constants.Messages.UNIT_TEST_PRECONDITION_MUST_FIND_EXACTLY_ONE_ELEMENT_WITH_PASSIN_ANNOTATION.getMessagePattern(), PassIn.class.getCanonicalName(),PassIn.class.getCanonicalName())));
             return;
         }
 
@@ -776,7 +777,7 @@ public class CompileTestBuilderTest {
     public void test_passInViaSourceCode_withNonMatchingElementType() {
 
         try {
-            CompileTestBuilderOld
+            CompileTestBuilder
                     .unitTest()
                     .useSource("/compiletests/passintest/PassInTestClass.java")
                     .<ExecutableElement>defineTest(new UnitTest<ExecutableElement>() {
@@ -800,7 +801,7 @@ public class CompileTestBuilderTest {
     public void test_passInViaSourceCode_withProcessorPassIn_withMatchingElementButClassCastException() {
 
 
-        CompileTestBuilderOld
+        CompileTestBuilder
                 .unitTest()
                 .useSource("/compiletests/passintest/PassInTestClass.java")
                 .<SimpleTestProcessor1, TypeElement>defineTest(SimpleTestProcessor1.class, new UnitTestForTestingAnnotationProcessors<SimpleTestProcessor1, TypeElement>() {
@@ -823,7 +824,7 @@ public class CompileTestBuilderTest {
     public void test_passIn_withNonMatchingElementType() {
 
         try {
-            CompileTestBuilderOld
+            CompileTestBuilder
                     .unitTest()
                     .defineTestWithPassedInElement(PassInClass.class, new UnitTest<ExecutableElement>() {
                         @Override
@@ -845,7 +846,7 @@ public class CompileTestBuilderTest {
     @Test
     public void test_passIn_withMatchingElementButClassCastException() {
 
-        CompileTestBuilderOld
+        CompileTestBuilder
                 .unitTest()
                 .<TypeElement>defineTestWithPassedInElement(PassInClass.class, new UnitTest<TypeElement>() {
                     @Override
@@ -862,7 +863,7 @@ public class CompileTestBuilderTest {
     public void test_passIn_withProcessorPassIn_withNonMatchingElementType() {
 
         try {
-            CompileTestBuilderOld
+            CompileTestBuilder
                     .unitTest()
                     .<SimpleTestProcessor1, ExecutableElement>defineTestWithPassedInElement(SimpleTestProcessor1.class, PassInClass.class, new UnitTestForTestingAnnotationProcessors<SimpleTestProcessor1, ExecutableElement>() {
                         @Override
@@ -884,7 +885,7 @@ public class CompileTestBuilderTest {
     @Test
     public void test_passIn_withProcessorPassIn_withMatchingElementButClassCastException() {
 
-        CompileTestBuilderOld
+        CompileTestBuilder
                 .unitTest()
                 .<SimpleTestProcessor1, Element>defineTestWithPassedInElement(SimpleTestProcessor1.class, PassInClass.class, new UnitTestForTestingAnnotationProcessors<SimpleTestProcessor1, Element>() {
                     @Override

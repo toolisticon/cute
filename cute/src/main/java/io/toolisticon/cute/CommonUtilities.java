@@ -1,11 +1,11 @@
-package io.toolisticon.cute.impl;
+package io.toolisticon.cute;
 
 import java.util.Random;
 
 /**
  * Some common utility functions.
  */
-public final class CommonUtilities {
+final class CommonUtilities {
 
     /**
      * Hidden constructor.

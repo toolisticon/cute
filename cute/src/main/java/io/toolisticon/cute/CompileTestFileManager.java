@@ -1,4 +1,4 @@
-package io.toolisticon.cute.impl;
+package io.toolisticon.cute;
 
 import io.toolisticon.cute.Constants;
 

@@ -1,4 +1,4 @@
-package io.toolisticon.cute.impl;
+package io.toolisticon.cute;
 
 /**
  * Utility class to check if java 9 api is unsupported.

@@ -1,27 +1,15 @@
-package io.toolisticon.cute.impl;
+package io.toolisticon.cute;
 
-import io.toolisticon.cute.Constants;
-import io.toolisticon.cute.CuteFluentApiStarter;
+import io.toolisticon.cute.Cute;
 import io.toolisticon.cute.GeneratedFileObjectMatcher;
-import io.toolisticon.cute.InvalidTestConfigurationException;
 import io.toolisticon.cute.JavaFileObjectUtils;
-import io.toolisticon.cute.PassIn;
-import io.toolisticon.cute.TestUtilities;
 import io.toolisticon.cute.UnitTest;
-import org.hamcrest.MatcherAssert;
-import org.hamcrest.Matchers;
-import org.junit.Assert;
 import org.junit.Test;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
-import javax.lang.model.element.ElementKind;
-import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
-import javax.lang.model.element.VariableElement;
-import javax.tools.Diagnostic;
 import javax.tools.FileObject;
-import javax.tools.JavaFileObject;
 import javax.tools.StandardLocation;
 import java.io.IOException;
 import java.io.Writer;
@@ -31,9 +19,9 @@ public class CompileTestTest {
     @Test
     public void test_UnitTest_checkMatchingFileObject() {
 
-        CuteFluentApiStarter.unitTest()
+        Cute.unitTest()
                         .given().useCompilerOptions("-verbose  ", " -source    1.7   ", "-target 1.7")
-                .when().passInElement().<TypeElement>fromSourceFile("/AnnotationProcessorUnitTestClass.java")
+                .when().passInElement().<TypeElement>fromSourceFile("/AnnotationProcessorUnitTestTestClass.java")
                 .intoUnitTest(new UnitTest() {
                     @Override
                     public void unitTest(ProcessingEnvironment processingEnvironment, Element typeElement) {

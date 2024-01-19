@@ -9,9 +9,8 @@ import java.util.Set;
 /**
  * Base annotation processor for unit tests.
  *
- * @param <ELEMENT_TYPE> The expected type of the processed element
  */
-public class UnitTestAnnotationProcessorClassWithoutPassIn extends AbstractUnitTestAnnotationProcessorClass {
+class UnitTestAnnotationProcessorClassWithoutPassIn extends AbstractUnitTestAnnotationProcessorClass {
 
     /**
      * The unit test processor instance to use.

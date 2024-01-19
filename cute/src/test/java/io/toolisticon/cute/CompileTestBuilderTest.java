@@ -1,17 +1,12 @@
 package io.toolisticon.cute;
 
 import io.toolisticon.cute.common.SimpleTestProcessor1;
-import io.toolisticon.cute.common.SimpleTestProcessor2;
-import io.toolisticon.cute.impl.CompileTestConfiguration;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.ProcessingEnvironment;
-import javax.annotation.processing.Processor;
-import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
@@ -21,13 +16,7 @@ import javax.tools.JavaFileObject;
 import javax.tools.StandardLocation;
 import java.io.IOException;
 import java.io.Writer;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
+import java.util.Arrays;
 
 public class CompileTestBuilderTest {
 
@@ -36,7 +25,7 @@ public class CompileTestBuilderTest {
 
         JavaFileObject testSource = Mockito.mock(JavaFileObject.class);
         JavaFileObject expectedGeneratedSource = JavaFileObjectUtils.readFromString("Jupp.txt", "TATA!");
-        CuteFluentApiStarter
+        Cute
                 .unitTest()
                 .when(
                         new UnitTestWithoutPassIn() {
@@ -74,9 +63,9 @@ public class CompileTestBuilderTest {
     @Test
     public void test_UnitTest_successfulCompilation_withInitializedProcessorUnderTest_build() {
 
-        CuteFluentApiStarter.unitTest()
+        Cute.unitTest()
                 .when().passInProcessor(SimpleTestProcessor1.class)
-                .intoUnitTest( new UnitTestForTestingAnnotationProcessorsWithoutPassIn<SimpleTestProcessor1>() {
+                .intoUnitTest(new UnitTestForTestingAnnotationProcessorsWithoutPassIn<SimpleTestProcessor1>() {
                     @Override
                     public void unitTest(SimpleTestProcessor1 unit, ProcessingEnvironment processingEnvironment) {
 
@@ -95,13 +84,16 @@ public class CompileTestBuilderTest {
 
     }
 
-    /*-
+
     @Test
     public void test_UnitTest_successfulCompilation_withInitializedProcessorUnderTestAndPassIn_build() {
 
-        CuteFluentApiStarter
+        Cute
                 .unitTest()
-                .defineTestWithPassedInElement(SimpleTestProcessor1.class, PassInProcessorAndElement.class, new UnitTestForTestingAnnotationProcessors<SimpleTestProcessor1, TypeElement>() {
+                .when()
+                .passInProcessor(SimpleTestProcessor1.class)
+                .andPassInElement().<TypeElement>fromClass(PassInProcessorAndElement.class)
+                .intoUnitTest(new UnitTestForTestingAnnotationProcessors<SimpleTestProcessor1, TypeElement>() {
                     @Override
                     public void unitTest(SimpleTestProcessor1 unit, ProcessingEnvironment processingEnvironment, TypeElement typeElement) {
 
@@ -110,41 +102,41 @@ public class CompileTestBuilderTest {
 
                     }
                 })
-                .compilationShouldSucceed()
+                .thenExpectThat()
+                .compilationSucceeds()
                 .executeTest();
 
 
     }
 
-    @Retention(RetentionPolicy.RUNTIME)
-    private static @interface CustomPassInAnnotation {
-
-    }
-
-    @CustomPassInAnnotation
-    private static class PassInProcessorAndElementWithCustomAnnotation {
-
-    }
-
-    @Test
-    public void test_UnitTest_successfulCompilation_withInitializedProcessorUnderTestAndPassInWithCustomAnnotation_build() {
-
-        CompileTestBuilder
-                .unitTest()
-                .defineTestWithPassedInElement(SimpleTestProcessor1.class, PassInProcessorAndElementWithCustomAnnotation.class, CustomPassInAnnotation.class, new UnitTestForTestingAnnotationProcessors<SimpleTestProcessor1, TypeElement>() {
-                    @Override
-                    public void unitTest(SimpleTestProcessor1 unit, ProcessingEnvironment processingEnvironment, TypeElement typeElement) {
-
-                        MatcherAssert.assertThat(typeElement, Matchers.notNullValue());
-                        MatcherAssert.assertThat(typeElement.getQualifiedName().toString(), Matchers.is(PassInProcessorAndElementWithCustomAnnotation.class.getCanonicalName()));
-
-                    }
-                })
-                .compilationShouldSucceed()
-                .executeTest();
-
-
-    }
+    /**
+     * @Retention(RetentionPolicy.RUNTIME) private static @interface CustomPassInAnnotation {
+     * <p>
+     * }
+     * @CustomPassInAnnotation private static class PassInProcessorAndElementWithCustomAnnotation {
+     * <p>
+     * }
+     * @Test public void test_UnitTest_successfulCompilation_withInitializedProcessorUnderTestAndPassInWithCustomAnnotation_build() {
+     * <p>
+     * CuteFluentApiStarter
+     * .unitTest()
+     * .when()
+     * .passInProcessor(SimpleTestProcessor1.class)
+     * .andPassInElement().fromClass(PassInProcessorAndElementWithCustomAnnotation.class)
+     * .defineTestWithPassedInElement(SimpleTestProcessor1.class, PassInProcessorAndElementWithCustomAnnotation.class, CustomPassInAnnotation.class, new UnitTestForTestingAnnotationProcessors<SimpleTestProcessor1, TypeElement>() {
+     * @Override public void unitTest(SimpleTestProcessor1 unit, ProcessingEnvironment processingEnvironment, TypeElement typeElement) {
+     * <p>
+     * MatcherAssert.assertThat(typeElement, Matchers.notNullValue());
+     * MatcherAssert.assertThat(typeElement.getQualifiedName().toString(), Matchers.is(PassInProcessorAndElementWithCustomAnnotation.class.getCanonicalName()));
+     * <p>
+     * }
+     * })
+     * .compilationShouldSucceed()
+     * .executeTest();
+     * <p>
+     * <p>
+     * }
+     */
 
     @Test
     public void test_UnitTest_failingCompilation_build() {
@@ -152,25 +144,24 @@ public class CompileTestBuilderTest {
         JavaFileObject testSource = Mockito.mock(JavaFileObject.class);
         JavaFileObject expectedGeneratedSource = Mockito.mock(JavaFileObject.class);
 
-        CompileTestBuilder
+        Cute
                 .unitTest()
-                .defineTest(new UnitTest() {
+                .when().unitTestWithoutPassIn(new UnitTestWithoutPassIn() {
                     @Override
-                    public void unitTest(ProcessingEnvironment processingEnvironment, Element typeElement) {
+                    public void unitTest(ProcessingEnvironment processingEnvironment) {
 
                         processingEnvironment.getMessager().printMessage(Diagnostic.Kind.ERROR, "ERROR");
-
-
                     }
                 })
-                .expectErrorMessageThatContains("ERROR")
-                .compilationShouldFail()
+                .thenExpectThat()
+                .compilationFails()
+                .andThat().compilerMessage().ofKindError().contains("ERROR")
                 .executeTest();
 
 
     }
 
-
+/*-
     private void assertCompilerMessages(Set<CompileTestConfiguration.CompilerMessageCheck> compilerMessageChecks, Diagnostic.Kind kind, CompileTestConfiguration.ComparisonKind comparisonKind, String... expectedMessages) {
 
         List<String> configuredExpectedMessages = new ArrayList<>();
@@ -190,10 +181,12 @@ public class CompileTestBuilderTest {
                 , Matchers.containsInAnyOrder(expectedMessages));
     }
 
+
     @Test
     public void test_addWarningChecks() {
 
-        CompileTestBuilder.CompilationTestBuilder builder = CompileTestBuilder
+        CuteFluentApiStarter. builder = CuteFluentApiStarter
+                .blackBoxTest()
                 .compilationTest()
                 .expectWarningMessageThatContains("WARN1");
 
@@ -215,7 +208,8 @@ public class CompileTestBuilderTest {
 
 
     }
-
+*/
+    /*-
     public void test_addMandatoryWarningChecks() {
 
         CompileTestBuilder.CompilationTestBuilder builder = CompileTestBuilder
@@ -334,6 +328,7 @@ public class CompileTestBuilderTest {
 
     }
 
+
     @Test
     public void test_addSourceFromString_compileTest() {
 
@@ -341,18 +336,20 @@ public class CompileTestBuilderTest {
                         + "public class TestClass {" + System.lineSeparator()
                         + "}";
 
-        CompileTestBuilder.CompilationTestBuilder builder = CompileTestBuilder
-                .compilationTest()
-                .addSource("io.toolisticon.annotationprocessortoolkit.testhelper.TestClass", content);
+        CuteApi.BlackBoxTestFinalGivenInterface builder = Cute
+                .blackBoxTest()
+                .given().processors(AbstractProcessor.class)
+                .andSourceFile("io.toolisticon.annotationprocessortoolkit.testhelper.TestClass", content);
 
         // Check if source name is correct
-        MatcherAssert.assertThat(builder.createCompileTestConfiguration().getSourceFiles().iterator().next().getName().toString(), Matchers.is("/io/toolisticon/annotationprocessortoolkit/testhelper/TestClass.java"));
+        MatcherAssert.assertThat(builder..createCompileTestConfiguration().getSourceFiles().iterator().next().getName().toString(), Matchers.is("/io/toolisticon/annotationprocessortoolkit/testhelper/TestClass.java"));
 
         // Check if classes are compiled in the end
         builder.compilationShouldSucceed()
                 .expectThatJavaFileObjectExists(StandardLocation.CLASS_OUTPUT,"io.toolisticon.annotationprocessortoolkit.testhelper.TestClass", JavaFileObject.Kind.CLASS)
                 .executeTest();
     }
+
 
     @Test
     public void test_addSourceFromString_unitTest() {
@@ -363,9 +360,9 @@ public class CompileTestBuilderTest {
                 + "public class TestClass {" + System.lineSeparator()
                 + "}";
 
-        CompileTestBuilder.UnitTestBuilder builder = CompileTestBuilder
+        CuteFluentApi.PassInElementInterface builder = (CuteFluentApi.PassInElementInterface) CuteFluentApiStarter
                 .unitTest()
-                .useSource("io.toolisticon.annotationprocessortoolkit.testhelper.TestClass", content);
+                .when().passInElement().fromStringSource("io.toolisticon.annotationprocessortoolkit.testhelper.TestClass", content);
 
         // Check if source name is correct
         MatcherAssert.assertThat(builder.createCompileTestConfiguration().getSourceFiles().iterator().next().getName().toString(), Matchers.is("/io/toolisticon/annotationprocessortoolkit/testhelper/TestClass.java"));
@@ -700,14 +697,16 @@ public class CompileTestBuilderTest {
         MatcherAssert.assertThat(compilerMessageCheck.getExpectedMessage(), Matchers.is("ABC"));
 
     }
+    */
 
     @Test
     public void test_passInViaSourceCode_multipleAnnotated_withOnePassIn() {
 
-        CompileTestBuilder
+        Cute
                 .unitTest()
-                .useSource("/compiletests/passintest/PassInTestClass.java")
-                .<TypeElement>defineTest(new UnitTest<TypeElement>() {
+                .when()
+                .passInElement().<TypeElement>fromSourceFile("/compiletests/passintest/PassInTestClass.java")
+                .intoUnitTest(new UnitTest<TypeElement>() {
                     @Override
                     public void unitTest(ProcessingEnvironment processingEnvironment, TypeElement element) {
                         MatcherAssert.assertThat(element, Matchers.notNullValue());
@@ -722,10 +721,11 @@ public class CompileTestBuilderTest {
     public void test_passInViaSourceCode_multipleAnnotated_withoutPassIn() {
 
         try {
-            CompileTestBuilder
+            Cute
                     .unitTest()
-                    .useSource("/compiletests/passintest/PassInTestClassMultipleAnnotatedWithoutPassIn.java")
-                    .<TypeElement>defineTest(new UnitTest<TypeElement>() {
+                    .when()
+                    .passInElement().<TypeElement>fromSourceFile("/compiletests/passintest/PassInTestClassMultipleAnnotatedWithoutPassIn.java")
+                    .intoUnitTest(new UnitTest<TypeElement>() {
                         @Override
                         public void unitTest(ProcessingEnvironment processingEnvironment, TypeElement element) {
                             throw new AssertionError("should have thrown assertion error!");
@@ -734,7 +734,7 @@ public class CompileTestBuilderTest {
                     .executeTest();
 
         } catch (AssertionError e) {
-            MatcherAssert.assertThat(e.getMessage(), Matchers.containsString(String.format(Constants.Messages.UNIT_TEST_PRECONDITION_MUST_FIND_EXACTLY_ONE_ELEMENT.getMessagePattern(), TestAnnotation.class.getCanonicalName())));
+            MatcherAssert.assertThat(e.getMessage(), Matchers.containsString(String.format(Constants.Messages.MESSAGE_PROCESSOR_HASNT_BEEN_APPLIED.getMessagePattern(), UnitTestAnnotationProcessorClass.class.getCanonicalName(), Arrays.asList(PassIn.class.getCanonicalName()))));
             return;
         }
 
@@ -746,10 +746,11 @@ public class CompileTestBuilderTest {
     public void test_passInViaSourceCode_multipleAnnotated_withMultiplePassIn() {
 
         try {
-            CompileTestBuilder
+            Cute
                     .unitTest()
-                    .useSource("/compiletests/passintest/PassInTestClassMultipleAnnotatedWithMultiplePassIn.java")
-                    .<TypeElement>defineTest(new UnitTest<TypeElement>() {
+                    .when()
+                    .passInElement().<TypeElement>fromSourceFile("/compiletests/passintest/PassInTestClassMultipleAnnotatedWithMultiplePassIn.java")
+                    .intoUnitTest(new UnitTest<TypeElement>() {
                         @Override
                         public void unitTest(ProcessingEnvironment processingEnvironment, TypeElement element) {
                             throw new AssertionError("should have thrown assertion error!");
@@ -758,7 +759,7 @@ public class CompileTestBuilderTest {
                     .executeTest();
 
         } catch (AssertionError e) {
-            MatcherAssert.assertThat(e.getMessage(), Matchers.containsString(String.format(Constants.Messages.UNIT_TEST_PRECONDITION_MUST_FIND_EXACTLY_ONE_ELEMENT_WITH_PASSIN_ANNOTATION.getMessagePattern(), TestAnnotation.class.getCanonicalName())));
+            MatcherAssert.assertThat(e.getMessage(), Matchers.containsString(String.format(Constants.Messages.UNIT_TEST_PRECONDITION_MUST_FIND_EXACTLY_ONE_ELEMENT_WITH_PASSIN_ANNOTATION.getMessagePattern())));
             return;
         }
 
@@ -770,10 +771,13 @@ public class CompileTestBuilderTest {
     public void test_passInViaSourceCode_withNonMatchingElementType() {
 
         try {
-            CompileTestBuilder
+            Cute
                     .unitTest()
-                    .useSource("/compiletests/passintest/PassInTestClass.java")
-                    .<ExecutableElement>defineTest(new UnitTest<ExecutableElement>() {
+                    .given()
+                    .useSourceFile("/compiletests/passintest/PassInTestClass.java")
+                    .when()
+                    .passInElement().<ExecutableElement>fromGivenSourceFiles()
+                    .intoUnitTest(new UnitTest<ExecutableElement>() {
                         @Override
                         public void unitTest(ProcessingEnvironment processingEnvironment, ExecutableElement element) {
                             throw new AssertionError("should have thrown assertion error!");
@@ -794,16 +798,20 @@ public class CompileTestBuilderTest {
     public void test_passInViaSourceCode_withProcessorPassIn_withMatchingElementButClassCastException() {
 
 
-        CompileTestBuilder
+        Cute
                 .unitTest()
-                .useSource("/compiletests/passintest/PassInTestClass.java")
-                .<SimpleTestProcessor1, TypeElement>defineTest(SimpleTestProcessor1.class, new UnitTestForTestingAnnotationProcessors<SimpleTestProcessor1, TypeElement>() {
+                .given().useSourceFile("/compiletests/passintest/PassInTestClass.java")
+                .when()
+                .passInElement().<TypeElement>fromGivenSourceFiles()
+                .andPassInProcessor(SimpleTestProcessor1.class)
+                .intoUnitTest(new UnitTestForTestingAnnotationProcessors<SimpleTestProcessor1, TypeElement>() {
                     @Override
                     public void unitTest(SimpleTestProcessor1 unit, ProcessingEnvironment processingEnvironment, TypeElement element) {
                         throw new ClassCastException("Test Class Cast Exception");
                     }
                 })
-                .expectedThrownException(ClassCastException.class)
+                .thenExpectThat()
+                .exceptionIsThrown(ClassCastException.class)
                 .executeTest();
 
     }
@@ -813,13 +821,16 @@ public class CompileTestBuilderTest {
 
     }
 
+
     @Test
     public void test_passIn_withNonMatchingElementType() {
 
         try {
-            CompileTestBuilder
+            Cute
                     .unitTest()
-                    .defineTestWithPassedInElement(PassInClass.class, new UnitTest<ExecutableElement>() {
+                    .when()
+                    .passInElement().<ExecutableElement>fromClass(PassInClass.class)
+                    .intoUnitTest(new UnitTest<ExecutableElement>() {
                         @Override
                         public void unitTest(ProcessingEnvironment processingEnvironment, ExecutableElement element) {
                             throw new AssertionError("should have thrown assertion error!");
@@ -839,15 +850,18 @@ public class CompileTestBuilderTest {
     @Test
     public void test_passIn_withMatchingElementButClassCastException() {
 
-        CompileTestBuilder
+        Cute
                 .unitTest()
-                .<TypeElement>defineTestWithPassedInElement(PassInClass.class, new UnitTest<TypeElement>() {
+                .when()
+                .passInElement().<TypeElement>fromClass(PassInClass.class)
+                .intoUnitTest(new UnitTest<TypeElement>() {
                     @Override
                     public void unitTest(ProcessingEnvironment processingEnvironment, TypeElement element) {
                         throw new ClassCastException("Test Class Cast Exception");
                     }
                 })
-                .expectedThrownException(ClassCastException.class)
+                .thenExpectThat()
+                .exceptionIsThrown(ClassCastException.class)
                 .executeTest();
 
     }
@@ -856,9 +870,12 @@ public class CompileTestBuilderTest {
     public void test_passIn_withProcessorPassIn_withNonMatchingElementType() {
 
         try {
-            CompileTestBuilder
+            Cute
                     .unitTest()
-                    .<SimpleTestProcessor1,ExecutableElement>defineTestWithPassedInElement(SimpleTestProcessor1.class, PassInClass.class, new UnitTestForTestingAnnotationProcessors<SimpleTestProcessor1, ExecutableElement>() {
+                    .when()
+                    .passInProcessor(SimpleTestProcessor1.class)
+                    .andPassInElement().<ExecutableElement>fromClass(PassInClass.class)
+                    .intoUnitTest(new UnitTestForTestingAnnotationProcessors<SimpleTestProcessor1, ExecutableElement>() {
                         @Override
                         public void unitTest(SimpleTestProcessor1 unit, ProcessingEnvironment processingEnvironment, ExecutableElement element) {
                             throw new AssertionError("should have thrown assertion error!");
@@ -878,19 +895,27 @@ public class CompileTestBuilderTest {
     @Test
     public void test_passIn_withProcessorPassIn_withMatchingElementButClassCastException() {
 
-        CompileTestBuilder
+        Cute
                 .unitTest()
-                .<SimpleTestProcessor1,Element>defineTestWithPassedInElement(SimpleTestProcessor1.class, PassInClass.class, new UnitTestForTestingAnnotationProcessors<SimpleTestProcessor1, Element>() {
+                .when()
+                .passInProcessor(SimpleTestProcessor1.class)
+                .andPassInElement().fromClass(PassInClass.class)
+                .intoUnitTest(new UnitTestForTestingAnnotationProcessors<SimpleTestProcessor1, Element>() {
                     @Override
                     public void unitTest(SimpleTestProcessor1 unit, ProcessingEnvironment processingEnvironment, Element element) {
                         throw new ClassCastException("Test Class Cast Exception");
                     }
                 })
-                .expectedThrownException(ClassCastException.class)
+                .thenExpectThat()
+                .exceptionIsThrown(ClassCastException.class)
                 .executeTest();
 
     }
 
-     */
+
+    @Test
+    public void testasasas() {
+        //CuteFluentApiStarter.unitTest().when().passInElement().fromSourceFiles().intoUnitTest().passInElement().fromSourceFile().
+    }
 
 }

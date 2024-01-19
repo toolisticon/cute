@@ -1,16 +1,4 @@
-package io.toolisticon.cute.impl;
-
-import io.toolisticon.cute.Constants;
-import io.toolisticon.cute.CuteFluentApi;
-import io.toolisticon.cute.FailingAssertionException;
-import io.toolisticon.cute.UnitTest;
-import io.toolisticon.cute.UnitTestAnnotationProcessorClass;
-import io.toolisticon.cute.UnitTestAnnotationProcessorClassForTestingAnnotationProcessors;
-import io.toolisticon.cute.UnitTestAnnotationProcessorClassWithPassIn;
-import io.toolisticon.cute.UnitTestAnnotationProcessorClassWithoutPassIn;
-import io.toolisticon.cute.UnitTestForTestingAnnotationProcessors;
-import io.toolisticon.cute.UnitTestForTestingAnnotationProcessorsWithoutPassIn;
-import io.toolisticon.cute.UnitTestWithoutPassIn;
+package io.toolisticon.cute;
 
 import javax.annotation.processing.Completion;
 import javax.annotation.processing.Messager;
@@ -23,7 +11,6 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic;
-import java.lang.annotation.Annotation;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -188,7 +175,7 @@ final class AnnotationProcessorWrapper implements Processor {
     }
 
 
-    static Set<AnnotationProcessorWrapper> getWrappedProcessors(CuteFluentApi.CompilerTestBB compilerTestBB) {
+    static Set<AnnotationProcessorWrapper> getWrappedProcessors(CuteApi.CompilerTestBB compilerTestBB) {
 
         // return cached wrapped processors if available
 
@@ -207,28 +194,35 @@ final class AnnotationProcessorWrapper implements Processor {
 
         }
         */
-        if (compilerTestBB.unitTest() != null) {
+        if (compilerTestBB.testType() == CuteApi.TestType.UNIT && compilerTestBB.unitTest() != null) {
             Processor processor = null;
-            Class<? extends Annotation> annotationToScanFor =  Constants.DEFAULT_ANNOTATION;
+
+            // This is kind of difficult...
+            // must determine which annotation must be used as trigger and for scanning
+            // 1. passed in class - in this case the PassIn or annotationForScan must be used for scanning, DEFAULT ANNOTATION must be used as entry point
+            // 2. Pass in by source - in this case annotationForScan isn't used, just PassIn or annotationForScan if set
+            // 3. Implicit PassIn - just the default Source and Entry Point is available TestAnnotation Must be used
+
             if (compilerTestBB.unitTest() instanceof UnitTest) {
                 if (compilerTestBB.passInConfiguration() != null && compilerTestBB.passInConfiguration().getPassedInClass() != null) {
 
+                    // This is correct: DEFAULT AS ENTRY POINT AND PASSIN OR ANNOTATIONFORSCAN for scanning
                     processor = new UnitTestAnnotationProcessorClassWithPassIn<>(
                             compilerTestBB.passInConfiguration().getPassedInClass(),
-                            annotationToScanFor,
+                            compilerTestBB.passInConfiguration().getAnnotationToScanFor() != null ? compilerTestBB.passInConfiguration().getAnnotationToScanFor() : PassIn.class,
                             (UnitTest<Element>) compilerTestBB.unitTest());
 
                 } else {
                     // This is the legacy case
                     processor = new UnitTestAnnotationProcessorClass<>(
-                            annotationToScanFor,
+                            compilerTestBB.passInConfiguration() != null && compilerTestBB.passInConfiguration().getAnnotationToScanFor() != null ? compilerTestBB.passInConfiguration().getAnnotationToScanFor() : (compilerTestBB.passInConfiguration() != null && compilerTestBB.passInConfiguration().getPassInElement() ? PassIn.class : Constants.DEFAULT_ANNOTATION ),
                             (UnitTest<Element>) compilerTestBB.unitTest());
                 }
 
-            } else if (compilerTestBB.unitTest() instanceof UnitTestWithoutPassIn){
+            } else if (compilerTestBB.unitTest() instanceof UnitTestWithoutPassIn) {
 
                 processor = new UnitTestAnnotationProcessorClassWithoutPassIn(
-                        annotationToScanFor,
+                        Constants.DEFAULT_ANNOTATION,
                         (UnitTestWithoutPassIn) compilerTestBB.unitTest());
 
             } else if (compilerTestBB.unitTest() instanceof UnitTestForTestingAnnotationProcessors) {
@@ -240,12 +234,36 @@ final class AnnotationProcessorWrapper implements Processor {
                     throw new IllegalArgumentException(Constants.Messages.IAE_CANNOT_INSTANTIATE_PROCESSOR.produceMessage(compilerTestBB.passInConfiguration().getPassedInProcessor().getCanonicalName()));
                 }
 
-                processor = new UnitTestAnnotationProcessorClassForTestingAnnotationProcessors<Processor, Element>(
-                        processorUnderTest,
-                        annotationToScanFor,
-                        (UnitTestForTestingAnnotationProcessors) compilerTestBB.unitTest());
+                if (compilerTestBB.passInConfiguration() != null && compilerTestBB.passInConfiguration().getPassedInClass() != null) {
+                    processor = new UnitTestAnnotationProcessorClassForTestingAnnotationProcessorsWithPassIn<>(
+                            processorUnderTest,
+                            Constants.DEFAULT_ANNOTATION,
+                            compilerTestBB.passInConfiguration().getPassedInClass(),
+                            compilerTestBB.passInConfiguration().getAnnotationToScanFor() != null ? compilerTestBB.passInConfiguration().getAnnotationToScanFor() : PassIn.class,
+                            (UnitTestForTestingAnnotationProcessors) compilerTestBB.unitTest()
+
+                    );
+                } else {
+                    processor = new UnitTestAnnotationProcessorClassForTestingAnnotationProcessors<>(
+                            processorUnderTest,
+                            compilerTestBB.passInConfiguration().getAnnotationToScanFor() != null ? compilerTestBB.passInConfiguration().getAnnotationToScanFor() : (compilerTestBB.passInConfiguration().getPassInElement() ? PassIn.class : Constants.DEFAULT_ANNOTATION ),
+                            (UnitTestForTestingAnnotationProcessors) compilerTestBB.unitTest());
+                }
+
 
             } else if (compilerTestBB.unitTest() instanceof UnitTestForTestingAnnotationProcessorsWithoutPassIn) {
+
+                Processor processorUnderTest = null;
+                try {
+                    processorUnderTest = compilerTestBB.passInConfiguration().getPassedInProcessor().getDeclaredConstructor().newInstance();
+                } catch (Exception e) {
+                    throw new IllegalArgumentException(Constants.Messages.IAE_CANNOT_INSTANTIATE_PROCESSOR.produceMessage(compilerTestBB.passInConfiguration().getPassedInProcessor().getCanonicalName()));
+                }
+
+                processor = new UnitTestAnnotationProcessorClassForTestingAnnotationProcessorsWithoutPassIn<>(
+                        processorUnderTest,
+                        Constants.DEFAULT_ANNOTATION,
+                        (UnitTestForTestingAnnotationProcessorsWithoutPassIn) compilerTestBB.unitTest());
 
             }
 

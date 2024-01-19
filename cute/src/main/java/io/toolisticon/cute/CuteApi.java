@@ -1,7 +1,6 @@
 package io.toolisticon.cute;
 
 
-import io.toolisticon.cute.impl.CompileTest;
 import io.toolisticon.cute.matchers.CoreGeneratedFileObjectMatchers;
 import io.toolisticon.fluapigen.api.FluentApi;
 import io.toolisticon.fluapigen.api.FluentApiBackingBean;
@@ -29,8 +28,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-@FluentApi("CuteFluentApiStarter")
-public class CuteFluentApi {
+@FluentApi("Cute")
+public class CuteApi {
 
     @FluentApiBackingBean
     public interface CompilerTestBB {
@@ -69,7 +68,7 @@ public class CuteFluentApi {
         default long countErrorMessageChecks() {
             long count = 0;
 
-            for (CuteFluentApi.CompilerMessageCheckBB compilerMessageCheck : compilerMessageChecks()) {
+            for (CuteApi.CompilerMessageCheckBB compilerMessageCheck : compilerMessageChecks()) {
                 if (CompilerMessageKind.ERROR.toString().equals(compilerMessageCheck.getKind().name())) {
                     count++;
                 }
@@ -103,6 +102,15 @@ public class CuteFluentApi {
 
     @FluentApiBackingBean
     public interface PassInConfigurationBB {
+
+        /**
+         * This is a marker if passing in of Elements should be used.
+         * In this case exactly one PassIn annotation must be present in passed in Class or in added source files.
+         *
+         * @return true if unit test should pass in an element, otherwise false
+         */
+        @FluentApiBackingBeanField(value = "passInElement", initValue = "false")
+        boolean getPassInElement();
 
         @FluentApiBackingBeanField("passedInClass")
         Class<?> getPassedInClass();
@@ -207,6 +215,7 @@ public class CuteFluentApi {
 
         @FluentApiBackingBeanField("generatedFileObjectMatcher")
         GeneratedFileObjectMatcher[] getGeneratedFileObjectMatchers();
+
     }
 
 
@@ -269,19 +278,19 @@ public class CuteFluentApi {
     @FluentApiInterface(CompilerTestBB.class)
     public interface BlackBoxTestFinalGivenInterface {
 
-        UnitTestGivenInterface andSourceFiles(@FluentApiBackingBeanMapping(value = "sourceFiles", action = MappingAction.ADD) JavaFileObject... sourceFile);
+        BlackBoxTestFinalGivenInterface andSourceFiles(@FluentApiBackingBeanMapping(value = "sourceFiles", action = MappingAction.ADD) JavaFileObject... sourceFile);
 
-        default UnitTestGivenInterface andSourceFiles(String... resources) {
+        default BlackBoxTestFinalGivenInterface andSourceFiles(String... resources) {
             return andSourceFiles(Arrays.stream(resources).map(e -> JavaFileObjectUtils.readFromResource(e)).toArray(String[]::new));
         }
 
-        default UnitTestGivenInterface andSourceFile(String className, String content) {
+        default BlackBoxTestFinalGivenInterface andSourceFile(String className, String content) {
             return andSourceFiles(JavaFileObjectUtils.readFromString(className, content));
         }
 
-        UnitTestGivenInterface andUseCompilerOptions(@FluentApiBackingBeanMapping(value = "compilerOptions") String... compilerOptions);
+        BlackBoxTestFinalGivenInterface andUseCompilerOptions(@FluentApiBackingBeanMapping(value = "compilerOptions") String... compilerOptions);
 
-        UnitTestGivenInterface andUseModules(@FluentApiBackingBeanMapping(value = "modules") String... modules);
+        BlackBoxTestFinalGivenInterface andUseModules(@FluentApiBackingBeanMapping(value = "modules") String... modules);
 
         CompilerTestInterface whenCompiled();
 
@@ -335,13 +344,12 @@ public class CuteFluentApi {
     }
 
 
-
     @FluentApiInterface(CompilerTestBB.class)
     public interface UnitTestWhenInterface {
 
         PassInElementInterface passInElement();
 
-        <PROCESSOR_CLASS extends Processor> PassInProcessorInterface<PROCESSOR_CLASS> passInProcessor(@FluentApiBackingBeanMapping(value = "passedInProcessor",target = TargetBackingBean.NEXT) Class<PROCESSOR_CLASS > processorClass);
+        <PROCESSOR_CLASS extends Processor> PassInProcessorInterface<PROCESSOR_CLASS> passInProcessor(@FluentApiBackingBeanMapping(value = "passedInProcessor", target = TargetBackingBean.NEXT) Class<PROCESSOR_CLASS> processorClass);
 
         CompilerTestInterface unitTestWithoutPassIn(@FluentApiBackingBeanMapping(value = "unitTest", action = MappingAction.SET, target = TargetBackingBean.NEXT) UnitTestWithoutPassIn unitTest);
 
@@ -350,65 +358,90 @@ public class CuteFluentApi {
     @FluentApiInterface(CompilerTestBB.class)
     public interface PassInElementInterface {
 
-        default <ELEMENT_TYPE extends Element> PassInElementAndProcessorInterface<ELEMENT_TYPE> fromStringSource(String sourceString, String name){
+        default <ELEMENT_TYPE extends Element> PassInElementAndProcessorInterface<ELEMENT_TYPE> fromStringSource(String sourceString, String name) {
             return this.<ELEMENT_TYPE>fromJavaFileObject(JavaFileObjectUtils.readFromString(name, sourceString));
         }
 
-        default <ELEMENT_TYPE extends Element>  PassInElementAndProcessorInterface<ELEMENT_TYPE> fromSourceFile(String resourceName){
+        default <ELEMENT_TYPE extends Element> PassInElementAndProcessorInterface<ELEMENT_TYPE> fromSourceFile(String resourceName) {
             return this.<ELEMENT_TYPE>fromJavaFileObject(JavaFileObjectUtils.readFromResource(resourceName));
         }
 
+        @FluentApiImplicitValue(id = "passInElement", value = "true", target = TargetBackingBean.NEXT)
         <ELEMENT_TYPE extends Element> PassInElementAndProcessorInterface<ELEMENT_TYPE> fromJavaFileObject(@FluentApiBackingBeanMapping(value = "sourceFiles", action = MappingAction.SET) JavaFileObject javaFileObject);
 
-        <ELEMENT_TYPE extends Element> PassInElementAndProcessorInterface<ELEMENT_TYPE> fromClass(@FluentApiBackingBeanMapping(value="passedInClass",target = TargetBackingBean.NEXT) Class<?> classToScanForElement);
+        @FluentApiImplicitValue(id = "passInElement", value = "true", target = TargetBackingBean.NEXT)
+        <ELEMENT_TYPE extends Element> PassInElementAndProcessorInterface<ELEMENT_TYPE> fromClass(@FluentApiBackingBeanMapping(value = "passedInClass", target = TargetBackingBean.NEXT) Class<?> classToScanForElement);
+
+        /**
+         * The element will be passed in from given source files. Exactly one Source file must contain a PassIn annotation.
+         * This method should only be used, if non-runtime annotations are involved in unit tests.
+         *
+         * @param <ELEMENT_TYPE> the Element type of passed in interface.
+         * @return the next fluent interface
+         */
+        @FluentApiImplicitValue(id = "passInElement", value = "true", target = TargetBackingBean.NEXT)
+        <ELEMENT_TYPE extends Element> PassInElementAndProcessorInterface<ELEMENT_TYPE> fromGivenSourceFiles();
 
     }
 
     @FluentApiInterface(PassInConfigurationBB.class)
-    public interface PassInProcessorInterface <PROCESSOR_CLASS extends Processor>{
+    public interface PassInProcessorInterface<PROCESSOR_CLASS extends Processor> {
         PassInProcessorAndElementInterface<PROCESSOR_CLASS> andPassInElement();
 
-        @FluentApiImplicitValue(id="getPassInType",value = "PROCESSOR", target = TargetBackingBean.NEXT)
+        @FluentApiImplicitValue(id = "getPassInType", value = "PROCESSOR", target = TargetBackingBean.NEXT)
         @FluentApiParentBackingBeanMapping(value = "passInConfiguration")
         CompilerTestInterface intoUnitTest(@FluentApiBackingBeanMapping(value = "unitTest", action = MappingAction.SET, target = TargetBackingBean.NEXT) UnitTestForTestingAnnotationProcessorsWithoutPassIn<PROCESSOR_CLASS> unitTest);
     }
 
 
-
     @FluentApiInterface(PassInConfigurationBB.class)
-    public interface PassInElementAndProcessorInterface <ELEMENT_TYPE extends Element>{
+    public interface PassInElementAndProcessorInterface<ELEMENT_TYPE extends Element> {
 
         @FluentApiParentBackingBeanMapping(value = "passInConfiguration")
         <PROCESSOR_TYPE extends Processor> UnitTestWhenWithPassedInElementAndProcessorInterface<ELEMENT_TYPE, PROCESSOR_TYPE> andPassInProcessor(@FluentApiBackingBeanMapping(value = "passedInProcessor") Class<PROCESSOR_TYPE> processorClass);
 
-        @FluentApiImplicitValue(id="getPassInType",value = "ELEMENT", target = TargetBackingBean.NEXT)
+        @FluentApiImplicitValue(id = "getPassInType", value = "ELEMENT", target = TargetBackingBean.NEXT)
         @FluentApiParentBackingBeanMapping(value = "passInConfiguration")
         CompilerTestInterface intoUnitTest(@FluentApiBackingBeanMapping(value = "unitTest", action = MappingAction.SET, target = TargetBackingBean.NEXT) UnitTest<ELEMENT_TYPE> unitTest);
     }
 
     @FluentApiInterface(PassInConfigurationBB.class)
-    public interface PassInProcessorAndElementInterface <PROCESSOR_CLASS extends Processor>{
+    public interface PassInProcessorAndElementInterface<PROCESSOR_CLASS extends Processor> {
 
-        default <ELEMENT_TYPE extends Element> UnitTestWhenWithPassedInElementAndProcessorInterface<ELEMENT_TYPE,PROCESSOR_CLASS> fromStringSource(String sourceString, String name){
+        default <ELEMENT_TYPE extends Element> UnitTestWhenWithPassedInElementAndProcessorInterface<ELEMENT_TYPE, PROCESSOR_CLASS> fromStringSource(String sourceString, String name) {
             return this.<ELEMENT_TYPE>fromJavaFileObject(JavaFileObjectUtils.readFromString(name, sourceString));
         }
 
-        default <ELEMENT_TYPE extends Element>  UnitTestWhenWithPassedInElementAndProcessorInterface<ELEMENT_TYPE,PROCESSOR_CLASS> fromSourceFile(String resourceName){
+        default <ELEMENT_TYPE extends Element> UnitTestWhenWithPassedInElementAndProcessorInterface<ELEMENT_TYPE, PROCESSOR_CLASS> fromSourceFile(String resourceName) {
             return this.<ELEMENT_TYPE>fromJavaFileObject(JavaFileObjectUtils.readFromResource(resourceName));
         }
 
         @FluentApiParentBackingBeanMapping(value = "passInConfiguration")
-        <ELEMENT_TYPE extends Element> UnitTestWhenWithPassedInElementAndProcessorInterface<ELEMENT_TYPE,PROCESSOR_CLASS> fromJavaFileObject(@FluentApiBackingBeanMapping(value = "sourceFiles", action = MappingAction.SET, target = TargetBackingBean.NEXT) JavaFileObject javaFileObject);
+        @FluentApiImplicitValue(id = "passInElement", value = "true")
+        <ELEMENT_TYPE extends Element> UnitTestWhenWithPassedInElementAndProcessorInterface<ELEMENT_TYPE, PROCESSOR_CLASS> fromJavaFileObject(@FluentApiBackingBeanMapping(value = "sourceFiles", action = MappingAction.SET, target = TargetBackingBean.NEXT) JavaFileObject javaFileObject);
 
         @FluentApiParentBackingBeanMapping(value = "passInConfiguration")
-        <ELEMENT_TYPE extends Element> UnitTestWhenWithPassedInElementAndProcessorInterface<ELEMENT_TYPE,PROCESSOR_CLASS> fromClass(@FluentApiBackingBeanMapping(value="passedInClass",target = TargetBackingBean.THIS) Class<?> classToScanForElement);
+        @FluentApiImplicitValue(id = "passInElement", value = "true")
+        <ELEMENT_TYPE extends Element> UnitTestWhenWithPassedInElementAndProcessorInterface<ELEMENT_TYPE, PROCESSOR_CLASS> fromClass(@FluentApiBackingBeanMapping(value = "passedInClass", target = TargetBackingBean.THIS) Class<?> classToScanForElement);
+
+        /**
+         * The element will be passed in from given source files. Exactly one Source file must contain a PassIn annotation.
+         * This method should only be used, if non-runtime annotations are involved in unit tests.
+         *
+         * @param <ELEMENT_TYPE> the Element type of passed in interface.
+         * @return the next fluent interface
+         */
+        @FluentApiParentBackingBeanMapping(value = "passInConfiguration")
+        @FluentApiImplicitValue(id = "passInElement", value = "true")
+        <ELEMENT_TYPE extends Element> UnitTestWhenWithPassedInElementAndProcessorInterface<ELEMENT_TYPE, PROCESSOR_CLASS> fromGivenSourceFiles();
+
     }
 
 
     @FluentApiInterface(CompilerTestBB.class)
     public interface UnitTestWhenWithPassedInElementAndProcessorInterface<E extends Element, P extends Processor> {
 
-        @FluentApiImplicitValue(id="getPassInType",value = "ELEMENT_AND_PROCESSOR", target = TargetBackingBean.NEXT)
+        @FluentApiImplicitValue(id = "getPassInType", value = "ELEMENT_AND_PROCESSOR", target = TargetBackingBean.NEXT)
         CompilerTestInterface intoUnitTest(@FluentApiBackingBeanMapping(value = "unitTest", action = MappingAction.SET) UnitTestForTestingAnnotationProcessors<P, E> unitTest);
     }
 
@@ -422,6 +455,9 @@ public class CuteFluentApi {
 
 
         CompilerTestOutcomeInterface thenExpectThat();
+
+        @FluentApiCommand(ExecuteTestCommand.class)
+        void executeTest();
 
 
     }
@@ -476,7 +512,6 @@ public class CuteFluentApi {
                 @FluentApiBackingBeanMapping(value = "location", target = TargetBackingBean.NEXT) JavaFileManager.Location location,
                 @FluentApiBackingBeanMapping(value = "packageName", target = TargetBackingBean.NEXT) String packageName,
                 @FluentApiBackingBeanMapping(value = "relativeName", target = TargetBackingBean.NEXT) String relativeName);
-
 
 
         CompilerMessageCheckMessageType compilerMessage();

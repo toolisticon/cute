@@ -1,7 +1,7 @@
 package io.toolisticon.cute.integrationtest;
 
 import io.toolisticon.cute.Constants;
-import io.toolisticon.cute.CuteFluentApiStarter;
+import io.toolisticon.cute.Cute;
 import io.toolisticon.cute.GeneratedFileObjectMatcher;
 import io.toolisticon.cute.JavaFileObjectUtils;
 import io.toolisticon.cute.TestUtilities;
@@ -27,7 +27,7 @@ public class CompiledClassesAndGeneratedFilesTest {
     @Test
     public void testCompiledClassesExist() {
 
-        CuteFluentApiStarter.blackBoxTest()
+        Cute.blackBoxTest()
                 .given().processors(SimpleTestProcessor1.class)
                 .andSourceFiles(JavaFileObjectUtils.readFromResource("/integrationtest/CompiledClassesAndGeneratedFilesExistTestcase.java"))
                 .whenCompiled()
@@ -77,7 +77,7 @@ public class CompiledClassesAndGeneratedFilesTest {
         boolean assertionErrorWasThrown = false;
 
         try {
-            CuteFluentApiStarter.blackBoxTest()
+            Cute.blackBoxTest()
                     .given().processors(FileGeneratorProcessor.class)
                     .andSourceFiles(JavaFileObjectUtils.readFromResource("/integrationtest/CompiledClassesAndGeneratedFilesExistTestcase.java"))
                     .whenCompiled()
@@ -99,7 +99,7 @@ public class CompiledClassesAndGeneratedFilesTest {
     @Test
     public void testCompiledResourceExist_byFileObject() {
 
-        CuteFluentApiStarter.blackBoxTest()
+        Cute.blackBoxTest()
                 .given().processors(FileGeneratorProcessor.class)
                 .andSourceFiles("/integrationtest/CompiledClassesAndGeneratedFilesExistTestcase.java")
                 .whenCompiled()
@@ -113,7 +113,7 @@ public class CompiledClassesAndGeneratedFilesTest {
     @Test
     public void testCompiledResourceExist_ByMatcher() {
 
-        CuteFluentApiStarter.blackBoxTest()
+        Cute.blackBoxTest()
                 .given().processors(FileGeneratorProcessor.class)
                 .andSourceFiles(JavaFileObjectUtils.readFromResource("/integrationtest/CompiledClassesAndGeneratedFilesExistTestcase.java"))
                 .whenCompiled()
@@ -135,7 +135,7 @@ public class CompiledClassesAndGeneratedFilesTest {
         boolean assertionErrorWasThrown = false;
 
         try {
-            CuteFluentApiStarter.blackBoxTest()
+            Cute.blackBoxTest()
                     .given().processors(FileGeneratorProcessor.class)
                     .andSourceFiles(JavaFileObjectUtils.readFromResource("/integrationtest/CompiledClassesAndGeneratedFilesExistTestcase.java"))
                     .whenCompiled()
@@ -159,7 +159,7 @@ public class CompiledClassesAndGeneratedFilesTest {
         boolean assertionErrorWasThrown = false;
 
         try {
-            CuteFluentApiStarter.blackBoxTest()
+            Cute.blackBoxTest()
                     .given().processors(FileGeneratorProcessor.class)
                     .andSourceFiles(JavaFileObjectUtils.readFromResource("/integrationtest/CompiledClassesAndGeneratedFilesExistTestcase.java"))
                     .whenCompiled().thenExpectThat().compilationSucceeds()
@@ -220,7 +220,7 @@ public class CompiledClassesAndGeneratedFilesTest {
     @Test
     public void testCompiledJavaFileObjectExist() {
 
-        CuteFluentApiStarter.blackBoxTest()
+        Cute.blackBoxTest()
                 .given().processors(JavaFileGeneratorProcessor.class)
                 .andSourceFiles(JavaFileObjectUtils.readFromResource("/integrationtest/CompiledClassesAndGeneratedFilesExistTestcase.java"))
                 .whenCompiled().thenExpectThat().compilationSucceeds()
@@ -238,7 +238,7 @@ public class CompiledClassesAndGeneratedFilesTest {
         boolean assertionErrorWasThrown = false;
 
         try {
-            CuteFluentApiStarter.blackBoxTest()
+            Cute.blackBoxTest()
                     .given().processors(JavaFileGeneratorProcessor.class)
                     .andSourceFiles(JavaFileObjectUtils.readFromResource("/integrationtest/CompiledClassesAndGeneratedFilesExistTestcase.java"))
                     .whenCompiled().thenExpectThat().compilationSucceeds()
@@ -262,7 +262,7 @@ public class CompiledClassesAndGeneratedFilesTest {
         boolean assertionErrorWasThrown = false;
 
         try {
-            CuteFluentApiStarter.blackBoxTest()
+            Cute.blackBoxTest()
                     .given().processors(JavaFileGeneratorProcessor.class)
                     .andSourceFiles(JavaFileObjectUtils.readFromResource("/integrationtest/CompiledClassesAndGeneratedFilesExistTestcase.java"))
                     .whenCompiled()
@@ -287,7 +287,7 @@ public class CompiledClassesAndGeneratedFilesTest {
         boolean assertionErrorWasThrown = false;
 
         try {
-            CuteFluentApiStarter.blackBoxTest()
+            Cute.blackBoxTest()
                     .given().processors(JavaFileGeneratorProcessor.class)
                     .andSourceFiles(JavaFileObjectUtils.readFromResource("/integrationtest/CompiledClassesAndGeneratedFilesExistTestcase.java"))
                     .whenCompiled()
@@ -312,7 +312,7 @@ public class CompiledClassesAndGeneratedFilesTest {
         boolean assertionErrorWasThrown = false;
 
         try {
-            CuteFluentApiStarter.blackBoxTest()
+            Cute.blackBoxTest()
                     .given().processors(JavaFileGeneratorProcessor.class)
                     .andSourceFiles(JavaFileObjectUtils.readFromResource("/integrationtest/CompiledClassesAndGeneratedFilesExistTestcase.java"))
                     .whenCompiled()
@@ -337,7 +337,7 @@ public class CompiledClassesAndGeneratedFilesTest {
         boolean assertionErrorWasThrown = false;
 
         try {
-            CuteFluentApiStarter.blackBoxTest()
+            Cute.blackBoxTest()
                     .given().processors(JavaFileGeneratorProcessor.class)
                     .andSourceFiles(JavaFileObjectUtils.readFromResource("/integrationtest/CompiledClassesAndGeneratedFilesExistTestcase.java"))
                     .whenCompiled()
@@ -362,7 +362,7 @@ public class CompiledClassesAndGeneratedFilesTest {
         boolean assertionErrorWasThrown = false;
 
         try {
-            CuteFluentApiStarter.blackBoxTest()
+            Cute.blackBoxTest()
                     .given().processors(JavaFileGeneratorProcessor.class)
                     .andSourceFiles(JavaFileObjectUtils.readFromResource("/integrationtest/CompiledClassesAndGeneratedFilesExistTestcase.java"))
                     .whenCompiled().thenExpectThat().compilationSucceeds()

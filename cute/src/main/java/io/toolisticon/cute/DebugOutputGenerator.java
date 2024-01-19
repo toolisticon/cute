@@ -1,7 +1,5 @@
-package io.toolisticon.cute.impl;
+package io.toolisticon.cute;
 
-import io.toolisticon.cute.CuteFluentApi;
-import io.toolisticon.cute.FailingAssertionException;
 import io.toolisticon.cute.extension.api.ModuleSupportSpi;
 import io.toolisticon.cute.extension.api.ModuleSupportSpiServiceLocator;
 
@@ -29,7 +27,7 @@ final class DebugOutputGenerator {
 
     }
 
-    static String getDebugOutput(CompilationResult compilationResult, CuteFluentApi.CompilerTestBB compileTestConfiguration, FailingAssertionException failingAssertionException) {
+    static String getDebugOutput(CompilationResult compilationResult, CuteApi.CompilerTestBB compileTestConfiguration, FailingAssertionException failingAssertionException) {
 
         StringBuilder stringBuilder = new StringBuilder();
 

@@ -1,5 +1,6 @@
-package io.toolisticon.cute.impl;
+package io.toolisticon.cute;
 
+import io.toolisticon.cute.CompileTestFileManager;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
 import org.junit.Test;

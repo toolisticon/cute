@@ -3,10 +3,10 @@ package io.toolisticon.annotationprocessortoolkit.testhelper.compiletest;
 import io.toolisticon.cute.PassIn;
 import io.toolisticon.cute.TestAnnotation;
 
-@TestAnnotation
+@PassIn
 public class PassInTestClassMultipleAnnotatedWithoutPassIn {
 
-    @TestAnnotation
+    @PassIn
     public static class InnerTestClass {
 
     }

@@ -3,7 +3,6 @@ package io.toolisticon.cute;
 import io.toolisticon.cute.matchers.CoreGeneratedFileObjectMatchers;
 import io.toolisticon.fluapigen.api.FluentApi;
 import io.toolisticon.fluapigen.api.FluentApiBackingBean;
-import io.toolisticon.fluapigen.api.FluentApiBackingBeanField;
 import io.toolisticon.fluapigen.api.FluentApiBackingBeanMapping;
 import io.toolisticon.fluapigen.api.FluentApiCommand;
 import io.toolisticon.fluapigen.api.FluentApiConverter;
@@ -24,14 +23,11 @@ import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardLocation;
 import java.lang.annotation.Annotation;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Locale;
-import java.util.Set;
 
-@FluentApi("CompileTestBuilderOld")
-public class CompileTestBuilder {
+@FluentApi("CompileTestBuilder")
+public class CompileTestBuilderApi {
 
     /**
      * ------------------------------------------------------------------------
@@ -40,171 +36,31 @@ public class CompileTestBuilder {
      */
 
     @FluentApiBackingBean
-    public interface CompilerTestBB {
-        TestType testType();
-
-        UnitTestType getPassInType();
-
-
-        List<Class<Processor>> processors();
-
-        List<String> compilerOptions();
-
-        Set<JavaFileObject> sourceFiles();
-
-        Set<String> modules();
-
-        @FluentApiBackingBeanField("compilationSucceeded")
-        Boolean compilationSucceeded();
-
-        @FluentApiBackingBeanField("exceptionIsThrown")
-        Class<? extends Exception> getExceptionIsThrown();
-
-        UnitTestBase unitTest();
-
-        PassInConfigurationBB passInConfiguration();
-
-        @FluentApiBackingBeanField("compileMessageChecks")
-        List<CompilerMessageCheckBB> compilerMessageChecks();
-
-        @FluentApiBackingBeanField("javaFileObjectChecks")
-        List<GeneratedJavaFileObjectCheckBB> javaFileObjectChecks();
-
-        @FluentApiBackingBeanField("fileObjectChecks")
-        List<GeneratedFileObjectCheckBB> fileObjectChecks();
-
-        default long countErrorMessageChecks() {
-            long count = 0;
-
-            for (CompilerMessageCheckBB compilerMessageCheck : compilerMessageChecks()) {
-                if (CompilerMessageKind.ERROR.toString().equals(compilerMessageCheck.getKind().name())) {
-                    count++;
-                }
-            }
-
-            return count;
-        }
-
-        default List<String> getNormalizedCompilerOptions() {
-
-            List<String> normalizedCompilerOptions = new ArrayList<>();
-
-            for (String compilerOption : compilerOptions()) {
-
-                if (compilerOption != null) {
-                    for (String tokenizedCompilerOption : compilerOption.split("[ ]+")) {
-                        if (!tokenizedCompilerOption.isEmpty()) {
-                            normalizedCompilerOptions.add(tokenizedCompilerOption);
-                        }
-                    }
-                }
-            }
-
-            return normalizedCompilerOptions;
-
-        }
+    public interface CompilerTestBB extends CuteApi.CompilerTestBB {
 
 
     }
 
 
     @FluentApiBackingBean
-    public interface PassInConfigurationBB {
+    public interface PassInConfigurationBB extends CuteApi.PassInConfigurationBB {
 
-        @FluentApiBackingBeanField("passedInClass")
-        Class<?> getPassedInClass();
-
-        @FluentApiBackingBeanField("annotationToScanFor")
-        Class<? extends Annotation> getAnnotationToScanFor();
-
-        @FluentApiBackingBeanField("passedInProcessor")
-        Class<? extends Processor> getPassedInProcessor();
     }
 
     @FluentApiBackingBean
-    public interface CompilerMessageCheckBB {
-
-        @FluentApiBackingBeanField("compilerMessageScope")
-        CompilerMessageKind getKind();
-
-        @FluentApiBackingBeanField("compilerMessageComparisonType")
-        CompilerMessageComparisonType getComparisonType();
-
-        @FluentApiBackingBeanField("searchString")
-        List<String> getSearchString();
-
-        @FluentApiBackingBeanField("atLine")
-        Integer atLine();
-
-        @FluentApiBackingBeanField("atColumn")
-        Integer atColumn();
-
-        @FluentApiBackingBeanField("atSource")
-        String atSource();
-
-        @FluentApiBackingBeanField("withLocale")
-        Locale withLocale();
+    public interface CompilerMessageCheckBB extends CuteApi.CompilerMessageCheckBB {
 
     }
 
 
-    public enum TestType {
-        UNIT, BLACK_BOX
-    }
+    @FluentApiBackingBean
+    public interface GeneratedJavaFileObjectCheckBB extends CuteApi.GeneratedJavaFileObjectCheckBB {
 
-    public enum UnitTestType {
-        NO_PASS_IN, ELEMENT, PROCESSOR, ELEMENT_AND_PROCESSOR
-    }
-
-    public enum CompilerMessageComparisonType {
-        CONTAINS, EQUALS;
-    }
-
-    public enum CompilerMessageKind {
-        NOTE, WARNING, MANDATORY_WARNING, ERROR;
-    }
-
-
-    public enum FileObjectCheckType {
-        EXISTS, DOESNT_EXIST
     }
 
     @FluentApiBackingBean
-    public interface GeneratedJavaFileObjectCheckBB {
+    public interface GeneratedFileObjectCheckBB extends CuteApi.GeneratedFileObjectCheckBB {
 
-        @FluentApiBackingBeanField("checkType")
-        FileObjectCheckType getCheckType();
-
-        @FluentApiBackingBeanField("location")
-        JavaFileManager.Location getLocation();
-
-        @FluentApiBackingBeanField("className")
-        String getClassName();
-
-        @FluentApiBackingBeanField("kind")
-        JavaFileObject.Kind getKind();
-
-        @FluentApiBackingBeanField("generatedFileObjectMatcher")
-        GeneratedFileObjectMatcher getGeneratedFileObjectMatcher();
-    }
-
-    @FluentApiBackingBean
-    public interface GeneratedFileObjectCheckBB {
-
-        @FluentApiBackingBeanField("checkType")
-        FileObjectCheckType getCheckType();
-
-        @FluentApiBackingBeanField("location")
-        JavaFileManager.Location getLocation();
-
-        @FluentApiBackingBeanField("packageName")
-        String getPackageName();
-
-        @FluentApiBackingBeanField("relativeName")
-        String getRelativeName();
-
-        @FluentApiBackingBeanField("generatedFileObjectMatcher")
-        GeneratedFileObjectMatcher[] getGeneratedFileObjectMatchers();
     }
 
     /**
@@ -336,7 +192,7 @@ public class CompileTestBuilder {
         @FluentApiInlineBackingBeanMapping("compileMessageChecks")
         @FluentApiImplicitValue(id = "compilerMessageScope", value = "WARNING", target = TargetBackingBean.INLINE)
         @FluentApiImplicitValue(id = "compilerMessageComparisonType", value = "CONTAINS", target = TargetBackingBean.INLINE)
-        TEST_BUILDER expectWarningMessageThatContains(@FluentApiBackingBeanMapping(value = "searchString", target = TargetBackingBean.INLINE) String... warningChecks);
+        TEST_BUILDER expectWarningMessageThatContains(@FluentApiBackingBeanMapping(value = "searchString", target = TargetBackingBean.INLINE) @NotNull String... warningChecks);
 
         /**
          * Adds some mandatory warning checks.
@@ -347,7 +203,7 @@ public class CompileTestBuilder {
         @FluentApiInlineBackingBeanMapping("compileMessageChecks")
         @FluentApiImplicitValue(id = "compilerMessageScope", value = "MANDATORY_WARNING", target = TargetBackingBean.INLINE)
         @FluentApiImplicitValue(id = "compilerMessageComparisonType", value = "CONTAINS", target = TargetBackingBean.INLINE)
-        TEST_BUILDER expectMandatoryWarningMessageThatContains(@FluentApiBackingBeanMapping(value = "searchString", target = TargetBackingBean.INLINE) String... mandatoryWarningChecks);
+        TEST_BUILDER expectMandatoryWarningMessageThatContains(@FluentApiBackingBeanMapping(value = "searchString", target = TargetBackingBean.INLINE) @NotNull String... mandatoryWarningChecks);
 
         /**
          * Adds some error checks.
@@ -358,7 +214,7 @@ public class CompileTestBuilder {
         @FluentApiInlineBackingBeanMapping("compileMessageChecks")
         @FluentApiImplicitValue(id = "compilerMessageScope", value = "ERROR", target = TargetBackingBean.INLINE)
         @FluentApiImplicitValue(id = "compilerMessageComparisonType", value = "CONTAINS", target = TargetBackingBean.INLINE)
-        TEST_BUILDER expectErrorMessageThatContains(@FluentApiBackingBeanMapping(value = "searchString", target = TargetBackingBean.INLINE) String... errorChecksToSet);
+        TEST_BUILDER expectErrorMessageThatContains(@FluentApiBackingBeanMapping(value = "searchString", target = TargetBackingBean.INLINE) @NotNull String... errorChecksToSet);
 
         /**
          * Adds some notes checks.
@@ -369,7 +225,7 @@ public class CompileTestBuilder {
         @FluentApiInlineBackingBeanMapping("compileMessageChecks")
         @FluentApiImplicitValue(id = "compilerMessageScope", value = "NOTE", target = TargetBackingBean.INLINE)
         @FluentApiImplicitValue(id = "compilerMessageComparisonType", value = "CONTAINS", target = TargetBackingBean.INLINE)
-        TEST_BUILDER expectNoteMessageThatContains(@FluentApiBackingBeanMapping(value = "searchString", target = TargetBackingBean.INLINE) String... noteChecksToSet);
+        TEST_BUILDER expectNoteMessageThatContains(@FluentApiBackingBeanMapping(value = "searchString", target = TargetBackingBean.INLINE) @NotNull String... noteChecksToSet);
 
 
         /**
@@ -543,7 +399,7 @@ public class CompileTestBuilder {
          * @return the next builder instance
          */
         default TEST_BUILDER expectThatJavaFileObjectExists(JavaFileManager.Location location, String className, JavaFileObject.Kind kind, ExpectedFileObjectMatcherKind expectedFileObjectMatcherKind, JavaFileObject expectedJavaFileObject) {
-            return expectThatJavaFileObject(FileObjectCheckType.EXISTS, location, className, kind, CoreGeneratedFileObjectMatchers.createBinaryMatcher(expectedJavaFileObject));
+            return expectThatJavaFileObject(CuteApi.FileObjectCheckType.EXISTS, location, className, kind, CoreGeneratedFileObjectMatchers.createBinaryMatcher(expectedJavaFileObject));
         }
 
         /**
@@ -559,7 +415,7 @@ public class CompileTestBuilder {
         @FluentApiInlineBackingBeanMapping("javaFileObjectChecks")
         @FluentApiImplicitValue(id = "checkType", value = "EXISTS", target = TargetBackingBean.INLINE)
         default TEST_BUILDER expectThatJavaFileObjectExists(@FluentApiBackingBeanMapping(value = "location", target = TargetBackingBean.INLINE) JavaFileManager.Location location, @FluentApiBackingBeanMapping(value = "className", target = TargetBackingBean.INLINE) String className, @FluentApiBackingBeanMapping(value = "kind", target = TargetBackingBean.INLINE) JavaFileObject.Kind kind, @FluentApiBackingBeanMapping(value = "generatedFileObjectMatcher", target = TargetBackingBean.INLINE) GeneratedFileObjectMatcher generatedJavaFileObjectCheck) {
-            return expectThatJavaFileObject(FileObjectCheckType.EXISTS, location, className, kind, generatedJavaFileObjectCheck);
+            return expectThatJavaFileObject(CuteApi.FileObjectCheckType.EXISTS, location, className, kind, generatedJavaFileObjectCheck);
         }
 
 
@@ -575,7 +431,7 @@ public class CompileTestBuilder {
          * @return the next builder instance
          */
         @FluentApiInlineBackingBeanMapping("javaFileObjectChecks")
-        TEST_BUILDER expectThatJavaFileObject(@FluentApiBackingBeanMapping(value = "checkType", target = TargetBackingBean.INLINE) FileObjectCheckType checkType, @FluentApiBackingBeanMapping(value = "location", target = TargetBackingBean.INLINE) JavaFileManager.Location location, @FluentApiBackingBeanMapping(value = "className", target = TargetBackingBean.INLINE) String className, @FluentApiBackingBeanMapping(value = "kind", target = TargetBackingBean.INLINE) JavaFileObject.Kind kind, @FluentApiBackingBeanMapping(value = "generatedFileObjectMatcher", target = TargetBackingBean.INLINE) GeneratedFileObjectMatcher generatedJavaFileObjectCheck);
+        TEST_BUILDER expectThatJavaFileObject(@FluentApiBackingBeanMapping(value = "checkType", target = TargetBackingBean.INLINE) CuteApi.FileObjectCheckType checkType, @FluentApiBackingBeanMapping(value = "location", target = TargetBackingBean.INLINE) JavaFileManager.Location location, @FluentApiBackingBeanMapping(value = "className", target = TargetBackingBean.INLINE) String className, @FluentApiBackingBeanMapping(value = "kind", target = TargetBackingBean.INLINE) JavaFileObject.Kind kind, @FluentApiBackingBeanMapping(value = "generatedFileObjectMatcher", target = TargetBackingBean.INLINE) GeneratedFileObjectMatcher generatedJavaFileObjectCheck);
 
         /**
          * Adds a check if a specific JavaFileObject doesn't exist.
@@ -603,8 +459,8 @@ public class CompileTestBuilder {
          *
          * @throws IllegalStateException if there's some invalid configuration
          */
-        @FluentApiCommand(ClosingCommand.class)
-        CompilerTestBB executeTest();
+        @FluentApiCommand(ExecuteTestCommand.class)
+        void executeTest();
 
 
     }
@@ -698,7 +554,7 @@ public class CompileTestBuilder {
          * <p>
          * The passed customAnnotationTyoe will be used to look up this Element.
          * <p>
-         * So please make sure that the customAnnotationTyoe annotation is used exactly once in your custom source file that.
+         * So please make sure that the customAnnotationType annotation is used exactly once in your custom source file that.
          *
          * @param customAnnotationType the annotation type to search the element for
          * @param unitTest             the processor to use
@@ -708,6 +564,7 @@ public class CompileTestBuilder {
          * @throws IllegalStateException    if more than one Element is found or if ELEMENT_TYPE doesn't match type of the found element
          */
         @FluentApiInlineBackingBeanMapping("passInConfiguration")
+        @FluentApiImplicitValue(id = "passInElement", value = "true", target = TargetBackingBean.INLINE)
         <ELEMENT_TYPE extends Element> UnitTestBuilder defineTest(
                 @FluentApiBackingBeanMapping(value = "annotationToScanFor", target = TargetBackingBean.INLINE) @NotNull Class<? extends Annotation> customAnnotationType,
                 @FluentApiBackingBeanMapping("unitTest") @NotNull UnitTest<ELEMENT_TYPE> unitTest);
@@ -750,6 +607,7 @@ public class CompileTestBuilder {
          * @throws IllegalStateException    if more than one Element is found or if ELEMENT_TYPE doesn't match type of the found element
          */
         @FluentApiInlineBackingBeanMapping("passInConfiguration")
+        @FluentApiImplicitValue(id = "passInElement", value = "true", target = TargetBackingBean.INLINE)
         <ELEMENT_TYPE extends Element> UnitTestBuilder defineTestWithPassedInElement(
                 @FluentApiBackingBeanMapping(value = "passedInClass", target = TargetBackingBean.INLINE) @NotNull Class<?> classToScan,
                 @FluentApiBackingBeanMapping(value = "annotationToScanFor", target = TargetBackingBean.INLINE) @NotNull Class<? extends Annotation> annotationToSearch,
@@ -775,7 +633,7 @@ public class CompileTestBuilder {
          */
         @FluentApiInlineBackingBeanMapping("passInConfiguration")
         <PROCESSOR_UNDER_TEST extends Processor, ELEMENT_TYPE extends Element> UnitTestBuilder defineTest(
-                @FluentApiBackingBeanMapping(value = "passedInProcessor", target = TargetBackingBean.INLINE) @NotNull Class<PROCESSOR_UNDER_TEST> processorUnderTestClass,
+                @FluentApiBackingBeanMapping(value = "passedInProcessor", target = TargetBackingBean.INLINE) @NotNull @HasNoArgConstructor Class<PROCESSOR_UNDER_TEST> processorUnderTestClass,
                 @FluentApiBackingBeanMapping("unitTest") @NotNull UnitTestForTestingAnnotationProcessors<PROCESSOR_UNDER_TEST, ELEMENT_TYPE> unitTestForTestingAnnotationProcessors);
 
         /**
@@ -830,7 +688,13 @@ public class CompileTestBuilder {
          * @throws IllegalStateException    if more than one Element is found or if ELEMENT_TYPE doesn't match type of the found element
          */
         @FluentApiInlineBackingBeanMapping("passInConfiguration")
-        <PROCESSOR_UNDER_TEST extends Processor, ELEMENT_TYPE extends Element> UnitTestBuilder defineTestWithPassedInElement(@FluentApiBackingBeanMapping(value = "passedInProcessor", target = TargetBackingBean.INLINE) Class<PROCESSOR_UNDER_TEST> processorUnderTestClass, @FluentApiBackingBeanMapping(value = "passedInClass", target = TargetBackingBean.INLINE) Class<?> classToScan, @FluentApiBackingBeanMapping(value = "annotationToScanFor", target = TargetBackingBean.INLINE) Class<? extends Annotation> annotationToSearch, @FluentApiBackingBeanMapping("unitTest") UnitTestForTestingAnnotationProcessors<PROCESSOR_UNDER_TEST, ELEMENT_TYPE> unitTestForTestingAnnotationProcessors);
+        @FluentApiImplicitValue(id = "passInElement", value = "true", target = TargetBackingBean.INLINE)
+        <PROCESSOR_UNDER_TEST extends Processor, ELEMENT_TYPE extends Element> UnitTestBuilder defineTestWithPassedInElement(
+                @FluentApiBackingBeanMapping(value = "passedInProcessor", target = TargetBackingBean.INLINE) Class<PROCESSOR_UNDER_TEST> processorUnderTestClass,
+                @FluentApiBackingBeanMapping(value = "passedInClass", target = TargetBackingBean.INLINE) Class<?> classToScan,
+                @FluentApiBackingBeanMapping(value = "annotationToScanFor", target = TargetBackingBean.INLINE) Class<? extends Annotation> annotationToSearch,
+                @FluentApiBackingBeanMapping("unitTest") UnitTestForTestingAnnotationProcessors<PROCESSOR_UNDER_TEST, ELEMENT_TYPE> unitTestForTestingAnnotationProcessors
+        );
 
         /**
          * Sets the source file used to apply processor on.
@@ -840,7 +704,7 @@ public class CompileTestBuilder {
          * @return the UnitTestBuilder instance
          * @throws IllegalArgumentException if passed source is null.
          */
-        UnitTestBuilder useSource(@FluentApiBackingBeanMapping(value = "sourceFiles", action = MappingAction.SET) JavaFileObject source);
+        UnitTestBuilder useSource(@FluentApiBackingBeanMapping(value = "sourceFiles", action = MappingAction.SET) @NotNull JavaFileObject source);
 
         /**
          * Sets the source file used to apply processor on.
@@ -880,8 +744,8 @@ public class CompileTestBuilder {
          * {@inheritDoc}
          */
 
-        @FluentApiCommand(ClosingCommand.class)
-        CompilerTestBB executeTest();
+        @FluentApiCommand(ExecuteTestCommand.class)
+        void executeTest();
 
 
     }
@@ -1000,6 +864,16 @@ public class CompileTestBuilder {
     public static class ClosingCommand {
         public static CompilerTestBB getConfig(CompilerTestBB compilerTestBB) {
             return compilerTestBB;
+        }
+    }
+
+    @FluentApiCommand
+    public static class ExecuteTestCommand {
+        static void myCommand(CuteApi.CompilerTestBB backingBean) {
+            if (backingBean.testType() == CuteApi.TestType.UNIT && backingBean.sourceFiles().size() == 0) {
+                backingBean.sourceFiles().add(JavaFileObjectUtils.readFromResource("/AnnotationProcessorUnitTestClass.java"));
+            }
+            new CompileTest(backingBean).executeTest();
         }
     }
 

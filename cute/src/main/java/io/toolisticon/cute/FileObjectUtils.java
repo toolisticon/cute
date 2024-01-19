@@ -1,7 +1,5 @@
 package io.toolisticon.cute;
 
-import io.toolisticon.cute.impl.CommonUtilities;
-
 import javax.tools.SimpleJavaFileObject;
 import javax.tools.StandardLocation;
 import java.io.ByteArrayInputStream;

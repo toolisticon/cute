@@ -1,4 +1,4 @@
-package io.toolisticon.cute.impl;
+package io.toolisticon.cute;
 
 import javax.tools.DiagnosticCollector;
 import javax.tools.JavaFileObject;

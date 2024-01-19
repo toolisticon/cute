@@ -1,6 +1,6 @@
 package io.toolisticon.cute.integrationtest;
 
-import io.toolisticon.cute.CuteFluentApiStarter;
+import io.toolisticon.cute.Cute;
 import io.toolisticon.cute.JavaFileObjectUtils;
 import io.toolisticon.cute.common.SimpleTestProcessor1;
 import io.toolisticon.cute.common.SimpleTestProcessor2;
@@ -16,7 +16,7 @@ public class ProcessorWasAppliedTest {
     @Test
     public void concreteProcessorClassInstance_wasApplied() {
 
-        CuteFluentApiStarter.blackBoxTest()
+        Cute.blackBoxTest()
                 .given().processors( SimpleTestProcessor1.class)
                 .andSourceFiles(JavaFileObjectUtils.readFromResource("/integrationtest/AnnotationProcessorAppliedTestClass.java"))
                 .whenCompiled()
@@ -30,7 +30,7 @@ public class ProcessorWasAppliedTest {
     public void concreteProcessorClassInstance_wasNotApplied() {
         boolean assertionErrorWasTriggered = false;
         try {
-            CuteFluentApiStarter.blackBoxTest()
+            Cute.blackBoxTest()
                     .given().processors( SimpleTestProcessor2.class)
                     .andSourceFiles(JavaFileObjectUtils.readFromResource("/integrationtest/AnnotationProcessorAppliedTestClass.java"))
                     .executeTest();
@@ -85,7 +85,7 @@ public class ProcessorWasAppliedTest {
     @Test
     public void anonymousProcessorClassInstanceOfClass_wasApplied() {
 
-        CuteFluentApiStarter.blackBoxTest()
+        Cute.blackBoxTest()
                 .given().processors(SimpleTestProcessor1.class)
                 .andSourceFiles(JavaFileObjectUtils.readFromResource("/integrationtest/AnnotationProcessorAppliedTestClass.java"))
                 .executeTest();
@@ -98,7 +98,7 @@ public class ProcessorWasAppliedTest {
         boolean assertionErrorWasTriggered = false;
         try {
 
-            CuteFluentApiStarter.blackBoxTest()
+            Cute.blackBoxTest()
                     .given().processors(SimpleTestProcessor2.class)
                     .andSourceFiles(JavaFileObjectUtils.readFromResource("/integrationtest/AnnotationProcessorAppliedTestClass.java"))
                     .executeTest();

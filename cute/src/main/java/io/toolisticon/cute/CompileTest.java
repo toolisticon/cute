@@ -1,10 +1,5 @@
-package io.toolisticon.cute.impl;
+package io.toolisticon.cute;
 
-import io.toolisticon.cute.Constants;
-import io.toolisticon.cute.CuteFluentApi;
-import io.toolisticon.cute.FailingAssertionException;
-import io.toolisticon.cute.GeneratedFileObjectMatcher;
-import io.toolisticon.cute.InvalidTestConfigurationException;
 import io.toolisticon.cute.extension.api.AssertionSpiServiceLocator;
 import io.toolisticon.cute.extension.api.ModuleSupportSpi;
 import io.toolisticon.cute.extension.api.ModuleSupportSpiServiceLocator;
@@ -26,12 +21,12 @@ import java.util.Set;
 /**
  * Implementation of a compile test.
  */
-public class CompileTest {
+class CompileTest {
 
     // Messages
 
 
-    private final CuteFluentApi.CompilerTestBB compileTestConfiguration;
+    private final CuteApi.CompilerTestBB compileTestConfiguration;
 
     private final Set<AnnotationProcessorWrapper> wrappedAnnotationProcessors;
 
@@ -40,7 +35,7 @@ public class CompileTest {
      *
      * @param compileTestConfiguration the configuration used during tests.
      */
-    public CompileTest(final CuteFluentApi.CompilerTestBB compileTestConfiguration) {
+    public CompileTest(final CuteApi.CompilerTestBB compileTestConfiguration) {
         this.compileTestConfiguration = compileTestConfiguration;
         this.wrappedAnnotationProcessors = AnnotationProcessorWrapper.getWrappedProcessors(compileTestConfiguration);
 
@@ -87,8 +82,8 @@ public class CompileTest {
             checkMessages(compilationResult.getDiagnostics());
 
 
-            for (CuteFluentApi.GeneratedJavaFileObjectCheckBB generatedJavaFileObjectCheck : this.compileTestConfiguration.javaFileObjectChecks()) {
-                if (CuteFluentApi.FileObjectCheckType.EXISTS.equals(generatedJavaFileObjectCheck.getCheckType())) {
+            for (CuteApi.GeneratedJavaFileObjectCheckBB generatedJavaFileObjectCheck : this.compileTestConfiguration.javaFileObjectChecks()) {
+                if (CuteApi.FileObjectCheckType.EXISTS.equals(generatedJavaFileObjectCheck.getCheckType())) {
                     if (!compilationResult.getCompileTestFileManager().existsExpectedJavaFileObject(generatedJavaFileObjectCheck.getLocation(), generatedJavaFileObjectCheck.getClassName(), generatedJavaFileObjectCheck.getKind())) {
                         throw new FailingAssertionException(Constants.Messages.MESSAGE_JFO_DOESNT_EXIST.produceMessage(getJavaFileObjectInfoString(generatedJavaFileObjectCheck)));
                     } else {
@@ -129,9 +124,9 @@ public class CompileTest {
 
             }
 
-            for (CuteFluentApi.GeneratedFileObjectCheckBB generatedFileObjectCheck : this.compileTestConfiguration.fileObjectChecks()) {
+            for (CuteApi.GeneratedFileObjectCheckBB generatedFileObjectCheck : this.compileTestConfiguration.fileObjectChecks()) {
 
-                if (CuteFluentApi.FileObjectCheckType.EXISTS.equals(generatedFileObjectCheck.getCheckType())) {
+                if (CuteApi.FileObjectCheckType.EXISTS.equals(generatedFileObjectCheck.getCheckType())) {
 
                     if (!compilationResult.getCompileTestFileManager().existsExpectedFileObject(generatedFileObjectCheck.getLocation(), generatedFileObjectCheck.getPackageName(), generatedFileObjectCheck.getRelativeName())) {
                         throw new FailingAssertionException(Constants.Messages.MESSAGE_FO_DOESNT_EXIST.produceMessage(getFileObjectInfoString(generatedFileObjectCheck)));
@@ -178,6 +173,12 @@ public class CompileTest {
 
         } catch (RuntimeException e) {
 
+            if (e.getCause() != null && AssertionError.class.isAssignableFrom(e.getCause().getClass())) {
+                FailingAssertionException failingAssertionException = new FailingAssertionException(e.getMessage(), e.getCause());
+                AssertionSpiServiceLocator.locate().fail(e.getCause().getMessage() + "\n" + DebugOutputGenerator.getDebugOutput(compilationResult, compileTestConfiguration, failingAssertionException));
+                throw (failingAssertionException);
+            }
+
             if (e.getCause() != null && FailingAssertionException.class.isAssignableFrom(e.getCause().getClass())) {
                 // now trigger failing assertion, but also enrich message with debug output
                 AssertionSpiServiceLocator.locate().fail(e.getCause().getMessage() + "\n" + DebugOutputGenerator.getDebugOutput(compilationResult, compileTestConfiguration, (FailingAssertionException) e.getCause()));
@@ -192,11 +193,11 @@ public class CompileTest {
     }
 
 
-    static String getJavaFileObjectInfoString(CuteFluentApi.GeneratedJavaFileObjectCheckBB generatedJavaFileObjectCheck) {
+    static String getJavaFileObjectInfoString(CuteApi.GeneratedJavaFileObjectCheckBB generatedJavaFileObjectCheck) {
         return generatedJavaFileObjectCheck.getLocation() + "; " + generatedJavaFileObjectCheck.getClassName() + "; " + generatedJavaFileObjectCheck.getKind();
     }
 
-    static String getFileObjectInfoString(CuteFluentApi.GeneratedFileObjectCheckBB generatedFileObjectCheck) {
+    static String getFileObjectInfoString(CuteApi.GeneratedFileObjectCheckBB generatedFileObjectCheck) {
         return generatedFileObjectCheck.getLocation() + "; " + generatedFileObjectCheck.getPackageName() + "; " + generatedFileObjectCheck.getRelativeName();
     }
 
@@ -206,7 +207,7 @@ public class CompileTest {
      * @param compileTestConfiguration the compile-test configuration to use
      * @return the compilation result
      */
-    public static CompilationResult compile(CuteFluentApi.CompilerTestBB compileTestConfiguration, Set<AnnotationProcessorWrapper> wrappedAnnotationProcessors) {
+    public static CompilationResult compile(CuteApi.CompilerTestBB compileTestConfiguration, Set<AnnotationProcessorWrapper> wrappedAnnotationProcessors) {
 
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
         DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
@@ -272,14 +273,14 @@ public class CompileTest {
     void checkMessages(DiagnosticCollector<JavaFileObject> diagnostics) {
 
         // Just check messages of matching kind
-        Map<Diagnostic.Kind, List<CuteFluentApi.CompilerMessageCheckBB>> compileMessageChecks = getCompilerMessageCheckByKindMap(compileTestConfiguration);
+        Map<Diagnostic.Kind, List<CuteApi.CompilerMessageCheckBB>> compileMessageChecks = getCompilerMessageCheckByKindMap(compileTestConfiguration);
 
-        for (Map.Entry<Diagnostic.Kind, List<CuteFluentApi.CompilerMessageCheckBB>> entry : compileMessageChecks.entrySet()) {
+        for (Map.Entry<Diagnostic.Kind, List<CuteApi.CompilerMessageCheckBB>> entry : compileMessageChecks.entrySet()) {
 
             Set<Diagnostic> filteredDiagnostics = CompileTestUtilities.getDiagnosticByKind(diagnostics, entry.getKey());
 
             outer:
-            for (CuteFluentApi.CompilerMessageCheckBB messageToCheck : entry.getValue()) {
+            for (CuteApi.CompilerMessageCheckBB messageToCheck : entry.getValue()) {
 
                 for (Diagnostic element : filteredDiagnostics) {
 
@@ -333,12 +334,12 @@ public class CompileTest {
     }
 
 
-    public Map<Diagnostic.Kind, List<CuteFluentApi.CompilerMessageCheckBB>> getCompilerMessageCheckByKindMap(CuteFluentApi.CompilerTestBB compilerTestBB) {
-        Map<Diagnostic.Kind, List<CuteFluentApi.CompilerMessageCheckBB>> map = new HashMap<>();
+    public Map<Diagnostic.Kind, List<CuteApi.CompilerMessageCheckBB>> getCompilerMessageCheckByKindMap(CuteApi.CompilerTestBB compilerTestBB) {
+        Map<Diagnostic.Kind, List<CuteApi.CompilerMessageCheckBB>> map = new HashMap<>();
 
-        for (CuteFluentApi.CompilerMessageCheckBB compilerMessageCheck : compilerTestBB.compilerMessageChecks()) {
+        for (CuteApi.CompilerMessageCheckBB compilerMessageCheck : compilerTestBB.compilerMessageChecks()) {
 
-            List<CuteFluentApi.CompilerMessageCheckBB> checkByKindList = map.get(compilerMessageCheck.getKind());
+            List<CuteApi.CompilerMessageCheckBB> checkByKindList = map.get(compilerMessageCheck.getKind());
             if (checkByKindList == null) {
                 checkByKindList = new ArrayList<>();
                 map.put(Diagnostic.Kind.valueOf(compilerMessageCheck.getKind().name()), checkByKindList);

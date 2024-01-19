@@ -1,9 +1,9 @@
-package io.toolisticon.cute.impl;
+package io.toolisticon.cute;
 
 
-import io.toolisticon.cute.CuteFluentApiStarter;
+import io.toolisticon.cute.AnnotationProcessorWrapper;
+import io.toolisticon.cute.Cute;
 import io.toolisticon.cute.TestAnnotation;
-import io.toolisticon.cute.UnitTest;
 import io.toolisticon.cute.UnitTestWithoutPassIn;
 import io.toolisticon.cute.testcases.TestAnnotationProcessor;
 import io.toolisticon.cute.testcases.TestAnnotationProcessorWithMissingNoArgConstructor;
@@ -235,7 +235,7 @@ public class AnnotationProcessorWrapperTest {
     @Test
     public void process_withoutExpectedExceptionShouldSucceed() {
 
-        CuteFluentApiStarter.unitTest().when(
+        Cute.unitTest().when(
                         processingEnvironment -> {
 
                         })
@@ -250,7 +250,7 @@ public class AnnotationProcessorWrapperTest {
     public void process_testExpectedExceptionIsThrown_assertionShouldSucceed() {
 
 
-        CuteFluentApiStarter.unitTest().when(processingEnvironment -> {
+        Cute.unitTest().when(processingEnvironment -> {
             throw new IllegalArgumentException();
         })
                 .thenExpectThat().exceptionIsThrown(IllegalArgumentException.class)
@@ -263,7 +263,7 @@ public class AnnotationProcessorWrapperTest {
     public void process_testExpectedExceptionNotThrown_assertionShouldFail() {
 
         try {
-            CuteFluentApiStarter.unitTest().when(new UnitTestWithoutPassIn() {
+            Cute.unitTest().when(new UnitTestWithoutPassIn() {
                         @Override
                         public void unitTest(ProcessingEnvironment processingEnvironment) {
 
@@ -281,7 +281,7 @@ public class AnnotationProcessorWrapperTest {
     public void process_testUnexpectedExceptionWasThrown_assertionShouldFail() {
 
         try {
-            CuteFluentApiStarter.unitTest().when(new UnitTestWithoutPassIn() {
+            Cute.unitTest().when(new UnitTestWithoutPassIn() {
                         @Override
                         public void unitTest(ProcessingEnvironment processingEnvironment) {
                             throw new IllegalStateException();
@@ -299,7 +299,7 @@ public class AnnotationProcessorWrapperTest {
     public void process_testUnexpectedExceptionWasThrownWhenExpectedExceptionNotSet_assertionShouldFail() {
 
         try {
-            CuteFluentApiStarter.unitTest().when(
+            Cute.unitTest().when(
                             processingEnvironment -> {
                                 throw new IllegalStateException();
                             })
