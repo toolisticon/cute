@@ -39,7 +39,7 @@
                 <configuration>
                     <archive>
                         <manifestEntries>
-                            <Automatic-Module-Name>integration.test.java9.unnamedautomaticmodule</Automatic-Module-Name>
+                            <Automatic-Module-Name>integration.test.javanine.unnamedautomaticmodule</Automatic-Module-Name>
                         </manifestEntries>
                     </archive>
                 </configuration>

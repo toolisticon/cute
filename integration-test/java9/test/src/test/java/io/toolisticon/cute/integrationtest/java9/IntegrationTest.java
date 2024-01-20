@@ -1,5 +1,6 @@
 package io.toolisticon.cute.integrationtest.java9;
 
+import io.toolisticon.cute.Cute;
 import io.toolisticon.cute.JavaFileObjectUtils;
 import io.toolisticon.cute.integrationtest.javanine.namednonmodule.NamedAutomaticModuleTestClass;
 import org.junit.Test;
@@ -13,13 +14,14 @@ public class IntegrationTest {
     @Test
     public void testBindRegularJavaModule() {
 
-        CompileTestBuilder
-                .compilationTest()
-                .addSources(
-                        JavaFileObjectUtils.readFromResource("/testcases/bindRegularJavaModule/Test.java"),
-                        JavaFileObjectUtils.readFromResource("/testcases/bindRegularJavaModule/module-info.java"))
-                .useModules("io.toolisticon.cute.integrationtest.javanine.regularmodule")
-                .compilationShouldSucceed()
+        Cute
+                .blackBoxTest()
+                .given().noProcessors()
+                .andSourceFiles("/testcases/bindRegularJavaModule/Test.java",
+                        "/testcases/bindRegularJavaModule/module-info.java")
+                .andUseModules("io.toolisticon.cute.integrationtest.javanine.regularmodule")
+                .whenCompiled()
+                .thenExpectThat().compilationSucceeds()
                 .executeTest();
 
     }
@@ -28,14 +30,16 @@ public class IntegrationTest {
     @Test
     public void testBindRegularJavaModule_accessNotExportedClass() {
 
-        CompileTestBuilder
-                .compilationTest()
-                .addSources(
-                        JavaFileObjectUtils.readFromResource("/testcases/accessNotExportedClass/Test.java"),
-                        JavaFileObjectUtils.readFromResource("/testcases/accessNotExportedClass/module-info.java"))
-                .useModules("io.toolisticon.cute.integrationtest.javanine.regularmodule")
-                .compilationShouldFail()
-                .expectErrorMessageThatContains("io.toolisticon.cute.integrationtest.javanine.regularmodule.notexported", "is not visible")
+        Cute
+                .blackBoxTest()
+                .given()
+                .noProcessors()
+                .andSourceFiles("/testcases/accessNotExportedClass/Test.java","/testcases/accessNotExportedClass/module-info.java")
+                .andUseModules("io.toolisticon.cute.integrationtest.javanine.regularmodule")
+                .whenCompiled()
+                .thenExpectThat()
+                .compilationFails()
+                .andThat().compilerMessage().ofKindError().contains("io.toolisticon.cute.integrationtest.javanine.regularmodule.notexported", "is not visible")
                 .executeTest();
 
     }
@@ -45,13 +49,15 @@ public class IntegrationTest {
 
         System.out.println("MODULE NAME: " + NamedAutomaticModuleTestClass.class.getModule().getName());
 
-        CompileTestBuilder
-                .compilationTest()
-                .addSources(
-                        JavaFileObjectUtils.readFromResource("/testcases/bindNamedAutomaticJavaModule/Test.java"),
-                        JavaFileObjectUtils.readFromResource("/testcases/bindNamedAutomaticJavaModule/module-info.java"))
-                .useModules("integration.test.javanine.namedautomaticmodule")
-                .compilationShouldSucceed()
+        Cute
+                .blackBoxTest()
+                .given()
+                .noProcessors()
+                .andSourceFiles("/testcases/bindNamedAutomaticJavaModule/Test.java","/testcases/bindNamedAutomaticJavaModule/module-info.java")
+                .andUseModules("integration.test.javanine.namedautomaticmodule")
+                .whenCompiled()
+                .thenExpectThat()
+                .compilationSucceeds()
                 .executeTest();
 
     }
@@ -61,13 +67,15 @@ public class IntegrationTest {
 
         System.out.println("MODULE NAME: " + NamedAutomaticModuleTestClass.class.getModule().getName());
 
-        CompileTestBuilder
-                .compilationTest()
-                .addSources(
-                        JavaFileObjectUtils.readFromResource("/testcases/bindUnnamedAutomaticJavaModule/Test.java"),
-                        JavaFileObjectUtils.readFromResource("/testcases/bindUnnamedAutomaticJavaModule/module-info.java"))
-                .useModules("integration.test.javanine.unnamedautomaticmodule")
-                .compilationShouldSucceed()
+        Cute
+                .blackBoxTest()
+                .given()
+                .noProcessors()
+                .andSourceFiles("/testcases/bindUnnamedAutomaticJavaModule/Test.java","/testcases/bindUnnamedAutomaticJavaModule/module-info.java")
+                .andUseModules("integration.test.javanine.unnamedautomaticmodule")
+                .whenCompiled()
+                .thenExpectThat()
+                .compilationSucceeds()
                 .executeTest();
 
     }

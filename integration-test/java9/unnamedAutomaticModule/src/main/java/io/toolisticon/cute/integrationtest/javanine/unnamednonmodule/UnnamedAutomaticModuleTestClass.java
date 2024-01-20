@@ -1,4 +1,4 @@
-package io.toolisticon.cute.integrationtest.java9.unnamednonmodule;
+package io.toolisticon.cute.integrationtest.javanine.unnamednonmodule;
 
 public class UnnamedAutomaticModuleTestClass {
 

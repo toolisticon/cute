@@ -158,33 +158,24 @@ public class CuteApi {
 
 
     public enum TestType {
-        UNIT,
-        BLACK_BOX
+        UNIT, BLACK_BOX
     }
 
     public enum UnitTestType {
-        NO_PASS_IN,
-        ELEMENT,
-        PROCESSOR,
-        ELEMENT_AND_PROCESSOR
+        NO_PASS_IN, ELEMENT, PROCESSOR, ELEMENT_AND_PROCESSOR
     }
 
     public enum CompilerMessageComparisonType {
-        CONTAINS,
-        EQUALS;
+        CONTAINS, EQUALS;
     }
 
     public enum CompilerMessageKind {
-        NOTE,
-        WARNING,
-        MANDATORY_WARNING,
-        ERROR;
+        NOTE, WARNING, MANDATORY_WARNING, ERROR;
     }
 
 
     public enum FileObjectCheckType {
-        EXISTS,
-        DOESNT_EXIST
+        EXISTS, DOESNT_EXIST
     }
 
     @FluentApiBackingBean
@@ -243,6 +234,7 @@ public class CuteApi {
 
         /**
          * This method can be used to start a unit test.
+         *
          * @return the next fluent api interface
          */
         @FluentApiImplicitValue(id = "testType", value = "UNIT")
@@ -253,6 +245,7 @@ public class CuteApi {
         /**
          * This method can be used to start a black-box test (aka compile-test).
          * Black-box test are compiling some source files with an annotation processor and can check the compilation's outcome.
+         *
          * @return
          */
         @FluentApiImplicitValue(id = "testType", value = "BLACK_BOX")
@@ -280,6 +273,7 @@ public class CuteApi {
 
         /**
          * Allows you to traverse to the given section which allows you to configure the annotation processor, source files,...
+         *
          * @return the next fluent interface
          */
         BlackBoxTestProcessorsInterface given();
@@ -292,6 +286,7 @@ public class CuteApi {
         /**
          * Allows you to add annotation processors used at black-box tests compilation.
          * By passing no processors compilation will be done without using processors.
+         *
          * @param processors the annotation processors to use. Empty value will compile the source files without using processors, null values are prohibited and will lead to a {@link io.toolisticon.fluapigen.validation.api.ValidatorException}.
          * @return the next fluent interface
          */
@@ -300,9 +295,10 @@ public class CuteApi {
         /**
          * More obvious method not to use processors during compilation.
          * Same as calling processors without values.
+         *
          * @return the next fluent interface
          */
-        default BlackBoxTestSourceFilesInterface noProcessors(){
+        default BlackBoxTestSourceFilesInterface noProcessors() {
             return processors();
         }
 
@@ -314,6 +310,7 @@ public class CuteApi {
         /**
          * Adds source files as JavaFileObjects.
          * The {@link JavaFileObjectUtils} class can be used to provide source files.
+         *
          * @param sourceFile the source files to use during compilation
          * @return the next fluent interface
          */
@@ -321,6 +318,7 @@ public class CuteApi {
 
         /**
          * Add sources files by reading them from resource Strings.
+         *
          * @param resources the resource paths used to read the source files from
          * @return the next fluent interface
          */
@@ -331,8 +329,9 @@ public class CuteApi {
 
         /**
          * Adds a source file by providing a fully qualified class name and the class code provided as a String.
+         *
          * @param className the fully qualified name of the class
-         * @param content the source code of the class as a string. Of course fully qualified class name must match className parameter.
+         * @param content   the source code of the class as a string. Of course fully qualified class name must match className parameter.
          * @return the next fluent interface
          */
         default BlackBoxTestFinalGivenInterface andSourceFile(String className, String content) {
@@ -348,6 +347,7 @@ public class CuteApi {
         /**
          * Adds source files as JavaFileObjects.
          * The {@link JavaFileObjectUtils} class can be used to provide source files.
+         *
          * @param sourceFile the source files to use during compilation
          * @return the next fluent interface
          */
@@ -355,6 +355,7 @@ public class CuteApi {
 
         /**
          * Add sources files by reading them from resource Strings.
+         *
          * @param resources the resource paths used to read the source files from
          * @return the next fluent interface
          */
@@ -364,8 +365,9 @@ public class CuteApi {
 
         /**
          * Adds a source file by providing a fully qualified class name and the class code provided as a String.
+         *
          * @param className the fully qualified name of the class
-         * @param content the source code of the class as a string. Of course fully qualified class name must match className parameter.
+         * @param content   the source code of the class as a string. Of course fully qualified class name must match className parameter.
          * @return the next fluent interface
          */
         default BlackBoxTestFinalGivenInterface andSourceFile(String className, String content) {
@@ -393,6 +395,7 @@ public class CuteApi {
 
         /**
          * Traverses to the compilation result validation section.
+         *
          * @return the next builder instance
          */
         CompilerTestInterface whenCompiled();
@@ -401,7 +404,7 @@ public class CuteApi {
          * Executes test without explicitly checking the outcome.
          */
         @FluentApiCommand(ExecuteTestCommand.class)
-        @FluentApiImplicitValue(id="compilationSucceeded", value = "true")
+        @FluentApiImplicitValue(id = "compilationSucceeded", value = "true")
         void executeTest();
 
     }
@@ -416,13 +419,14 @@ public class CuteApi {
         /**
          * Traverses to given section of unit test.
          * Allows to add source files, to define compiler options and java modules.
+         *
          * @return
          */
         UnitTestGivenInterface given();
 
         /**
          * Starts when block for unit test.
-         *
+         * <p>
          * This allows pass in of an Element or a processor instance before defining the un it test.
          *
          * @return the next fluent api instance
@@ -462,10 +466,11 @@ public class CuteApi {
 
         /**
          * Convenience method to add multiple source files via resource strings.
+         *
          * @param resources the source file resource strings
          * @return the next builder instance
          */
-        default UnitTestGivenInterface useSourceFiles(String ... resources) {
+        default UnitTestGivenInterface useSourceFiles(String... resources) {
             UnitTestGivenInterface next = this;
             if (resources != null) {
                 for (String resource : resources) {
@@ -477,6 +482,7 @@ public class CuteApi {
 
         /**
          * Adds a source file by its resource path string.
+         *
          * @param resource the resource path string
          * @return the next fluent interface
          */
@@ -486,8 +492,9 @@ public class CuteApi {
 
         /**
          * Adds a source file by its fully qualified class name and a source string.
-          * @param className the fully qualified class name
-         * @param content the source code of the class as a String
+         *
+         * @param className the fully qualified class name
+         * @param content   the source code of the class as a String
          * @return the next fluent interface
          */
         default UnitTestGivenInterface useSourceFile(String className, String content) {
@@ -497,6 +504,7 @@ public class CuteApi {
         /**
          * Adds a source file as a JavaFileObject.
          * Use {@link JavaFileObjectUtils} to provide JavaFileObjects.
+         *
          * @param sourceFile the source file
          * @return the next fluent interface
          */
@@ -505,6 +513,7 @@ public class CuteApi {
 
         /**
          * Traverse to when section to pass in an Element or a processor instant and to define the unit test scenario.
+         *
          * @return the next fluent interface
          */
         UnitTestWhenInterface when();
@@ -518,6 +527,7 @@ public class CuteApi {
 
         /**
          * Passes in an Element.
+         *
          * @return the next fluent interface
          */
         PassInElementInterface passInElement();
@@ -525,14 +535,16 @@ public class CuteApi {
         /**
          * Passes in a processor instance.
          * Processor class must have an accessible noarg constructor.
-         * @param processorClass The processor type to create the instance for - must not be null and have an accessible no args constructor
-         * @return the next fluent interface
+         *
+         * @param processorClass    The processor type to create the instance for - must not be null and have an accessible no args constructor
          * @param <PROCESSOR_CLASS> The processor type
+         * @return the next fluent interface
          */
         <PROCESSOR_CLASS extends Processor> PassInProcessorInterface<PROCESSOR_CLASS> passInProcessor(@FluentApiBackingBeanMapping(value = "passedInProcessor", target = TargetBackingBean.NEXT) @NotNull Class<PROCESSOR_CLASS> processorClass);
 
         /**
          * Disables pass in of Element ant Processor and directly defines the unit test
+         *
          * @param unitTest the unit test
          * @return the next fluent interface
          */
@@ -547,10 +559,11 @@ public class CuteApi {
          * Passes in an Element via a source String and fully qualified class name.
          * The class must contain exactly one Element annotated with {@link PassIn} annotation.
          * Passed in Element type can be declared via method type variable: prevInstance.&lt;TypeElement&gt;fromSourceString(...)
-         * @param className The fully qualified class name
-         * @param sourceString the source string of the class
-         * @return the next fluent interface
+         *
+         * @param className      The fully qualified class name
+         * @param sourceString   the source string of the class
          * @param <ELEMENT_TYPE> The type of the passed in Element
+         * @return the next fluent interface
          */
         default <ELEMENT_TYPE extends Element> PassInElementAndProcessorInterface<ELEMENT_TYPE> fromSourceString(String className, String sourceString) {
             return this.<ELEMENT_TYPE>fromJavaFileObject(JavaFileObjectUtils.readFromString(className, sourceString));
@@ -560,9 +573,10 @@ public class CuteApi {
          * Passes in an Element via the resource path String  of a source file.
          * The source file must contain exactly one Element annotated with {@link PassIn} annotation.
          * Passed in Element type can be declared via method type variable: prevInstance.&lt;TypeElement&gt;fromSourceFile(...)
-         * @param resourceName The resource path String of the source file
-         * @return the next fluent interface
+         *
+         * @param resourceName   The resource path String of the source file
          * @param <ELEMENT_TYPE> The type of the passed in Element
+         * @return the next fluent interface
          */
 
         default <ELEMENT_TYPE extends Element> PassInElementAndProcessorInterface<ELEMENT_TYPE> fromSourceFile(String resourceName) {
@@ -573,9 +587,10 @@ public class CuteApi {
          * Passes in an Element via a JavaFileObject representing a source file.
          * The JavaFileObject must contain exactly one Element annotated with {@link PassIn} annotation.
          * Passed in Element type can be declared via method type variable: prevInstance.&lt;TypeElement&gt;fromJavaFileObject(...)
+         *
          * @param javaFileObject The JavaFileObject representing a source file
-         * @return the next fluent interface
          * @param <ELEMENT_TYPE> The type of the passed in Element
+         * @return the next fluent interface
          */
         @FluentApiImplicitValue(id = "passInElement", value = "true", target = TargetBackingBean.NEXT)
         <ELEMENT_TYPE extends Element> PassInElementAndProcessorInterface<ELEMENT_TYPE> fromJavaFileObject(@FluentApiBackingBeanMapping(value = "sourceFiles", action = MappingAction.SET) @NotNull JavaFileObject javaFileObject);
@@ -585,9 +600,10 @@ public class CuteApi {
          * Class must contain exactly one element annotated with {@link PassIn} annotation.
          * Warning: All non-runtime annotations on the element won't be accessible!!!
          * Use source file approach if you need to support non-runtime annotations.
+         *
          * @param classToScanForElement the class to scan for Element
+         * @param <ELEMENT_TYPE>        the element type
          * @return the next fluent interface
-         * @param <ELEMENT_TYPE> the element type
          */
         @FluentApiImplicitValue(id = "passInElement", value = "true", target = TargetBackingBean.NEXT)
         <ELEMENT_TYPE extends Element> PassInElementAndProcessorInterface<ELEMENT_TYPE> fromClass(@FluentApiBackingBeanMapping(value = "passedInClass", target = TargetBackingBean.NEXT) @NotNull Class<?> classToScanForElement);
@@ -609,12 +625,14 @@ public class CuteApi {
 
         /**
          * Passes in an Element.
+         *
          * @return the next fluent interface
          */
         PassInProcessorAndElementInterface<PROCESSOR_CLASS> andPassInElement();
 
         /**
          * Define unit test.
+         *
          * @param unitTest the Unit test
          * @return the next fluent inteface
          */
@@ -629,21 +647,23 @@ public class CuteApi {
 
         /**
          * Pass in processor instance.
-         * @param processorClass The processor type. The type must have an accessible noarg constructor
-         * @return the next fluent interface
+         *
+         * @param processorClass   The processor type. The type must have an accessible noarg constructor
          * @param <PROCESSOR_TYPE> The type of the processor
+         * @return the next fluent interface
          */
         @FluentApiParentBackingBeanMapping(value = "passInConfiguration")
         <PROCESSOR_TYPE extends Processor> UnitTestWhenWithPassedInElementAndProcessorInterface<ELEMENT_TYPE, PROCESSOR_TYPE> andPassInProcessor(@FluentApiBackingBeanMapping(value = "passedInProcessor") @NotNull Class<PROCESSOR_TYPE> processorClass);
 
         /**
          * Defines the unit test.
+         *
          * @param unitTest the unit test
          * @return the next fluent interface
          */
         @FluentApiImplicitValue(id = "getPassInType", value = "ELEMENT", target = TargetBackingBean.NEXT)
         @FluentApiParentBackingBeanMapping(value = "passInConfiguration")
-        CompilerTestInterface intoUnitTest(@FluentApiBackingBeanMapping(value = "unitTest", action = MappingAction.SET, target = TargetBackingBean.NEXT) @ NotNull UnitTest<ELEMENT_TYPE> unitTest);
+        CompilerTestInterface intoUnitTest(@FluentApiBackingBeanMapping(value = "unitTest", action = MappingAction.SET, target = TargetBackingBean.NEXT) @NotNull UnitTest<ELEMENT_TYPE> unitTest);
     }
 
     @FluentApiInterface(PassInConfigurationBB.class)
@@ -653,10 +673,11 @@ public class CuteApi {
          * Passes in an Element via a source String and fully qualified class name.
          * The class must contain exactly one Element annotated with {@link PassIn} annotation.
          * Passed in Element type can be declared via method type variable: prevInstance.&lt;TypeElement&gt;fromSourceString(...)
-         * @param className The fully qualified class name
-         * @param sourceString the source string of the class
-         * @return the next fluent interface
+         *
+         * @param className      The fully qualified class name
+         * @param sourceString   the source string of the class
          * @param <ELEMENT_TYPE> The type of the passed in Element
+         * @return the next fluent interface
          */
         default <ELEMENT_TYPE extends Element> UnitTestWhenWithPassedInElementAndProcessorInterface<ELEMENT_TYPE, PROCESSOR_CLASS> fromSourceString(String className, String sourceString) {
             return this.<ELEMENT_TYPE>fromJavaFileObject(JavaFileObjectUtils.readFromString(className, sourceString));
@@ -666,9 +687,10 @@ public class CuteApi {
          * Passes in an Element via the resource path String  of a source file.
          * The source file must contain exactly one Element annotated with {@link PassIn} annotation.
          * Passed in Element type can be declared via method type variable: prevInstance.&lt;TypeElement&gt;fromSourceFile(...)
-         * @param resourceName The resource path String of the source file
-         * @return the next fluent interface
+         *
+         * @param resourceName   The resource path String of the source file
          * @param <ELEMENT_TYPE> The type of the passed in Element
+         * @return the next fluent interface
          */
         default <ELEMENT_TYPE extends Element> UnitTestWhenWithPassedInElementAndProcessorInterface<ELEMENT_TYPE, PROCESSOR_CLASS> fromSourceFile(String resourceName) {
             return this.<ELEMENT_TYPE>fromJavaFileObject(JavaFileObjectUtils.readFromResource(resourceName));
@@ -678,9 +700,10 @@ public class CuteApi {
          * Passes in an Element via a JavaFileObject representing a source file.
          * The JavaFileObject must contain exactly one Element annotated with {@link PassIn} annotation.
          * Passed in Element type can be declared via method type variable: prevInstance.&lt;TypeElement&gt;fromJavaFileObject(...)
+         *
          * @param javaFileObject The JavaFileObject representing a source file
-         * @return the next fluent interface
          * @param <ELEMENT_TYPE> The type of the passed in Element
+         * @return the next fluent interface
          */
         @FluentApiParentBackingBeanMapping(value = "passInConfiguration")
         @FluentApiImplicitValue(id = "passInElement", value = "true")
@@ -691,9 +714,10 @@ public class CuteApi {
          * Class must contain exactly one element annotated with {@link PassIn} annotation.
          * Warning: All non-runtime annotations on the element won't be accessible!!!
          * Use source file approach if you need to support non-runtime annotations.
+         *
          * @param classToScanForElement the class to scan for Element
+         * @param <ELEMENT_TYPE>        the element type
          * @return the next fluent interface
-         * @param <ELEMENT_TYPE> the element type
          */
 
         @FluentApiParentBackingBeanMapping(value = "passInConfiguration")
@@ -719,6 +743,7 @@ public class CuteApi {
 
         /**
          * Define unit test.
+         *
          * @param unitTest the unit test
          * @return the next fluent interface
          */
@@ -736,6 +761,7 @@ public class CuteApi {
 
         /**
          * Traverse to section to define checks
+         *
          * @return the next fluent interface
          */
         CompilerTestOutcomeInterface thenExpectThat();
@@ -756,6 +782,7 @@ public class CuteApi {
         /**
          * Expect tbe compilation to be successful.
          * This means that all (generated) source file are compiled successfully and that no error compiler message has been written.
+         *
          * @return the next fluent interface
          */
         @FluentApiImplicitValue(id = "compilationSucceeded", value = "true")
@@ -764,6 +791,7 @@ public class CuteApi {
         /**
          * Expect the compilation to fail.
          * This means that either a (generated) source file couldn't be compiled ot that an error compiler message has been written.
+         *
          * @return the next fluent imnterface
          */
         @FluentApiImplicitValue(id = "compilationSucceeded", value = "false")
@@ -771,6 +799,7 @@ public class CuteApi {
 
         /**
          * Expect an Exception to be thrown
+         *
          * @param exception The exception to check for
          * @return the next fluent interface
          */
@@ -784,6 +813,7 @@ public class CuteApi {
 
         /**
          * Add another expectation.
+         *
          * @return the next fluent interface
          */
         CompilerTestExpectThatInterface andThat();
@@ -801,6 +831,7 @@ public class CuteApi {
 
         /**
          * Adds check that generated class exists or doesn't exist.
+         *
          * @param className the fully qualified class name
          * @return the next fluent interface
          */
@@ -810,6 +841,7 @@ public class CuteApi {
 
         /**
          * Adds check that generated source file exists or doesn't exist.
+         *
          * @param className the fully qualified class name
          * @return the next fluent interface
          */
@@ -819,42 +851,39 @@ public class CuteApi {
 
         /**
          * Adds check that generated resource file exists or doesn't exist.
-         * @param packageName the package of the resource file
-         * @param relativeName  The relative name of the resource file
+         *
+         * @param packageName  the package of the resource file
+         * @param relativeName The relative name of the resource file
          * @return the next fluent interface
          */
-        default GeneratedFileObjectCheck generatedResourceFile(String packageName,
-                                                               String relativeName) {
+        default GeneratedFileObjectCheck generatedResourceFile(String packageName, String relativeName) {
             return fileObject(StandardLocation.CLASS_OUTPUT, packageName, relativeName);
         }
 
         /**
          * Check if a JavaFileObject exists.
-         * @param location The location of the JavaFileObject
+         *
+         * @param location  The location of the JavaFileObject
          * @param className The fully qualified name of the JavaFileObject
-         * @param kind The kind of the JavaFileObject
+         * @param kind      The kind of the JavaFileObject
          * @return the next fluent interface
          */
-        GeneratedJavaFileObjectCheck javaFileObject(
-                @FluentApiBackingBeanMapping(value = "location", target = TargetBackingBean.NEXT) @NotNull JavaFileManager.Location location,
-                @FluentApiBackingBeanMapping(value = "className", target = TargetBackingBean.NEXT) @NotNull String className,
-                @FluentApiBackingBeanMapping(value = "kind", target = TargetBackingBean.NEXT) @NotNull JavaFileObject.Kind kind);
+        GeneratedJavaFileObjectCheck javaFileObject(@FluentApiBackingBeanMapping(value = "location", target = TargetBackingBean.NEXT) @NotNull JavaFileManager.Location location, @FluentApiBackingBeanMapping(value = "className", target = TargetBackingBean.NEXT) @NotNull String className, @FluentApiBackingBeanMapping(value = "kind", target = TargetBackingBean.NEXT) @NotNull JavaFileObject.Kind kind);
 
         /**
          * Check if a FileObject exists.
-         * @param location The location of the FileObject
-         * @param packageName The package name of the FileObject
+         *
+         * @param location     The location of the FileObject
+         * @param packageName  The package name of the FileObject
          * @param relativeName The kind of the FileObject
          * @return the next fluent interface
          */
-        GeneratedFileObjectCheck fileObject(
-                @FluentApiBackingBeanMapping(value = "location", target = TargetBackingBean.NEXT) @NotNull JavaFileManager.Location location,
-                @FluentApiBackingBeanMapping(value = "packageName", target = TargetBackingBean.NEXT) @NotNull String packageName,
-                @FluentApiBackingBeanMapping(value = "relativeName", target = TargetBackingBean.NEXT) @NotNull String relativeName);
+        GeneratedFileObjectCheck fileObject(@FluentApiBackingBeanMapping(value = "location", target = TargetBackingBean.NEXT) @NotNull JavaFileManager.Location location, @FluentApiBackingBeanMapping(value = "packageName", target = TargetBackingBean.NEXT) @NotNull String packageName, @FluentApiBackingBeanMapping(value = "relativeName", target = TargetBackingBean.NEXT) @NotNull String relativeName);
 
 
         /**
          * Adds compiler message checks.
+         *
          * @return the next fluent interface
          */
         CompilerMessageCheckMessageType compilerMessage();
@@ -868,6 +897,7 @@ public class CuteApi {
 
         /**
          * Expects a compiler message of kind NOTE.
+         *
          * @return the next fluent interface
          */
         @FluentApiImplicitValue(id = "compilerMessageScope", value = "NOTE")
@@ -875,6 +905,7 @@ public class CuteApi {
 
         /**
          * Expects a compiler message of kind WARNING.
+         *
          * @return the next fluent interface
          */
         @FluentApiImplicitValue(id = "compilerMessageScope", value = "WARNING")
@@ -882,6 +913,7 @@ public class CuteApi {
 
         /**
          * Expects a compiler message of kind MANDATORY WARNING.
+         *
          * @return the next fluent interface
          */
         @FluentApiImplicitValue(id = "compilerMessageScope", value = "MANDATORY_WARNING")
@@ -889,6 +921,7 @@ public class CuteApi {
 
         /**
          * Expects a compiler message of kind ERROR.
+         *
          * @return the next fluent interface
          */
         @FluentApiImplicitValue(id = "compilerMessageScope", value = "ERROR")
@@ -901,28 +934,27 @@ public class CuteApi {
 
         /**
          * Check if a compiler message contains passed snippet Strings.
+         *
          * @param text text snippets that must be present in one compiler message
          * @return the next fluent interface
          */
         @FluentApiImplicitValue(id = "compilerMessageComparisonType", value = "CONTAINS")
         @FluentApiParentBackingBeanMapping(value = "compileMessageChecks")
-        CompilerTestExpectAndThatInterface contains(
-                @FluentApiBackingBeanMapping(value = "searchString", action = MappingAction.SET) @NotNull String... text
-        );
+        CompilerTestExpectAndThatInterface contains(@FluentApiBackingBeanMapping(value = "searchString", action = MappingAction.SET) @NotNull String... text);
 
         /**
          * Check if a compiler message exists that equals passed String.
+         *
          * @param text the text to check for
          * @return the next fluent interface
          */
         @FluentApiImplicitValue(id = "compilerMessageComparisonType", value = "EQUALS")
         @FluentApiParentBackingBeanMapping(value = "compileMessageChecks")
-        CompilerTestExpectAndThatInterface equals(
-                @FluentApiBackingBeanMapping(value = "searchString", action = MappingAction.SET) @NotNull String text
-        );
+        CompilerTestExpectAndThatInterface equals(@FluentApiBackingBeanMapping(value = "searchString", action = MappingAction.SET) @NotNull String text);
 
         /**
          * Expect compiler message at line.
+         *
          * @param line the line number the compiler message must be located
          * @return the next fluent interface
          */
@@ -930,6 +962,7 @@ public class CuteApi {
 
         /**
          * Expect compiler message at column.
+         *
          * @param column the column number the compiler message must be located
          * @return the next fluent interface
          */
@@ -937,6 +970,7 @@ public class CuteApi {
 
         /**
          * Expect compiler message in source file.
+         *
          * @param atSource the source file the compiler message bound with.
          * @return the next fluent interface
          */
@@ -944,6 +978,7 @@ public class CuteApi {
 
         /**
          * The locale used for compiler message.
+         *
          * @param locale the expected locale of the compiler message
          * @return the next fluent interface
          */
@@ -956,6 +991,7 @@ public class CuteApi {
 
         /**
          * Expect a file to be existent.
+         *
          * @return the next fluent interface
          */
         @FluentApiImplicitValue(id = "checkType", value = "EXISTS")
@@ -964,6 +1000,7 @@ public class CuteApi {
 
         /**
          * Expect a file to be nonexistent.
+         *
          * @return the next fluent interface
          */
         @FluentApiImplicitValue(id = "checkType", value = "DOESNT_EXIST")
@@ -972,6 +1009,7 @@ public class CuteApi {
 
         /**
          * Expect a file to be binary equal to passed JavaFileObject.
+         *
          * @param expectedJavaFileObject the expected file used for comparison
          * @return the next fluent interface
          */
@@ -981,6 +1019,7 @@ public class CuteApi {
 
         /**
          * Expect that a file matches the passed JavaFileObject and Matcher kind.
+         *
          * @param expectedJavaFileObject the expected file used for comparison
          * @return the next fluent interface
          */
@@ -990,6 +1029,7 @@ public class CuteApi {
 
         /**
          * Expect that a file exists that matches the passed GeneratedFileObjectMatcher.
+         *
          * @param generatedJavaFileObjectCheck the GeneratedFileObjectMatcher to use
          * @return the next fluent interface
          */
@@ -1004,6 +1044,7 @@ public class CuteApi {
 
         /**
          * Expect the file to exist.
+         *
          * @return The next fluent interface
          */
         @FluentApiImplicitValue(id = "checkType", value = "EXISTS")
@@ -1012,6 +1053,7 @@ public class CuteApi {
 
         /**
          * Expect the file to be nonexistent.
+         *
          * @return The next fluent interface
          */
         @FluentApiImplicitValue(id = "checkType", value = "DOESNT_EXIST")
@@ -1021,6 +1063,7 @@ public class CuteApi {
         /**
          * Expect that a file exists that matches the passed FileObject.
          * Matcher ignores line endings.
+         *
          * @param expectedFileObject the FileOject used for comparison
          * @return the next fluent inmterface
          */
@@ -1030,8 +1073,9 @@ public class CuteApi {
 
         /**
          * Expect that a file exists that matches the passed FileObject.
+         *
          * @param expectedFileObjectMatcherKind The matcher kind
-         * @param expectedFileObject the FileOject used for comparison
+         * @param expectedFileObject            the FileOject used for comparison
          * @return the next fluent interface
          */
         default CompilerTestExpectAndThatInterface matches(ExpectedFileObjectMatcherKind expectedFileObjectMatcherKind, FileObject expectedFileObject) {
@@ -1040,6 +1084,7 @@ public class CuteApi {
 
         /**
          * Expect a file that matches all passed GeneratedFileObjectMatchers.
+         *
          * @param generatedJavaFileObjectCheck the GeneratedFileObjectMatchers to use
          * @return the next fluent interface
          */
