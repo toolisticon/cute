@@ -79,8 +79,6 @@ public class CuteTest {
                 })
                 .thenExpectThat().compilationSucceeds()
                 .executeTest();
-
-
     }
 
     @PassIn

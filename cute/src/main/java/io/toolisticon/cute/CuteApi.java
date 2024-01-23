@@ -398,7 +398,7 @@ public class CuteApi {
          *
          * @return the next builder instance
          */
-        CompilerTestInterface whenCompiled();
+        BlackBoxTestInterface whenCompiled();
 
         /**
          * Executes test without explicitly checking the outcome.
@@ -438,7 +438,7 @@ public class CuteApi {
          *
          * @return the next fluent api instance
          */
-        CompilerTestInterface when(@FluentApiBackingBeanMapping(value = "unitTest", action = MappingAction.SET) @NotNull UnitTestWithoutPassIn unitTest);
+        UnitTestInterface when(@FluentApiBackingBeanMapping(value = "unitTest", action = MappingAction.SET) @NotNull UnitTestWithoutPassIn unitTest);
 
     }
 
@@ -548,7 +548,7 @@ public class CuteApi {
          * @param unitTest the unit test
          * @return the next fluent interface
          */
-        CompilerTestInterface unitTestWithoutPassIn(@FluentApiBackingBeanMapping(value = "unitTest", action = MappingAction.SET, target = TargetBackingBean.NEXT) @NotNull UnitTestWithoutPassIn unitTest);
+        UnitTestInterface unitTestWithoutPassIn(@FluentApiBackingBeanMapping(value = "unitTest", action = MappingAction.SET, target = TargetBackingBean.NEXT) @NotNull UnitTestWithoutPassIn unitTest);
 
     }
 
@@ -638,7 +638,7 @@ public class CuteApi {
          */
         @FluentApiImplicitValue(id = "getPassInType", value = "PROCESSOR", target = TargetBackingBean.NEXT)
         @FluentApiParentBackingBeanMapping(value = "passInConfiguration")
-        CompilerTestInterface intoUnitTest(@FluentApiBackingBeanMapping(value = "unitTest", action = MappingAction.SET, target = TargetBackingBean.NEXT) @NotNull UnitTestForTestingAnnotationProcessorsWithoutPassIn<PROCESSOR_CLASS> unitTest);
+        UnitTestInterface intoUnitTest(@FluentApiBackingBeanMapping(value = "unitTest", action = MappingAction.SET, target = TargetBackingBean.NEXT) @NotNull UnitTestForTestingAnnotationProcessorsWithoutPassIn<PROCESSOR_CLASS> unitTest);
     }
 
 
@@ -663,7 +663,7 @@ public class CuteApi {
          */
         @FluentApiImplicitValue(id = "getPassInType", value = "ELEMENT", target = TargetBackingBean.NEXT)
         @FluentApiParentBackingBeanMapping(value = "passInConfiguration")
-        CompilerTestInterface intoUnitTest(@FluentApiBackingBeanMapping(value = "unitTest", action = MappingAction.SET, target = TargetBackingBean.NEXT) @NotNull UnitTest<ELEMENT_TYPE> unitTest);
+        UnitTestInterface intoUnitTest(@FluentApiBackingBeanMapping(value = "unitTest", action = MappingAction.SET, target = TargetBackingBean.NEXT) @NotNull UnitTest<ELEMENT_TYPE> unitTest);
     }
 
     @FluentApiInterface(PassInConfigurationBB.class)
@@ -748,7 +748,7 @@ public class CuteApi {
          * @return the next fluent interface
          */
         @FluentApiImplicitValue(id = "getPassInType", value = "ELEMENT_AND_PROCESSOR", target = TargetBackingBean.NEXT)
-        CompilerTestInterface intoUnitTest(@FluentApiBackingBeanMapping(value = "unitTest", action = MappingAction.SET) @NotNull UnitTestForTestingAnnotationProcessors<P, E> unitTest);
+        UnitTestInterface intoUnitTest(@FluentApiBackingBeanMapping(value = "unitTest", action = MappingAction.SET) @NotNull UnitTestForTestingAnnotationProcessors<P, E> unitTest);
     }
 
 
@@ -757,14 +757,14 @@ public class CuteApi {
     // --------------------------------------------------------------------
 
     @FluentApiInterface(CompilerTestBB.class)
-    public interface CompilerTestInterface {
+    public interface UnitTestInterface {
 
         /**
          * Traverse to section to define checks
          *
          * @return the next fluent interface
          */
-        CompilerTestOutcomeInterface thenExpectThat();
+        UnitTestOutcomeInterface thenExpectThat();
 
         /**
          * Executes the test.
@@ -777,7 +777,28 @@ public class CuteApi {
     }
 
     @FluentApiInterface(CompilerTestBB.class)
-    public interface CompilerTestOutcomeInterface {
+    public interface BlackBoxTestInterface<EXPECTED extends BlackBoxTestOutcomeInterface> {
+
+        /**
+         * Traverse to section to define checks
+         *
+         * @return the next fluent interface
+         */
+        BlackBoxTestOutcomeInterface thenExpectThat();
+
+        /**
+         * Executes the test.
+         * All AssertionError triggered inside the unit test will bepassed through to your unit test framework.
+         */
+        @FluentApiCommand(ExecuteTestCommand.class)
+        void executeTest();
+
+
+    }
+
+
+    @FluentApiInterface(CompilerTestBB.class)
+    public interface BlackBoxTestOutcomeInterface {
 
         /**
          * Expect tbe compilation to be successful.
@@ -797,6 +818,13 @@ public class CuteApi {
         @FluentApiImplicitValue(id = "compilationSucceeded", value = "false")
         CompilerTestExpectAndThatInterface compilationFails();
 
+
+
+    }
+
+    @FluentApiInterface(CompilerTestBB.class)
+    public interface UnitTestOutcomeInterface extends BlackBoxTestOutcomeInterface{
+
         /**
          * Expect an Exception to be thrown
          *
@@ -807,6 +835,8 @@ public class CuteApi {
 
 
     }
+
+
 
     @FluentApiInterface(CompilerTestBB.class)
     public interface CompilerTestExpectAndThatInterface {
