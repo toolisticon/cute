@@ -8,7 +8,7 @@
     <parent>
         <groupId>io.toolisticon.cute</groupId>
         <artifactId>integration-test-java9-parent</artifactId>
-        <version>0.12.2-SNAPSHOT</version>
+        <version>1.0.0_RC1</version>
     </parent>
 
     <name>integration-test-java9-regularModule</name>
