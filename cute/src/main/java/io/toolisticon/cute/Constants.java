@@ -35,7 +35,7 @@ public final class Constants {
         public final static Message UNIT_TEST_PRECONDITION_INCOMPATIBLE_ELEMENT_TYPE = new Message("PRECONDITION : Processed Element type doesn't match the one expected by your unit test processor");
         public final static Message UNIT_TEST_PRECONDITION_MUST_FIND_ONE_ELEMENT = new Message("PRECONDITION: Expected to find at an element annotated with %s in processed sources files.");
         public final static Message UNIT_TEST_PRECONDITION_MUST_FIND_EXACTLY_ONE_ELEMENT = new Message("PRECONDITION: Expected to find exactly one element annotated with %s in processed sources files. Please add PassIn annotation to the one Element you want to pass in.");
-        public final static Message UNIT_TEST_PRECONDITION_MUST_FIND_EXACTLY_ONE_ELEMENT_WITH_PASSIN_ANNOTATION = new Message("PRECONDITION: Expected to find exactly one element annotated with %s and " + PassIn.class.getName() + " in processed sources files. Found more than one element annotated with " + PassIn.class.getName() +".");
+        public final static Message UNIT_TEST_PRECONDITION_MUST_FIND_EXACTLY_ONE_ELEMENT_WITH_PASSIN_ANNOTATION = new Message("PRECONDITION: Expected to find exactly one element annotated with " + PassIn.class.getName() + " in processed sources files, but found more than one element annotated with " + PassIn.class.getName() +".");
 
 
         public final static Message UNIT_TEST_PASS_IN_PRECONDITION_MUST_FIND_EXACTLY_ONE_ELEMENT = new Message("PRECONDITION: Expected to find exactly one element annotated with %s in passed in class %s");

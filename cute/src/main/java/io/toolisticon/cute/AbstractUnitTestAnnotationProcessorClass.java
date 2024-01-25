@@ -60,7 +60,7 @@ abstract class AbstractUnitTestAnnotationProcessorClass extends AbstractProcesso
             if (filteredList.size() == 0) {
                 throw new FailingAssertionException(Constants.Messages.UNIT_TEST_PRECONDITION_MUST_FIND_EXACTLY_ONE_ELEMENT.produceMessage(annotationTypeToUse.getCanonicalName()));
             } else if (filteredList.size() > 1) {
-                throw new FailingAssertionException(Constants.Messages.UNIT_TEST_PRECONDITION_MUST_FIND_EXACTLY_ONE_ELEMENT_WITH_PASSIN_ANNOTATION.produceMessage(annotationTypeToUse.getCanonicalName()));
+                throw new FailingAssertionException(Constants.Messages.UNIT_TEST_PRECONDITION_MUST_FIND_EXACTLY_ONE_ELEMENT_WITH_PASSIN_ANNOTATION.produceMessage());
             } else {
                 return filteredList.get(0);
             }

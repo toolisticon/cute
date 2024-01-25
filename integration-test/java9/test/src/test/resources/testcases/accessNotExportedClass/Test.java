@@ -1,7 +1,7 @@
-package io.toolisticon.cute.integrationtest.java9;
+package io.toolisticon.cute.integrationtest.javanine;
 
-import io.toolisticon.cute.integrationtest.java9.regularmodule.RegularModuleTestClass;
-import io.toolisticon.cute.integrationtest.java9.regularmodule.notexported.NotExportedClass;
+import io.toolisticon.cute.integrationtest.javanine.regularmodule.RegularModuleTestClass;
+import io.toolisticon.cute.integrationtest.javanine.regularmodule.notexported.NotExportedClass;
 
 import javax.annotation.processing.Processor;
 

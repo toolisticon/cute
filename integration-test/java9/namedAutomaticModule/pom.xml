@@ -8,7 +8,7 @@
     <parent>
         <groupId>io.toolisticon.cute</groupId>
         <artifactId>integration-test-java9-parent</artifactId>
-        <version>0.12.1</version>
+        <version>1.0.0_RC1</version>
     </parent>
 
     <name>integration-test-java9-namedAutomaticModule</name>
@@ -37,11 +37,11 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>3.1.1</version>
+                <version>3.2.0</version>
                 <configuration>
                     <archive>
                         <manifestEntries>
-                            <Automatic-Module-Name>integration.test.java9.namedautomaticmodule</Automatic-Module-Name>
+                            <Automatic-Module-Name>integration.test.javanine.namedautomaticmodule</Automatic-Module-Name>
                         </manifestEntries>
                     </archive>
                 </configuration>
