@@ -41,13 +41,30 @@
             <artifactId>junit</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>io.toolisticon.fluapigen</groupId>
+            <artifactId>fluapigen-api</artifactId>
+        </dependency>
+
     </dependencies>
 
 
     <build>
 
         <plugins>
-
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration combine.self="append">
+                    <verbose>true</verbose>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>io.toolisticon.fluapigen</groupId>
+                            <artifactId>fluapigen-processor</artifactId>
+                            <version>${fluapigen.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
             <plugin>
                 <artifactId>maven-enforcer-plugin</artifactId>
                 <executions>
@@ -71,6 +88,7 @@
                                     </excludes>
                                     <includes>
                                         <include>io.toolisticon.cute:*</include>
+                                        <include>io.toolisticon.fluapigen:fluapigen-api:compile:*</include>
                                         <include>*:*:*:*:test:*</include>
                                         <include>*:*:*:*:provided:*</include>
                                     </includes>

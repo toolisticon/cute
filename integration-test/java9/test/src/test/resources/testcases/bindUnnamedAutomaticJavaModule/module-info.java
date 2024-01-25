@@ -1,9 +1,9 @@
 
-module io.toolisticon.cute.integrationtest.java9 {
+module io.toolisticon.cute.integrationtest.javanine {
     requires java.compiler;
     requires java.logging;
-    requires transitive integration.test.java9.unnamedautomaticmodule;
+    requires transitive integration.test.javanine.unnamedautomaticmodule;
 
-    exports io.toolisticon.cute.integrationtest.java9;
+    exports io.toolisticon.cute.integrationtest.javanine;
 }
 

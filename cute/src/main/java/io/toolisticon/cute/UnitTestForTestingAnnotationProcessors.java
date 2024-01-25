@@ -11,7 +11,7 @@ import javax.lang.model.element.Element;
  * @param <PROCESSOR>    the processor to use
  * @param <ELEMENT_TYPE> the expected element type to be found
  */
-public interface UnitTestForTestingAnnotationProcessors<PROCESSOR extends Processor, ELEMENT_TYPE extends Element> {
+public interface UnitTestForTestingAnnotationProcessors<PROCESSOR extends Processor, ELEMENT_TYPE extends Element> extends UnitTestBase {
 
     /**
      * The unit test method.

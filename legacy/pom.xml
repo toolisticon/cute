@@ -1,0 +1,115 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>cute-legacy</artifactId>
+    <packaging>jar</packaging>
+
+    <parent>
+        <groupId>io.toolisticon.cute</groupId>
+        <artifactId>cute-parent</artifactId>
+        <version>0.12.2-SNAPSHOT</version>
+    </parent>
+
+    <name>cute-legacy</name>
+
+
+    <dependencies>
+
+        <dependency>
+            <groupId>io.toolisticon.cute</groupId>
+            <artifactId>cute</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.toolisticon.fluapigen</groupId>
+            <artifactId>fluapigen-api</artifactId>
+        </dependency>
+
+        <!-- Test dependencies -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
+
+    </dependencies>
+
+
+    <build>
+
+        <plugins>
+
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration combine.self="append">
+                    <verbose>true</verbose>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>io.toolisticon.fluapigen</groupId>
+                            <artifactId>fluapigen-processor</artifactId>
+                            <version>${fluapigen.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
+
+
+            <plugin>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>enforce</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <requireMavenVersion>
+                                    <version>[3.0.4,)</version>
+                                </requireMavenVersion>
+                                <requireJavaVersion>
+                                    <version>1.6</version>
+                                </requireJavaVersion>
+                                <bannedDependencies>
+                                    <searchTransitive>false</searchTransitive>
+                                    <excludes>
+                                        <exclude>*</exclude>
+                                    </excludes>
+                                    <includes>
+                                        <include>io.toolisticon.cute:*</include>
+                                        <include>io.toolisticon.fluapigen:*</include>
+                                        <include>*:*:*:*:test:*</include>
+                                        <include>*:*:*:*:provided:*</include>
+                                    </includes>
+                                </bannedDependencies>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+        </plugins>
+
+
+    </build>
+
+
+    <profiles>
+
+        <profile>
+            <id>java-9</id>
+            <activation>
+                <jdk>[9,)</jdk>
+            </activation>
+
+            <dependencies>
+                <dependency>
+                    <groupId>io.toolisticon.cute</groupId>
+                    <artifactId>extension-modulesupport</artifactId>
+                </dependency>
+            </dependencies>
+
+        </profile>
+    </profiles>
+
+</project>

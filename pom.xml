@@ -16,7 +16,9 @@
         <!-- modules -->
         <module>extension</module>
         <module>cute</module>
+        <module>legacy</module>
         <module>integration-test</module>
+
 
         <module>coverage</module>
 
@@ -76,13 +78,14 @@
         <project.build.resourceEncoding>UTF-8</project.build.resourceEncoding>
         <encoding>UTF-8</encoding>
 
-        <java.version>1.7</java.version>
+        <java.version>1.8</java.version>
 
-        <java.compile.source.version>1.7</java.compile.source.version>
-        <java.compile.target.version>1.7</java.compile.target.version>
+        <java.compile.source.version>1.8</java.compile.source.version>
+        <java.compile.target.version>1.8</java.compile.target.version>
 
         <!-- dependencies: compile and runtime -->
         <spiap.version>0.8.0</spiap.version>
+        <fluapigen.version>0.8.3</fluapigen.version>
 
         <!-- versions of test dependencies -->
         <junit4.version>4.13.1</junit4.version>
@@ -93,7 +96,7 @@
         <mockito.version>2.28.2</mockito.version>
 
         <!-- plugin versions -->
-        <animal-sniffer-maven-plugin.version>1.17</animal-sniffer-maven-plugin.version>
+        <animal-sniffer-maven-plugin.version>1.18</animal-sniffer-maven-plugin.version>
         <coveralls-maven-plugin.version>4.3.0</coveralls-maven-plugin.version>
         <jacoco-maven-plugin.version>0.8.8</jacoco-maven-plugin.version>
         <maven-assembly-plugin.version>2.4</maven-assembly-plugin.version>
@@ -156,6 +159,7 @@
                                     </excludes>
                                     <includes>
                                         <include>io.toolisticon.cute:*</include>
+                                        <include>io.toolisticon.fluapigen:fluapigen-api:compile:*</include>
                                         <include>*:*:*:*:test:*</include>
                                         <include>*:*:*:*:provided:*</include>
                                     </includes>
@@ -432,7 +436,7 @@
                         <executions>
 
                             <execution>
-                                <id>check_java17</id>
+                                <id>check_java18</id>
 
                                 <phase>test</phase>
 
@@ -444,7 +448,7 @@
 
                                     <signature>
                                         <groupId>org.codehaus.mojo.signature</groupId>
-                                        <artifactId>java17</artifactId>
+                                        <artifactId>java18</artifactId>
                                         <version>1.0</version>
                                     </signature>
 
@@ -501,7 +505,7 @@
 
                                     <signature>
                                         <groupId>org.codehaus.mojo.signature</groupId>
-                                        <artifactId>java17</artifactId>
+                                        <artifactId>java18</artifactId>
                                         <version>1.0</version>
                                     </signature>
 
@@ -574,6 +578,33 @@
 
     </dependencies>
 
+    <repositories>
+        <repository>
+            <id>sonatype-nexus-snapshots</id>
+            <name>Sonatype Nexus Snapshots</name>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
+    <distributionManagement>
+        <snapshotRepository>
+            <id>sonatype-nexus-snapshots</id>
+            <name>Sonatype Nexus Snapshots</name>
+            <url>${sonatype-oss-dist-mgmt-snapshots-url}</url>
+        </snapshotRepository>
+        <repository>
+            <id>sonatype-nexus-staging</id>
+            <name>Nexus Release Repository</name>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+    </distributionManagement>
+
     <dependencyManagement>
         <dependencies>
 
@@ -629,6 +660,12 @@
                 <artifactId>spiap-processor</artifactId>
                 <version>${spiap.version}</version>
                 <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.toolisticon.fluapigen</groupId>
+                <artifactId>fluapigen-api</artifactId>
+                <version>${fluapigen.version}</version>
+                <scope>compile</scope>
             </dependency>
 
 
