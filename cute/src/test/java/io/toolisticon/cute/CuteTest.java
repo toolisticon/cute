@@ -1086,4 +1086,23 @@ public class CuteTest {
                 .executeTest();
     }
 
+
+    @Test()
+    public void blackBoxTest_justCompileCodeAndDoClassTestWithImplementedInterfaceAndRelationsBetweenClasses() {
+        Cute.blackBoxTest().given().noProcessors()
+                .andSourceFiles("/compiletests/withmultiplerelatedsourcefiles/JustOutput.java", "/compiletests/withmultiplerelatedsourcefiles/TestClassWithImplementedInterface.java")
+                .whenCompiled()
+                .thenExpectThat()
+                .compilationSucceeds()
+                .andThat().generatedClass("io.toolisticon.cute.TestClassWithImplementedInterface").testedSuccessfullyBy(new GeneratedClassesTestForSpecificClass() {
+                    @Override
+                    public void doTests(Class<?> clazz, CuteClassLoader cuteClassLoader) throws Exception{
+
+                        SimpleTestInterface unit = (SimpleTestInterface) clazz.getConstructor().newInstance();
+                        MatcherAssert.assertThat(unit.saySomething(), Matchers.is("WHATS UP???"));
+
+                    }
+                })
+                .executeTest();
+    }
 }

@@ -224,7 +224,37 @@ public void yourUnitTestWithPassedInElementAndProcessor() {
 
 }
 ```
- 
+
+### Testing generated and compiled classes
+Testing of the generated code can either be done by providing an integration test project or by using Cute to achieve this as part of the compilation test.
+Unfortunately, testing generated code with Cute heavily relies on the Javas reflection api, since generated classes aren't available in your unit test code.
+But it's working flawlessly if your generated classes are implementing precompiled interfaces:
+
+````java
+@Test
+public void blackBoxTest_justCompileCodeAndDoClassTestWithImplementedInterface() {
+    Cute.blackBoxTest().given().noProcessors()
+        .andSourceFiles("/TestClassWithImplementedInterface.java")
+        .whenCompiled()
+        .thenExpectThat()
+        .compilationSucceeds()
+        .andThat()
+            .generatedClass("io.toolisticon.cute.TestClassWithImplementedInterface")
+            .testedSuccessfullyBy(new GeneratedClassesTestForSpecificClass() {
+                @Override
+                public void doTests(Class<?> clazz, CuteClassLoader cuteClassLoader) throws Exception{
+    
+                    SimpleTestInterface unit = (SimpleTestInterface) clazz.getConstructor().newInstance();
+                    MatcherAssert.assertThat(unit.saySomething(), Matchers.is("WHATS UP?"));
+    
+                }
+            })
+        .executeTest();
+}
+````
+
+Consider to prefer integration tests over Cute if no precompiled interface is implemented by the generated classes.
+
 # Projects using this toolkit library
 
 - [Annotation processor toolkit](https://github.com/toolisticon/annotation-processor-toolkit) : Toolkit that allows you to build annotation processors in a more comfortable way
