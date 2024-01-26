@@ -69,6 +69,8 @@ public final class Constants {
 
         public final static Message MESSAGE_TECHNICAL_ERROR = new Message("TECHNICAL ERROR : %s");
 
+        public final static Message MESSAGE_GOT_UNEXPECTED_EXCEPTION_DURING_CLASS_TEST_ERROR = new Message("Unexpected Exception happened during test of generated class %s : %s");
+
 
         // IllegalArgumentException Messages
         public final static Message IAE_PASSED_PARAMETER_MUST_NOT_BE_NULL = new Message("Passed %s must not be null");

@@ -1,6 +1,7 @@
 package io.toolisticon.cute;
 
 import io.toolisticon.cute.common.SimpleTestProcessor1;
+import io.toolisticon.cute.testcases.SimpleTestInterface;
 import io.toolisticon.fluapigen.validation.api.ValidatorException;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
@@ -969,5 +970,120 @@ public class CuteTest {
         throw new AssertionError("Should have got Assertion error that compilation was expected to be successful but failed");
     }
 
+    @Test()
+    public void blackBoxTest_justCompileCodeAndDoClassTests() {
+        Cute.blackBoxTest().given().processors()
+                .andSourceFiles("/TestClass.java")
+                .whenCompiled()
+                .thenExpectThat()
+                .compilationSucceeds()
+                .andThat().generatedClass("io.toolisticon.cute.TestClass").testedSuccessfullyBy(new GeneratedClassesTestForSpecificClass() {
+                    @Override
+                    public void doTests(Class<?> clazz,CuteClassLoader cuteClassLoader) throws Exception{
+                        MatcherAssert.assertThat(clazz.getCanonicalName(),Matchers.is("io.toolisticon.cute.TestClass"));
+
+                        Object instance = clazz.getConstructor().newInstance();
+                        MatcherAssert.assertThat(instance, Matchers.notNullValue());
+                    }
+                })
+                .executeTest();
+    }
+
+    @Test()
+    public void blackBoxTest_justCompileCodeAndDoClassTests2() {
+        Cute.blackBoxTest().given().processors()
+                .andSourceFiles("/TestClassWithInnerClasses.java")
+                .whenCompiled()
+                .thenExpectThat()
+                .compilationSucceeds()
+                .andThat().generatedClass("io.toolisticon.cute.TestClassWithInnerClasses").testedSuccessfullyBy(new GeneratedClassesTestForSpecificClass() {
+                    @Override
+                    public void doTests(Class<?>clazz, CuteClassLoader cuteClassLoader) throws Exception{
+                        MatcherAssert.assertThat(clazz.getCanonicalName(),Matchers.is("io.toolisticon.cute.TestClassWithInnerClasses"));
+
+                        Class<?> innerClazz = cuteClassLoader.getClass("io.toolisticon.cute.TestClassWithInnerClasses$InnerClass");
+                        MatcherAssert.assertThat(innerClazz.getCanonicalName(),Matchers.is("io.toolisticon.cute.TestClassWithInnerClasses.InnerClass"));
+
+                        Class<?> staticInnerClazz = cuteClassLoader.getClass("io.toolisticon.cute.TestClassWithInnerClasses$StaticInnerClass");
+                        MatcherAssert.assertThat(staticInnerClazz.getCanonicalName(),Matchers.is("io.toolisticon.cute.TestClassWithInnerClasses.StaticInnerClass"));
+
+                        Class<?> innerInterface = cuteClassLoader.getClass("io.toolisticon.cute.TestClassWithInnerClasses$InnerInterface");
+                        MatcherAssert.assertThat(innerInterface.getCanonicalName(),Matchers.is("io.toolisticon.cute.TestClassWithInnerClasses.InnerInterface"));
+
+                        Object instance = clazz.getConstructor().newInstance();
+                        MatcherAssert.assertThat(instance, Matchers.notNullValue());
+
+                    }
+                })
+                .executeTest();
+    }
+
+    @Test()
+    public void blackBoxTest_justCompileCodeAndDoClassTest3() {
+        Cute.blackBoxTest().given().processors()
+                .andSourceFiles("/TestClassWithInnerClasses.java")
+                .whenCompiled()
+                .thenExpectThat()
+                .compilationSucceeds()
+                .andThat().compiledClassesTestsSucceeds(new GeneratedClassesTest() {
+                    @Override
+                    public void doTests(CuteClassLoader cuteClassLoader) throws Exception{
+                        Class<?> clazz = cuteClassLoader.getClass("io.toolisticon.cute.TestClassWithInnerClasses");
+                        MatcherAssert.assertThat(clazz.getCanonicalName(),Matchers.is("io.toolisticon.cute.TestClassWithInnerClasses"));
+
+                        Class<?> innerClazz = cuteClassLoader.getClass("io.toolisticon.cute.TestClassWithInnerClasses$InnerClass");
+                        MatcherAssert.assertThat(innerClazz.getCanonicalName(),Matchers.is("io.toolisticon.cute.TestClassWithInnerClasses.InnerClass"));
+
+                        Class<?> staticInnerClazz = cuteClassLoader.getClass("io.toolisticon.cute.TestClassWithInnerClasses$StaticInnerClass");
+                        MatcherAssert.assertThat(staticInnerClazz.getCanonicalName(),Matchers.is("io.toolisticon.cute.TestClassWithInnerClasses.StaticInnerClass"));
+
+                        Class<?> innerInterface = cuteClassLoader.getClass("io.toolisticon.cute.TestClassWithInnerClasses$InnerInterface");
+                        MatcherAssert.assertThat(innerInterface.getCanonicalName(),Matchers.is("io.toolisticon.cute.TestClassWithInnerClasses.InnerInterface"));
+
+                        Object instance = clazz.getConstructor().newInstance();
+                        MatcherAssert.assertThat(instance, Matchers.notNullValue());
+
+                    }
+                })
+                .executeTest();
+    }
+
+    @Test()
+    public void blackBoxTest_justCompileCodeAndDoClassTest4() {
+        Cute.blackBoxTest().given().processors()
+                .andSourceFiles("/TestClassWithInnerClasses.java")
+                .whenCompiled()
+                .thenExpectThat()
+                .compilationSucceeds()
+                .andThat().generatedClass("io.toolisticon.cute.TestClassWithInnerClasses$InnerClass").testedSuccessfullyBy(new GeneratedClassesTestForSpecificClass() {
+                    @Override
+                    public void doTests( Class<?> innerClazz, CuteClassLoader cuteClassLoader) throws Exception{
+
+                        MatcherAssert.assertThat(innerClazz.getCanonicalName(),Matchers.is("io.toolisticon.cute.TestClassWithInnerClasses.InnerClass"));
+
+
+                    }
+                })
+                .executeTest();
+    }
+
+    @Test()
+    public void blackBoxTest_justCompileCodeAndDoClassTestWithImplementedInterface() {
+        Cute.blackBoxTest().given().noProcessors()
+                .andSourceFiles("/TestClassWithImplementedInterface.java")
+                .whenCompiled()
+                .thenExpectThat()
+                .compilationSucceeds()
+                .andThat().generatedClass("io.toolisticon.cute.TestClassWithImplementedInterface").testedSuccessfullyBy(new GeneratedClassesTestForSpecificClass() {
+                    @Override
+                    public void doTests(Class<?> clazz, CuteClassLoader cuteClassLoader) throws Exception{
+
+                        SimpleTestInterface unit = (SimpleTestInterface) clazz.getConstructor().newInstance();
+                        MatcherAssert.assertThat(unit.saySomething(), Matchers.is("WHATS UP?"));
+
+                    }
+                })
+                .executeTest();
+    }
 
 }

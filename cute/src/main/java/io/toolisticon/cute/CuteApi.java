@@ -73,6 +73,9 @@ public class CuteApi {
         @FluentApiBackingBeanField("fileObjectChecks")
         List<GeneratedFileObjectCheckBB> fileObjectChecks();
 
+        @FluentApiBackingBeanField("generatedClassesTest")
+        List<GeneratedClassesTest> getGeneratedClassesTest();
+
         default long countErrorMessageChecks() {
             long count = 0;
 
@@ -195,6 +198,9 @@ public class CuteApi {
 
         @FluentApiBackingBeanField("generatedFileObjectMatcher")
         GeneratedFileObjectMatcher getGeneratedFileObjectMatcher();
+
+        @FluentApiBackingBeanField("generatedClassesTest")
+        GeneratedClassesTestForSpecificClass getGeneratedClassesTest();
     }
 
     @FluentApiBackingBean
@@ -819,11 +825,10 @@ public class CuteApi {
         CompilerTestExpectAndThatInterface compilationFails();
 
 
-
     }
 
     @FluentApiInterface(CompilerTestBB.class)
-    public interface UnitTestOutcomeInterface extends BlackBoxTestOutcomeInterface{
+    public interface UnitTestOutcomeInterface extends BlackBoxTestOutcomeInterface {
 
         /**
          * Expect an Exception to be thrown
@@ -835,7 +840,6 @@ public class CuteApi {
 
 
     }
-
 
 
     @FluentApiInterface(CompilerTestBB.class)
@@ -858,6 +862,18 @@ public class CuteApi {
 
     @FluentApiInterface(CompilerTestBB.class)
     public interface CompilerTestExpectThatInterface {
+
+        /**
+         * Sometimes it can become handy to even test the generated code.
+         * This method can used to do those tests. Compiled classes are provided via the {@link GeneratedClassesTest} interface.
+         * Be aware that the binary class names must be used to get classes ( '$' delimiter for inner types,...)
+         * Test rely heavily on reflection api.
+         * So please consider integration test projects for testing generated code if your code doesn't implement a precompiled interface.
+         * @param generatedClassesTest the test to execute
+         * @return the next interface
+         */
+        CompilerTestExpectAndThatInterface compiledClassesTestsSucceeds(@FluentApiBackingBeanMapping(value = "generatedClassesTest", action = MappingAction.ADD) GeneratedClassesTest generatedClassesTest);
+
 
         /**
          * Adds check that generated class exists or doesn't exist.
@@ -1066,6 +1082,21 @@ public class CuteApi {
         @FluentApiImplicitValue(id = "checkType", value = "EXISTS")
         @FluentApiParentBackingBeanMapping(value = "javaFileObjectChecks", action = MappingAction.ADD)
         CompilerTestExpectAndThatInterface matches(@FluentApiBackingBeanMapping(value = "generatedFileObjectMatcher") GeneratedFileObjectMatcher generatedJavaFileObjectCheck);
+
+
+        /**
+         * Sometimes it can become handy to even test the generated code.
+         * This method can used to do those tests. Compiled classes are provided via the {@link GeneratedClassesTest} interface.
+         * Be aware that the binary class names must be used to get classes ( '$' delimiter for inner types,...)
+         * Test rely heavily on reflection api.
+         * So please consider integration test projects for testing generated code if your code doesn't implement a precompiled interface.
+         * @param generatedClassesTest the test to execute
+         * @return the next interface
+         */
+        @FluentApiImplicitValue(id = "checkType", value = "EXISTS")
+        @FluentApiParentBackingBeanMapping(value = "javaFileObjectChecks", action = MappingAction.ADD)
+        CompilerTestExpectAndThatInterface testedSuccessfullyBy(@FluentApiBackingBeanMapping(value = "generatedClassesTest") GeneratedClassesTestForSpecificClass generatedClassesTest);
+
 
     }
 

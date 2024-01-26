@@ -81,7 +81,20 @@ class CompileTest {
             // Check messages
             checkMessages(compilationResult.getDiagnostics());
 
+            // Check compiled classes
+            for (GeneratedClassesTest generatedClassesTest : this.compileTestConfiguration.getGeneratedClassesTest()) {
+                CuteClassLoader cuteClassLoader = new CuteClassLoaderImpl(compilationResult.getCompileTestFileManager());
 
+                try {
+                    generatedClassesTest.doTests(cuteClassLoader);
+                } catch (AssertionError e) {
+                    throw e;
+                } catch (Exception e) {
+                    throw new FailingAssertionException(Constants.Messages.MESSAGE_GOT_UNEXPECTED_EXCEPTION_DURING_CLASS_TEST_ERROR.produceMessage(generatedClassesTest, e.getMessage()));
+                }
+            }
+
+            // Check generated JavaFileObjects
             for (CuteApi.GeneratedJavaFileObjectCheckBB generatedJavaFileObjectCheck : this.compileTestConfiguration.javaFileObjectChecks()) {
                 if (CuteApi.FileObjectCheckType.EXISTS.equals(generatedJavaFileObjectCheck.getCheckType())) {
                     if (!compilationResult.getCompileTestFileManager().existsExpectedJavaFileObject(generatedJavaFileObjectCheck.getLocation(), generatedJavaFileObjectCheck.getClassName(), generatedJavaFileObjectCheck.getKind())) {
@@ -108,6 +121,20 @@ class CompileTest {
                                 }
 
                             }
+
+                            // Check with test
+                            if (generatedJavaFileObjectCheck.getGeneratedClassesTest() != null) {
+                                CuteClassLoader cuteClassLoader = new CuteClassLoaderImpl(compilationResult.getCompileTestFileManager());
+
+                                try {
+                                    generatedJavaFileObjectCheck.getGeneratedClassesTest().doTests(cuteClassLoader.getClass(generatedJavaFileObjectCheck.getClassName()), cuteClassLoader);
+                                } catch (AssertionError e) {
+                                    throw e;
+                                } catch (Exception e) {
+                                    throw new FailingAssertionException(Constants.Messages.MESSAGE_GOT_UNEXPECTED_EXCEPTION_DURING_CLASS_TEST_ERROR.produceMessage(getJavaFileObjectInfoString(generatedJavaFileObjectCheck), e.getMessage()));
+                                }
+                            }
+
 
                         } catch (IOException e) {
                             // ignore
