@@ -1025,7 +1025,7 @@ public class CuteTest {
                 .whenCompiled()
                 .thenExpectThat()
                 .compilationSucceeds()
-                .andThat().compiledClassesTestsSucceeds(new GeneratedClassesTest() {
+                .andThat().generatedClassesTestedSuccessfullyBy(new GeneratedClassesTest() {
                     @Override
                     public void doTests(CuteClassLoader cuteClassLoader) throws Exception{
                         Class<?> clazz = cuteClassLoader.getClass("io.toolisticon.cute.TestClassWithInnerClasses");

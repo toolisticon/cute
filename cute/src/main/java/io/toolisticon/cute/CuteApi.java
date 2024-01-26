@@ -872,7 +872,7 @@ public class CuteApi {
          * @param generatedClassesTest the test to execute
          * @return the next interface
          */
-        CompilerTestExpectAndThatInterface compiledClassesTestsSucceeds(@FluentApiBackingBeanMapping(value = "generatedClassesTest", action = MappingAction.ADD) GeneratedClassesTest generatedClassesTest);
+        CompilerTestExpectAndThatInterface generatedClassesTestedSuccessfullyBy(@FluentApiBackingBeanMapping(value = "generatedClassesTest", action = MappingAction.ADD) GeneratedClassesTest generatedClassesTest);
 
 
         /**

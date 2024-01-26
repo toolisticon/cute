@@ -226,7 +226,7 @@ public void yourUnitTestWithPassedInElementAndProcessor() {
 ```
 
 ### Testing generated and compiled classes
-Testing of the generated code can either be done by providing an integration test project or by using Cute to achieve this as part of the compilation test.
+Testing of the generated code can either be done by providing an integration test project or by using Cute as part of the compilation test.
 Unfortunately, testing generated code with Cute heavily relies on the Javas reflection api, since generated classes aren't available in your unit test code.
 But it's working flawlessly if your generated classes are implementing precompiled interfaces:
 
