@@ -1049,6 +1049,25 @@ public class CuteTest {
     }
 
     @Test()
+    public void blackBoxTest_justCompileCodeAndDoClassTest4() {
+        Cute.blackBoxTest().given().processors()
+                .andSourceFiles("/TestClassWithInnerClasses.java")
+                .whenCompiled()
+                .thenExpectThat()
+                .compilationSucceeds()
+                .andThat().generatedClass("io.toolisticon.cute.TestClassWithInnerClasses$InnerClass").testedSuccessfullyBy(new GeneratedClassesTestForSpecificClass() {
+                    @Override
+                    public void doTests( Class<?> innerClazz, CuteClassLoader cuteClassLoader) throws Exception{
+
+                        MatcherAssert.assertThat(innerClazz.getCanonicalName(),Matchers.is("io.toolisticon.cute.TestClassWithInnerClasses.InnerClass"));
+
+
+                    }
+                })
+                .executeTest();
+    }
+
+    @Test()
     public void blackBoxTest_justCompileCodeAndDoClassTestWithImplementedInterface() {
         Cute.blackBoxTest().given().noProcessors()
                 .andSourceFiles("/TestClassWithImplementedInterface.java")
