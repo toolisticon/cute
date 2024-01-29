@@ -17,7 +17,7 @@ This compile testing framework allows you to to do this and additionally support
 
 - allows compile time tests supporting the most relevant test frameworks (junit4, junit5, testng, ...)
 - simple, but powerful fluent api (immutable)
-- supports all Java versions >=7 (including support for java 9 modules)
+- supports all Java versions >=8 (including support for java 9 modules)
 - Enables you to debug annotation processors during compilation tests
 - provides useful information for analysis of failing tests:
    - error and warning messages
