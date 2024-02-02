@@ -3,7 +3,7 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.toolisticon.cute/cute/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.toolisticon.cute/cute)
 ![Build Status](https://github.com/toolisticon/cute/workflows/default/badge.svg)
 [![codecov](https://codecov.io/gh/toolisticon/cute/branch/master/graph/badge.svg)](https://codecov.io/gh/toolisticon/cute)
-
+[![javadoc](https://javadoc.io/badge2/io.toolisticon.cute/cute/javadoc.svg)](https://javadoc.io/doc/io.toolisticon.cute/cute)
 # Why you should use this project?
 Testing of annotation processors can be a very difficult task.
 Usually annotation procecssors are tighly bound to the compile time model of Java and are relying on tools provided by the java compiler during the compilation process.
@@ -17,7 +17,7 @@ This compile testing framework allows you to to do this and additionally support
 
 - allows compile time tests supporting the most relevant test frameworks (junit4, junit5, testng, ...)
 - simple, but powerful fluent api (immutable)
-- supports all Java versions >=7 (including support for java 9 modules)
+- supports all Java versions >=8 (including support for java 9 modules)
 - Enables you to debug annotation processors during compilation tests
 - provides useful information for analysis of failing tests:
    - error and warning messages

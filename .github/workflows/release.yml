@@ -11,10 +11,10 @@ jobs:
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v1
+        uses: actions/checkout@v4
 
       - name: Cache .m2
-        uses: actions/cache@v1
+        uses: actions/cache@v4
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
@@ -29,8 +29,9 @@ jobs:
 
       # Setup JDK and Maven
       - name: Set up JDK 9
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v4
         with:
+          distribution: 'zulu'
           java-version: 9
           server-id: sonatype-nexus-staging
           server-username: OSS_CENTRAL_USERNAME # env variable for Maven Central
@@ -43,7 +44,7 @@ jobs:
         run: ./mvnw clean package
 
       - name: Deploy a new version to central
-        run: ./mvnw clean javadoc:jar source:jar deploy -B -DskipTests -Prelease -Dgpg.keyname=${{secrets.GPG_KEYNAME}} -Dgpg.passphrase="${{secrets.GPG_PASSPHRASE}}"
+        run: ./mvnw javadoc:jar source:jar deploy -B -DskipTests -Prelease -Dgpg.keyname=${{secrets.GPG_KEYNAME}} -Dgpg.passphrase="${{secrets.GPG_PASSPHRASE}}"
         env:
           OSS_CENTRAL_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
           OSS_CENTRAL_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
