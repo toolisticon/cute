@@ -3,7 +3,7 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.toolisticon.cute/cute/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.toolisticon.cute/cute)
 ![Build Status](https://github.com/toolisticon/cute/workflows/default/badge.svg)
 [![codecov](https://codecov.io/gh/toolisticon/cute/branch/master/graph/badge.svg)](https://codecov.io/gh/toolisticon/cute)
-
+[![javadoc](https://javadoc.io/badge2/io.toolisticon.cute/cute/javadoc.svg)](https://javadoc.io/doc/io.toolisticon.cute/cute)
 # Why you should use this project?
 Testing of annotation processors can be a very difficult task.
 Usually annotation procecssors are tighly bound to the compile time model of Java and are relying on tools provided by the java compiler during the compilation process.
