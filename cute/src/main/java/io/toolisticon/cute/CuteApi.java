@@ -1125,8 +1125,8 @@ public class CuteApi {
          * Expect that a file exists that matches the passed FileObject.
          * Matcher ignores line endings.
          *
-         * @param expectedFileObject the FileOject used for comparison
-         * @return the next fluent inmterface
+         * @param expectedFileObject the FileObject used for comparison
+         * @return the next fluent interface
          */
         default CompilerTestExpectAndThatInterface equals(FileObject expectedFileObject) {
             return matches(ExpectedFileObjectMatcherKind.TEXT_IGNORE_LINE_ENDINGS, expectedFileObject);
@@ -1136,7 +1136,7 @@ public class CuteApi {
          * Expect that a file exists that matches the passed FileObject.
          *
          * @param expectedFileObjectMatcherKind The matcher kind
-         * @param expectedFileObject            the FileOject used for comparison
+         * @param expectedFileObject            the FileObject used for comparison
          * @return the next fluent interface
          */
         default CompilerTestExpectAndThatInterface matches(ExpectedFileObjectMatcherKind expectedFileObjectMatcherKind, FileObject expectedFileObject) {
@@ -1172,7 +1172,7 @@ public class CuteApi {
             }
         },
         /**
-         * Textual comparison line by line by ignoring the OS depending line-endings.
+         * Textual comparison line by line ignoring the OS dependent line-endings.
          */
         TEXT_IGNORE_LINE_ENDINGS {
             @Override

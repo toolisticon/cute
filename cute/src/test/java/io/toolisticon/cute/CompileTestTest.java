@@ -1,9 +1,5 @@
 package io.toolisticon.cute;
 
-import io.toolisticon.cute.Cute;
-import io.toolisticon.cute.GeneratedFileObjectMatcher;
-import io.toolisticon.cute.JavaFileObjectUtils;
-import io.toolisticon.cute.UnitTest;
 import org.junit.Test;
 
 import javax.annotation.processing.ProcessingEnvironment;
@@ -20,7 +16,7 @@ public class CompileTestTest {
     public void test_UnitTest_checkMatchingFileObject() {
 
         Cute.unitTest()
-                        .given().useCompilerOptions("-verbose  ", " -source    1.7   ", "-target 1.7")
+                .given().useCompilerOptions("-verbose  ", " -source    1.7   ", "-target 1.7")
                 .when().passInElement().<TypeElement>fromSourceFile("/AnnotationProcessorUnitTestTestClass.java")
                 .intoUnitTest(new UnitTest() {
                     @Override
@@ -43,15 +39,17 @@ public class CompileTestTest {
                 .thenExpectThat().compilationSucceeds()
                 .andThat().fileObject(StandardLocation.SOURCE_OUTPUT, "root", "Jupp.txt").exists()
 
-                .andThat().fileObject(StandardLocation.SOURCE_OUTPUT, "root", "Jupp.txt").equals( JavaFileObjectUtils.readFromString("TATA!"))
+                .andThat().fileObject(StandardLocation.SOURCE_OUTPUT, "root", "Jupp.txt").equals(JavaFileObjectUtils.readFromString("TATA!"))
 
-                .andThat().fileObject(StandardLocation.SOURCE_OUTPUT, "root", "Jupp.txt").matches( new GeneratedFileObjectMatcher() {
+                .andThat().fileObject(StandardLocation.SOURCE_OUTPUT, "root", "Jupp.txt").matches(new GeneratedFileObjectMatcher() {
                     @Override
                     public boolean check(FileObject fileObject) throws IOException {
                         return fileObject.getCharContent(false).toString().contains("TAT");
                     }
                 })
 
+                .andThat().fileObject(StandardLocation.SOURCE_OUTPUT, "root", "Jupp.txt").equals(FileObjectUtils.fromString("TATA!"))
+                .andThat().fileObject(StandardLocation.SOURCE_OUTPUT, "root", "Jupp.txt").equals(FileObjectUtils.fromResource("/compiletests/tata.txt"))
 
                 .executeTest();
 
