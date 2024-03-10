@@ -25,6 +25,8 @@ import javax.tools.StandardLocation;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -290,13 +292,34 @@ public class CuteApi {
     public interface BlackBoxTestProcessorsInterface {
 
         /**
+         * Allows you to add a single annotation processor used at black-box tests compilation.
+         *
+         * @param processor the annotation processor to use. null values are prohibited and will lead to a {@link io.toolisticon.fluapigen.validation.api.ValidatorException}.
+         * @return the next fluent interface
+         */
+        BlackBoxTestSourceFilesInterface processor(@FluentApiBackingBeanMapping(value = "processors")  @NotNull Class<? extends Processor> processor);
+
+
+        /**
          * Allows you to add annotation processors used at black-box tests compilation.
          * By passing no processors compilation will be done without using processors.
+         *
+         * Unfortunately this method will produce a warning of unsafe usage of varargs and can not be silenced on api side via the SafeVarargs annotation since it is defined in an interface.
+         * Please suppress the warning or use the processors method that takes a Collection as input parameter.
          *
          * @param processors the annotation processors to use. Empty value will compile the source files without using processors, null values are prohibited and will lead to a {@link io.toolisticon.fluapigen.validation.api.ValidatorException}.
          * @return the next fluent interface
          */
-        BlackBoxTestSourceFilesInterface processors(@FluentApiBackingBeanMapping(value = "processors") @NotNull Class<? extends Processor>... processors);
+        @Deprecated
+        BlackBoxTestSourceFilesInterface processors(@FluentApiBackingBeanMapping(value = "processors")  @NotNull Class<? extends Processor>... processors);
+
+        /**
+         * Allows you to add annotation processors used at black-box tests compilation.
+         *
+         * @param processors the annotation processors to use. Passing an empty collection will compile the source files without using processors, null values are prohibited and will lead to a {@link io.toolisticon.fluapigen.validation.api.ValidatorException}.
+         * @return the next fluent interface
+         */
+        BlackBoxTestSourceFilesInterface processors(@FluentApiBackingBeanMapping(value = "processors")  @NotNull Collection<Class<? extends Processor>> processors);
 
         /**
          * More obvious method not to use processors during compilation.
@@ -305,7 +328,7 @@ public class CuteApi {
          * @return the next fluent interface
          */
         default BlackBoxTestSourceFilesInterface noProcessors() {
-            return processors();
+            return processors(Collections.emptyList());
         }
 
     }
@@ -1125,8 +1148,8 @@ public class CuteApi {
          * Expect that a file exists that matches the passed FileObject.
          * Matcher ignores line endings.
          *
-         * @param expectedFileObject the FileOject used for comparison
-         * @return the next fluent inmterface
+         * @param expectedFileObject the FileObject used for comparison
+         * @return the next fluent interface
          */
         default CompilerTestExpectAndThatInterface equals(FileObject expectedFileObject) {
             return matches(ExpectedFileObjectMatcherKind.TEXT_IGNORE_LINE_ENDINGS, expectedFileObject);
@@ -1136,7 +1159,7 @@ public class CuteApi {
          * Expect that a file exists that matches the passed FileObject.
          *
          * @param expectedFileObjectMatcherKind The matcher kind
-         * @param expectedFileObject            the FileOject used for comparison
+         * @param expectedFileObject            the FileObject used for comparison
          * @return the next fluent interface
          */
         default CompilerTestExpectAndThatInterface matches(ExpectedFileObjectMatcherKind expectedFileObjectMatcherKind, FileObject expectedFileObject) {
@@ -1172,7 +1195,7 @@ public class CuteApi {
             }
         },
         /**
-         * Textual comparison line by line by ignoring the OS depending line-endings.
+         * Textual comparison line by line ignoring the OS dependent line-endings.
          */
         TEXT_IGNORE_LINE_ENDINGS {
             @Override

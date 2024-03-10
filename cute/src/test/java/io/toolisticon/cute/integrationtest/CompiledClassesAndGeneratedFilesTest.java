@@ -16,6 +16,7 @@ import javax.tools.JavaFileObject;
 import javax.tools.StandardLocation;
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Set;
 
 /**
@@ -29,6 +30,34 @@ public class CompiledClassesAndGeneratedFilesTest {
 
         Cute.blackBoxTest()
                 .given().processors(SimpleTestProcessor1.class)
+                .andSourceFiles(JavaFileObjectUtils.readFromResource("/integrationtest/CompiledClassesAndGeneratedFilesExistTestcase.java"))
+                .whenCompiled()
+                .thenExpectThat().compilationSucceeds()
+                .andThat().javaFileObject(StandardLocation.CLASS_OUTPUT, "io.toolisticon.cute.integrationtest.CompiledClassesAndGeneratedFilesExistTestcase", JavaFileObject.Kind.CLASS).exists()
+                .executeTest();
+
+
+    }
+
+    @Test
+    public void testCompiledClassesExist_withProcessorCollection() {
+
+        Cute.blackBoxTest()
+                .given().processors(Collections.singletonList(SimpleTestProcessor1.class))
+                .andSourceFiles(JavaFileObjectUtils.readFromResource("/integrationtest/CompiledClassesAndGeneratedFilesExistTestcase.java"))
+                .whenCompiled()
+                .thenExpectThat().compilationSucceeds()
+                .andThat().javaFileObject(StandardLocation.CLASS_OUTPUT, "io.toolisticon.cute.integrationtest.CompiledClassesAndGeneratedFilesExistTestcase", JavaFileObject.Kind.CLASS).exists()
+                .executeTest();
+
+
+    }
+
+    @Test
+    public void testCompiledClassesExist_withSingleProcessor() {
+
+        Cute.blackBoxTest()
+                .given().processor(SimpleTestProcessor1.class)
                 .andSourceFiles(JavaFileObjectUtils.readFromResource("/integrationtest/CompiledClassesAndGeneratedFilesExistTestcase.java"))
                 .whenCompiled()
                 .thenExpectThat().compilationSucceeds()

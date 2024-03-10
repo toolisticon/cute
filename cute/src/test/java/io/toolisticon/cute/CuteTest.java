@@ -9,6 +9,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import javax.annotation.processing.ProcessingEnvironment;
+import javax.annotation.processing.Processor;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
@@ -19,6 +20,8 @@ import javax.tools.StandardLocation;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 
 /**
  * Unit tests for {@link Cute}.
@@ -918,17 +921,27 @@ public class CuteTest {
 
     @Test(expected = ValidatorException.class)
     public void blackBoxTest_nullValuedProcessor() {
-        Cute.blackBoxTest().given().processors(null);
+        Cute.blackBoxTest().given().processor((Class<? extends Processor>)null);
+    }
+
+    @Test(expected = ValidatorException.class)
+    public void blackBoxTest_nullValuedProcessors() {
+        Cute.blackBoxTest().given().processor((Class<? extends Processor>)null);
     }
 
     @Test(expected = ValidatorException.class)
     public void blackBoxTest_nullValuedProcessorInArray() {
-        Cute.blackBoxTest().given().processors(null, null);
+        Cute.blackBoxTest().given().processors((Class<? extends Processor>)null, (Class<? extends Processor>)null);
+    }
+
+    @Test(expected = ValidatorException.class)
+    public void blackBoxTest_nullValuedProcessorCollection() {
+        Cute.blackBoxTest().given().processors((Collection<Class<? extends Processor>>) null);
     }
 
     @Test()
     public void blackBoxTest_emptyProcessors_shouldJustCompileCode() {
-        Cute.blackBoxTest().given().processors()
+        Cute.blackBoxTest().given().noProcessors()
                 .andSourceFiles("/TestClass.java")
                 .whenCompiled()
                 .thenExpectThat()
@@ -936,6 +949,18 @@ public class CuteTest {
                 .andThat().generatedClass("io.toolisticon.cute.TestClass").exists()
                 .executeTest();
     }
+
+    @Test()
+    public void blackBoxTest_emptyProcessorCollection_shouldJustCompileCode() {
+        Cute.blackBoxTest().given().processors(Collections.emptyList())
+                .andSourceFiles("/TestClass.java")
+                .whenCompiled()
+                .thenExpectThat()
+                .compilationSucceeds()
+                .andThat().generatedClass("io.toolisticon.cute.TestClass").exists()
+                .executeTest();
+    }
+
 
     @Test()
     public void blackBoxTest_noProcessors_shouldJustCompileCode() {
@@ -972,7 +997,7 @@ public class CuteTest {
 
     @Test()
     public void blackBoxTest_justCompileCodeAndDoClassTests() {
-        Cute.blackBoxTest().given().processors()
+        Cute.blackBoxTest().given().noProcessors()
                 .andSourceFiles("/TestClass.java")
                 .whenCompiled()
                 .thenExpectThat()
@@ -991,7 +1016,7 @@ public class CuteTest {
 
     @Test()
     public void blackBoxTest_justCompileCodeAndDoClassTests2() {
-        Cute.blackBoxTest().given().processors()
+        Cute.blackBoxTest().given().noProcessors()
                 .andSourceFiles("/TestClassWithInnerClasses.java")
                 .whenCompiled()
                 .thenExpectThat()
@@ -1020,7 +1045,7 @@ public class CuteTest {
 
     @Test()
     public void blackBoxTest_justCompileCodeAndDoClassTest3() {
-        Cute.blackBoxTest().given().processors()
+        Cute.blackBoxTest().given().noProcessors()
                 .andSourceFiles("/TestClassWithInnerClasses.java")
                 .whenCompiled()
                 .thenExpectThat()
@@ -1050,7 +1075,7 @@ public class CuteTest {
 
     @Test()
     public void blackBoxTest_justCompileCodeAndDoClassTest4() {
-        Cute.blackBoxTest().given().processors()
+        Cute.blackBoxTest().given().noProcessors()
                 .andSourceFiles("/TestClassWithInnerClasses.java")
                 .whenCompiled()
                 .thenExpectThat()
