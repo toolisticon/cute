@@ -353,7 +353,7 @@ public class CuteApi {
          */
         // TODO: A validation if passed resource locations are correct would be good
         default BlackBoxTestFinalGivenInterface andSourceFiles(String... resources) {
-            return andSourceFiles(Arrays.stream(resources).map(e -> JavaFileObjectUtils.readFromResource(e)).toArray(JavaFileObject[]::new));
+            return andSourceFiles(Arrays.stream(resources).map(JavaFileObjectUtils::readFromResource).toArray(JavaFileObject[]::new));
         }
 
         /**
@@ -389,7 +389,7 @@ public class CuteApi {
          * @return the next fluent interface
          */
         default BlackBoxTestFinalGivenInterface andSourceFiles(@NotNull String... resources) {
-            return andSourceFiles(Arrays.stream(resources).map(e -> JavaFileObjectUtils.readFromResource(e)).toArray(String[]::new));
+            return andSourceFiles(Arrays.stream(resources).map(JavaFileObjectUtils::readFromResource).toArray(JavaFileObject[]::new));
         }
 
         /**
