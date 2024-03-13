@@ -921,17 +921,17 @@ public class CuteTest {
 
     @Test(expected = ValidatorException.class)
     public void blackBoxTest_nullValuedProcessor() {
-        Cute.blackBoxTest().given().processor((Class<? extends Processor>)null);
+        Cute.blackBoxTest().given().processor(null);
     }
 
     @Test(expected = ValidatorException.class)
     public void blackBoxTest_nullValuedProcessors() {
-        Cute.blackBoxTest().given().processor((Class<? extends Processor>)null);
+        Cute.blackBoxTest().given().processors((Class<Processor>)null);
     }
 
     @Test(expected = ValidatorException.class)
     public void blackBoxTest_nullValuedProcessorInArray() {
-        Cute.blackBoxTest().given().processors((Class<? extends Processor>)null, (Class<? extends Processor>)null);
+        Cute.blackBoxTest().given().processors(null, null);
     }
 
     @Test(expected = ValidatorException.class)

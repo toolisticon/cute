@@ -85,7 +85,7 @@
 
         <!-- dependencies: compile and runtime -->
         <spiap.version>0.8.0</spiap.version>
-        <fluapigen.version>0.9.1</fluapigen.version>
+        <fluapigen.version>1.0.1-SNAPSHOT</fluapigen.version>
 
         <!-- versions of test dependencies -->
         <junit4.version>4.13.1</junit4.version>
