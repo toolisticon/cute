@@ -25,7 +25,6 @@ import javax.tools.StandardLocation;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -48,7 +47,7 @@ public class CuteApi {
         UnitTestType getPassInType();
 
 
-        List<Class<Processor>> processors();
+        List<Class<? extends Processor>> processors();
 
         List<String> compilerOptions();
 
@@ -319,7 +318,7 @@ public class CuteApi {
          * @param processors the annotation processors to use. Passing an empty collection will compile the source files without using processors, null values are prohibited and will lead to a {@link io.toolisticon.fluapigen.validation.api.ValidatorException}.
          * @return the next fluent interface
          */
-        BlackBoxTestSourceFilesInterface processors(@FluentApiBackingBeanMapping(value = "processors")  @NotNull Collection<Class<? extends Processor>> processors);
+        BlackBoxTestSourceFilesInterface processors(@FluentApiBackingBeanMapping(value = "processors")  @NotNull Iterable<Class<? extends Processor>> processors);
 
         /**
          * More obvious method not to use processors during compilation.
