@@ -65,7 +65,7 @@ public class CuteTest {
                 .andThat().compilerMessage().ofKindMandatoryWarning().contains("MANDATORY_WARNING")
                 .andThat().compilerMessage().ofKindNote().contains("NOTE")
                 .executeTest().doManualAssertions(e -> {
-                    MatcherAssert.assertThat("Expected to find warning message that contains WARNING", !e.getCompilerMessages().stream().filter(f -> f.getKind() == Diagnostic.Kind.WARNING).filter(f -> f.getMessage().contains("WARNING!")).collect(Collectors.toList()).isEmpty());
+                    MatcherAssert.assertThat("Expected to find warning message that contains WARNING", !e.getCompilerMessages().stream().filter(f -> f.getKind() == Diagnostic.Kind.WARNING).filter(f -> f.getMessage().contains("WARNING")).collect(Collectors.toList()).isEmpty());
                     MatcherAssert.assertThat("Should be true", true);
                 });
 
