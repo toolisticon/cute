@@ -62,7 +62,7 @@ public class CuteTest {
                 .andThat().compilerMessage().ofKindWarning().contains("WARNING")
                 .andThat().compilerMessage().ofKindMandatoryWarning().contains("MANDATORY_WARNING")
                 .andThat().compilerMessage().ofKindNote().contains("NOTE")
-                .executeTest().doManualAssertions(e -> {
+                .executeTest().executeCustomAssertions(e -> {
                     MatcherAssert.assertThat("Expected to find warning message that contains WARNING", !(e.getCompilerMessages().stream().filter(f -> f.getKind() == Diagnostic.Kind.WARNING).filter(f -> f.getMessage().contains("WARNING")).count() == 0));
                     MatcherAssert.assertThat("Should not find generated SOURCE FILES", e.getJavaFileObjects().stream().filter(f -> f.getKind() == JavaFileObject.Kind.SOURCE).count() == 0);
                     MatcherAssert.assertThat("Should  find generated RESOURCE file that contains TATA", e.getFileObjects().stream().filter(f -> f.getName().equals("/root/Jupp.txt")).filter(f ->

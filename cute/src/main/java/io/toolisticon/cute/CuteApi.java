@@ -439,7 +439,7 @@ public class CuteApi {
          */
         @FluentApiCommand(ExecuteTestCommand.class)
         @FluentApiImplicitValue(id = "compilationSucceeded", value = "true")
-        DoManualAssertions executeTest();
+        DoCustomAssertions executeTest();
 
     }
 
@@ -805,7 +805,7 @@ public class CuteApi {
          * All AssertionError triggered inside the unit test will bepassed through to your unit test framework.
          */
         @FluentApiCommand(ExecuteTestCommand.class)
-        DoManualAssertions executeTest();
+        DoCustomAssertions executeTest();
 
 
     }
@@ -825,7 +825,7 @@ public class CuteApi {
          * All AssertionError triggered inside the unit test will bepassed through to your unit test framework.
          */
         @FluentApiCommand(ExecuteTestCommand.class)
-        DoManualAssertions executeTest();
+        DoCustomAssertions executeTest();
 
 
     }
@@ -884,7 +884,7 @@ public class CuteApi {
          * Executes the test.
          */
         @FluentApiCommand(ExecuteTestCommand.class)
-        DoManualAssertions executeTest();
+        DoCustomAssertions executeTest();
 
     }
 
@@ -1227,11 +1227,11 @@ public class CuteApi {
 
     @FluentApiCommand
     public static class ExecuteTestCommand {
-        static DoManualAssertions myCommand(CompilerTestBB backingBean) {
+        static DoCustomAssertions myCommand(CompilerTestBB backingBean) {
 
             CompilationResult compilationResult = new CompileTest(backingBean).executeTest();
 
-            return new DoManualAssertionsImpl(compilationResult, backingBean);
+            return new DoCustomAssertionsImpl(compilationResult, backingBean);
 
         }
     }
@@ -1359,33 +1359,33 @@ public class CuteApi {
 
 
 
-    public interface DoManualAssertions {
+    public interface DoCustomAssertions {
 
-        void doManualAssertions(ManualAssertion manualAssertion);
+        void executeCustomAssertions(CustomAssertion customAssertion);
 
     }
 
-    public interface ManualAssertion {
-        void executeManualAssertion(CompilationOutcome compilationOutcome);
+    public interface CustomAssertion {
+        void executeCustomAssertions(CompilationOutcome compilationOutcome);
     }
 
-    private static class DoManualAssertionsImpl implements DoManualAssertions {
+    private static class DoCustomAssertionsImpl implements DoCustomAssertions {
 
         private final CompilationResult compilationResult;
 
         private final CuteApi.CompilerTestBB compileTestConfiguration;
 
-        public DoManualAssertionsImpl(CompilationResult compilationResult, CuteApi.CompilerTestBB compileTestConfiguration) {
+        public DoCustomAssertionsImpl(CompilationResult compilationResult, CuteApi.CompilerTestBB compileTestConfiguration) {
             this.compilationResult = compilationResult;
             this.compileTestConfiguration = compileTestConfiguration;
         }
 
         @Override
-        public void doManualAssertions(ManualAssertion manualAssertion) {
+        public void executeCustomAssertions(CustomAssertion customAssertion) {
 
             try {
-                manualAssertion.executeManualAssertion(new CompilationOutcome(compilationResult));
-            } catch (Exception e) {
+                customAssertion.executeCustomAssertions(new CompilationOutcome(compilationResult));
+            } catch (Throwable e) {
                 FailingAssertionException failingAssertionException = new FailingAssertionException(e.getMessage(), e.getCause());
                 AssertionSpiServiceLocator.locate().fail(e.getMessage() + "\n" + DebugOutputGenerator.getDebugOutput(compilationResult, compileTestConfiguration, failingAssertionException));
                 throw e;
