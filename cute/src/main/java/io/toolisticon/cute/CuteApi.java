@@ -19,6 +19,7 @@ import io.toolisticon.fluapigen.validation.api.NotNull;
 
 import javax.annotation.processing.Processor;
 import javax.lang.model.element.Element;
+import javax.lang.model.element.NestingKind;
 import javax.tools.Diagnostic;
 import javax.tools.FileObject;
 import javax.tools.JavaFileManager;
@@ -1255,12 +1256,12 @@ public class CuteApi {
             return this.compilationResult.getDiagnostics().getDiagnostics().stream().map(CompilerMessage::new).collect(Collectors.toList());
         }
 
-        public List<FileObject> getFileObjects() {
-           return Collections.unmodifiableList(this.compilationResult.getCompileTestFileManager().getGeneratedFileObjects());
+        public List<FileObjectWrapper> getFileObjects() {
+           return this.compilationResult.getCompileTestFileManager().getGeneratedFileObjects().stream().map(FileObjectWrapper::new).collect(Collectors.toList());
         }
 
-        public List<JavaFileObject> getJavaFileObjects() {
-            return Collections.unmodifiableList(this.compilationResult.getCompileTestFileManager().getGeneratedJavaFileObjects());
+        public List<JavaFileObjectWrapper> getJavaFileObjects() {
+            return this.compilationResult.getCompileTestFileManager().getGeneratedJavaFileObjects().stream().map(JavaFileObjectWrapper::new).collect(Collectors.toList());
         }
 
 
@@ -1301,6 +1302,60 @@ public class CuteApi {
 
     }
 
+    public static class JavaFileObjectWrapper {
+        final JavaFileObject javaFileObject;
+
+        public JavaFileObjectWrapper(JavaFileObject javaFileObject) {
+            this.javaFileObject = javaFileObject;
+
+        }
+
+        public JavaFileObject.Kind getKind(){
+            return javaFileObject.getKind();
+        }
+
+        public NestingKind getNestingKind(){
+            return javaFileObject.getNestingKind();
+        }
+
+        public String getName(){
+            return javaFileObject.getName();
+        }
+
+        public String getContent(){
+            try {
+                return javaFileObject.getCharContent(true).toString();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+
+
+    }
+
+    public static class FileObjectWrapper {
+        final FileObject fileObject;
+
+        public FileObjectWrapper(FileObject fileObject) {
+            this.fileObject = fileObject;
+        }
+
+        public String getName(){
+            return fileObject.getName();
+        }
+
+        public String getContent(){
+            try {
+                return fileObject.getCharContent(true).toString();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+
+
+    }
 
 
 

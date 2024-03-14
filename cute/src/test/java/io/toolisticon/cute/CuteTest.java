@@ -22,8 +22,6 @@ import java.io.Writer;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Locale;
-import java.util.stream.Collectors;
 
 /**
  * Unit tests for {@link Cute}.
@@ -31,7 +29,7 @@ import java.util.stream.Collectors;
 public class CuteTest {
 
     @Test
-    public void test_UnitTest_successfulCompilation_build() throws IOException{
+    public void test_UnitTest_successfulCompilation_build() throws IOException {
 
         JavaFileObject testSource = Mockito.mock(JavaFileObject.class);
         JavaFileObject expectedGeneratedSource = JavaFileObjectUtils.readFromString("Jupp.txt", "TATA!");
@@ -67,13 +65,9 @@ public class CuteTest {
                 .executeTest().doManualAssertions(e -> {
                     MatcherAssert.assertThat("Expected to find warning message that contains WARNING", !(e.getCompilerMessages().stream().filter(f -> f.getKind() == Diagnostic.Kind.WARNING).filter(f -> f.getMessage().contains("WARNING")).count() == 0));
                     MatcherAssert.assertThat("Should not find generated SOURCE FILES", e.getJavaFileObjects().stream().filter(f -> f.getKind() == JavaFileObject.Kind.SOURCE).count() == 0);
-                    MatcherAssert.assertThat("Should  find generated RESOURCE file that contains TATA", e.getFileObjects().stream().filter(f -> f.getName().equals("/root/Jupp.txt")).filter(f -> {
-                        try {
-                            return f.getCharContent(true).toString().contains("TATA");
-                        } catch (IOException ex) {
-                            throw new RuntimeException(ex);
-                        }
-                    }).count() == 1);
+                    MatcherAssert.assertThat("Should  find generated RESOURCE file that contains TATA", e.getFileObjects().stream().filter(f -> f.getName().equals("/root/Jupp.txt")).filter(f ->
+                            f.getContent().toString().contains("TATA")
+                    ).count() == 1);
                     MatcherAssert.assertThat("Should be true", true);
                 });
 
@@ -934,17 +928,17 @@ public class CuteTest {
 
     @Test(expected = ValidatorException.class)
     public void blackBoxTest_nullValuedProcessor() {
-        Cute.blackBoxTest().given().processor((Class<? extends Processor>)null);
+        Cute.blackBoxTest().given().processor((Class<? extends Processor>) null);
     }
 
     @Test(expected = ValidatorException.class)
     public void blackBoxTest_nullValuedProcessors() {
-        Cute.blackBoxTest().given().processor((Class<? extends Processor>)null);
+        Cute.blackBoxTest().given().processor((Class<? extends Processor>) null);
     }
 
     @Test(expected = ValidatorException.class)
     public void blackBoxTest_nullValuedProcessorInArray() {
-        Cute.blackBoxTest().given().processors((Class<? extends Processor>)null, (Class<? extends Processor>)null);
+        Cute.blackBoxTest().given().processors((Class<? extends Processor>) null, (Class<? extends Processor>) null);
     }
 
     @Test(expected = ValidatorException.class)
@@ -1017,8 +1011,8 @@ public class CuteTest {
                 .compilationSucceeds()
                 .andThat().generatedClass("io.toolisticon.cute.TestClass").testedSuccessfullyBy(new GeneratedClassesTestForSpecificClass() {
                     @Override
-                    public void doTests(Class<?> clazz,CuteClassLoader cuteClassLoader) throws Exception{
-                        MatcherAssert.assertThat(clazz.getCanonicalName(),Matchers.is("io.toolisticon.cute.TestClass"));
+                    public void doTests(Class<?> clazz, CuteClassLoader cuteClassLoader) throws Exception {
+                        MatcherAssert.assertThat(clazz.getCanonicalName(), Matchers.is("io.toolisticon.cute.TestClass"));
 
                         Object instance = clazz.getConstructor().newInstance();
                         MatcherAssert.assertThat(instance, Matchers.notNullValue());
@@ -1036,17 +1030,17 @@ public class CuteTest {
                 .compilationSucceeds()
                 .andThat().generatedClass("io.toolisticon.cute.TestClassWithInnerClasses").testedSuccessfullyBy(new GeneratedClassesTestForSpecificClass() {
                     @Override
-                    public void doTests(Class<?>clazz, CuteClassLoader cuteClassLoader) throws Exception{
-                        MatcherAssert.assertThat(clazz.getCanonicalName(),Matchers.is("io.toolisticon.cute.TestClassWithInnerClasses"));
+                    public void doTests(Class<?> clazz, CuteClassLoader cuteClassLoader) throws Exception {
+                        MatcherAssert.assertThat(clazz.getCanonicalName(), Matchers.is("io.toolisticon.cute.TestClassWithInnerClasses"));
 
                         Class<?> innerClazz = cuteClassLoader.getClass("io.toolisticon.cute.TestClassWithInnerClasses$InnerClass");
-                        MatcherAssert.assertThat(innerClazz.getCanonicalName(),Matchers.is("io.toolisticon.cute.TestClassWithInnerClasses.InnerClass"));
+                        MatcherAssert.assertThat(innerClazz.getCanonicalName(), Matchers.is("io.toolisticon.cute.TestClassWithInnerClasses.InnerClass"));
 
                         Class<?> staticInnerClazz = cuteClassLoader.getClass("io.toolisticon.cute.TestClassWithInnerClasses$StaticInnerClass");
-                        MatcherAssert.assertThat(staticInnerClazz.getCanonicalName(),Matchers.is("io.toolisticon.cute.TestClassWithInnerClasses.StaticInnerClass"));
+                        MatcherAssert.assertThat(staticInnerClazz.getCanonicalName(), Matchers.is("io.toolisticon.cute.TestClassWithInnerClasses.StaticInnerClass"));
 
                         Class<?> innerInterface = cuteClassLoader.getClass("io.toolisticon.cute.TestClassWithInnerClasses$InnerInterface");
-                        MatcherAssert.assertThat(innerInterface.getCanonicalName(),Matchers.is("io.toolisticon.cute.TestClassWithInnerClasses.InnerInterface"));
+                        MatcherAssert.assertThat(innerInterface.getCanonicalName(), Matchers.is("io.toolisticon.cute.TestClassWithInnerClasses.InnerInterface"));
 
                         Object instance = clazz.getConstructor().newInstance();
                         MatcherAssert.assertThat(instance, Matchers.notNullValue());
@@ -1065,18 +1059,18 @@ public class CuteTest {
                 .compilationSucceeds()
                 .andThat().generatedClassesTestedSuccessfullyBy(new GeneratedClassesTest() {
                     @Override
-                    public void doTests(CuteClassLoader cuteClassLoader) throws Exception{
+                    public void doTests(CuteClassLoader cuteClassLoader) throws Exception {
                         Class<?> clazz = cuteClassLoader.getClass("io.toolisticon.cute.TestClassWithInnerClasses");
-                        MatcherAssert.assertThat(clazz.getCanonicalName(),Matchers.is("io.toolisticon.cute.TestClassWithInnerClasses"));
+                        MatcherAssert.assertThat(clazz.getCanonicalName(), Matchers.is("io.toolisticon.cute.TestClassWithInnerClasses"));
 
                         Class<?> innerClazz = cuteClassLoader.getClass("io.toolisticon.cute.TestClassWithInnerClasses$InnerClass");
-                        MatcherAssert.assertThat(innerClazz.getCanonicalName(),Matchers.is("io.toolisticon.cute.TestClassWithInnerClasses.InnerClass"));
+                        MatcherAssert.assertThat(innerClazz.getCanonicalName(), Matchers.is("io.toolisticon.cute.TestClassWithInnerClasses.InnerClass"));
 
                         Class<?> staticInnerClazz = cuteClassLoader.getClass("io.toolisticon.cute.TestClassWithInnerClasses$StaticInnerClass");
-                        MatcherAssert.assertThat(staticInnerClazz.getCanonicalName(),Matchers.is("io.toolisticon.cute.TestClassWithInnerClasses.StaticInnerClass"));
+                        MatcherAssert.assertThat(staticInnerClazz.getCanonicalName(), Matchers.is("io.toolisticon.cute.TestClassWithInnerClasses.StaticInnerClass"));
 
                         Class<?> innerInterface = cuteClassLoader.getClass("io.toolisticon.cute.TestClassWithInnerClasses$InnerInterface");
-                        MatcherAssert.assertThat(innerInterface.getCanonicalName(),Matchers.is("io.toolisticon.cute.TestClassWithInnerClasses.InnerInterface"));
+                        MatcherAssert.assertThat(innerInterface.getCanonicalName(), Matchers.is("io.toolisticon.cute.TestClassWithInnerClasses.InnerInterface"));
 
                         Object instance = clazz.getConstructor().newInstance();
                         MatcherAssert.assertThat(instance, Matchers.notNullValue());
@@ -1095,9 +1089,9 @@ public class CuteTest {
                 .compilationSucceeds()
                 .andThat().generatedClass("io.toolisticon.cute.TestClassWithInnerClasses$InnerClass").testedSuccessfullyBy(new GeneratedClassesTestForSpecificClass() {
                     @Override
-                    public void doTests( Class<?> innerClazz, CuteClassLoader cuteClassLoader) throws Exception{
+                    public void doTests(Class<?> innerClazz, CuteClassLoader cuteClassLoader) throws Exception {
 
-                        MatcherAssert.assertThat(innerClazz.getCanonicalName(),Matchers.is("io.toolisticon.cute.TestClassWithInnerClasses.InnerClass"));
+                        MatcherAssert.assertThat(innerClazz.getCanonicalName(), Matchers.is("io.toolisticon.cute.TestClassWithInnerClasses.InnerClass"));
 
 
                     }
@@ -1114,7 +1108,7 @@ public class CuteTest {
                 .compilationSucceeds()
                 .andThat().generatedClass("io.toolisticon.cute.TestClassWithImplementedInterface").testedSuccessfullyBy(new GeneratedClassesTestForSpecificClass() {
                     @Override
-                    public void doTests(Class<?> clazz, CuteClassLoader cuteClassLoader) throws Exception{
+                    public void doTests(Class<?> clazz, CuteClassLoader cuteClassLoader) throws Exception {
 
                         SimpleTestInterface unit = (SimpleTestInterface) clazz.getConstructor().newInstance();
                         MatcherAssert.assertThat(unit.saySomething(), Matchers.is("WHATS UP?"));
@@ -1134,7 +1128,7 @@ public class CuteTest {
                 .compilationSucceeds()
                 .andThat().generatedClass("io.toolisticon.cute.TestClassWithImplementedInterface").testedSuccessfullyBy(new GeneratedClassesTestForSpecificClass() {
                     @Override
-                    public void doTests(Class<?> clazz, CuteClassLoader cuteClassLoader) throws Exception{
+                    public void doTests(Class<?> clazz, CuteClassLoader cuteClassLoader) throws Exception {
 
                         SimpleTestInterface unit = (SimpleTestInterface) clazz.getConstructor().newInstance();
                         MatcherAssert.assertThat(unit.saySomething(), Matchers.is("WHATS UP???"));
