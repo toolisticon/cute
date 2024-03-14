@@ -24,6 +24,7 @@ import javax.tools.FileObject;
 import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardLocation;
+import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -1246,12 +1247,20 @@ public class CuteApi {
             this.compilationResult = compilationResult;
         }
 
-        public boolean compilationWasSuccessful () {
+        public boolean compilationWasSuccessful() {
             return this.compilationResult.getCompilationSucceeded();
         }
-        
+
         public List<CompilerMessage> getCompilerMessages() {
             return this.compilationResult.getDiagnostics().getDiagnostics().stream().map(CompilerMessage::new).collect(Collectors.toList());
+        }
+
+        public List<FileObject> getFileObjects() {
+           return Collections.unmodifiableList(this.compilationResult.getCompileTestFileManager().getGeneratedFileObjects());
+        }
+
+        public List<JavaFileObject> getJavaFileObjects() {
+            return Collections.unmodifiableList(this.compilationResult.getCompileTestFileManager().getGeneratedJavaFileObjects());
         }
 
 
@@ -1293,6 +1302,8 @@ public class CuteApi {
     }
 
 
+
+
     public interface DoManualAssertions {
 
         void doManualAssertions(ManualAssertion manualAssertion);
@@ -1318,10 +1329,8 @@ public class CuteApi {
         public void doManualAssertions(ManualAssertion manualAssertion) {
 
             try {
-                // TODO: must provide compiler outcome
                 manualAssertion.executeManualAssertion(new CompilationOutcome(compilationResult));
-            } catch (AssertionError e) {
-                // TODO : Trigger debug output then rethrow assertionError
+            } catch (Exception e) {
                 FailingAssertionException failingAssertionException = new FailingAssertionException(e.getMessage(), e.getCause());
                 AssertionSpiServiceLocator.locate().fail(e.getMessage() + "\n" + DebugOutputGenerator.getDebugOutput(compilationResult, compileTestConfiguration, failingAssertionException));
                 throw e;

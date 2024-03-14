@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 public class CuteTest {
 
     @Test
-    public void test_UnitTest_successfulCompilation_build() {
+    public void test_UnitTest_successfulCompilation_build() throws IOException{
 
         JavaFileObject testSource = Mockito.mock(JavaFileObject.class);
         JavaFileObject expectedGeneratedSource = JavaFileObjectUtils.readFromString("Jupp.txt", "TATA!");
@@ -65,7 +65,15 @@ public class CuteTest {
                 .andThat().compilerMessage().ofKindMandatoryWarning().contains("MANDATORY_WARNING")
                 .andThat().compilerMessage().ofKindNote().contains("NOTE")
                 .executeTest().doManualAssertions(e -> {
-                    MatcherAssert.assertThat("Expected to find warning message that contains WARNING", !e.getCompilerMessages().stream().filter(f -> f.getKind() == Diagnostic.Kind.WARNING).filter(f -> f.getMessage().contains("WARNING")).collect(Collectors.toList()).isEmpty());
+                    MatcherAssert.assertThat("Expected to find warning message that contains WARNING", !(e.getCompilerMessages().stream().filter(f -> f.getKind() == Diagnostic.Kind.WARNING).filter(f -> f.getMessage().contains("WARNING")).count() == 0));
+                    MatcherAssert.assertThat("Should not find generated SOURCE FILES", e.getJavaFileObjects().stream().filter(f -> f.getKind() == JavaFileObject.Kind.SOURCE).count() == 0);
+                    MatcherAssert.assertThat("Should  find generated RESOURCE file that contains TATA", e.getFileObjects().stream().filter(f -> f.getName().equals("/root/Jupp.txt")).filter(f -> {
+                        try {
+                            return f.getCharContent(true).toString().contains("TATA");
+                        } catch (IOException ex) {
+                            throw new RuntimeException(ex);
+                        }
+                    }).count() == 1);
                     MatcherAssert.assertThat("Should be true", true);
                 });
 
