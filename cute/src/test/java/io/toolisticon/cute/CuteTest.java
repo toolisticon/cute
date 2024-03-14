@@ -62,7 +62,9 @@ public class CuteTest {
                 .andThat().compilerMessage().ofKindWarning().contains("WARNING")
                 .andThat().compilerMessage().ofKindMandatoryWarning().contains("MANDATORY_WARNING")
                 .andThat().compilerMessage().ofKindNote().contains("NOTE")
-                .executeTest();
+                .executeTest().doManualAssertions(e -> {
+                    MatcherAssert.assertThat("Should be true", true);
+                });
 
 
     }

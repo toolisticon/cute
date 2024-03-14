@@ -434,7 +434,7 @@ public class CuteApi {
          */
         @FluentApiCommand(ExecuteTestCommand.class)
         @FluentApiImplicitValue(id = "compilationSucceeded", value = "true")
-        void executeTest();
+        DoManualAssertions executeTest();
 
     }
 
@@ -800,7 +800,7 @@ public class CuteApi {
          * All AssertionError triggered inside the unit test will bepassed through to your unit test framework.
          */
         @FluentApiCommand(ExecuteTestCommand.class)
-        void executeTest();
+        DoManualAssertions executeTest();
 
 
     }
@@ -820,7 +820,7 @@ public class CuteApi {
          * All AssertionError triggered inside the unit test will bepassed through to your unit test framework.
          */
         @FluentApiCommand(ExecuteTestCommand.class)
-        void executeTest();
+        DoManualAssertions executeTest();
 
 
     }
@@ -879,7 +879,7 @@ public class CuteApi {
          * Executes the test.
          */
         @FluentApiCommand(ExecuteTestCommand.class)
-        void executeTest();
+        DoManualAssertions executeTest();
 
     }
 
@@ -1220,10 +1220,62 @@ public class CuteApi {
 
     @FluentApiCommand
     public static class ExecuteTestCommand {
-        static void myCommand(CompilerTestBB backingBean) {
+        static DoManualAssertions myCommand(CompilerTestBB backingBean) {
+
             new CompileTest(backingBean).executeTest();
+
+            return new DoManualAssertionsImpl(new CompilerOutcome() {
+                @Override
+                public int hashCode() {
+                    return super.hashCode();
+                }
+            });
+
         }
     }
+
+    // --------------------------------------------------------------------
+    // Endgame
+    // --------------------------------------------------------------------
+
+    public interface CompilerOutcome {
+
+    }
+
+    public interface DoManualAssertions {
+
+        void doManualAssertions(ManualAssertion manualAssertion);
+
+    }
+
+    public interface ManualAssertion {
+        void executeManualAssertion (CompilerOutcome compilerOutcome);
+    }
+
+    private static class DoManualAssertionsImpl implements DoManualAssertions{
+
+        private final CompilerOutcome compilerOutcome;
+
+        public DoManualAssertionsImpl(CompilerOutcome compilerOutcome) {
+            this.compilerOutcome = compilerOutcome;
+        }
+
+        @Override
+        public void doManualAssertions(ManualAssertion manualAssertion) {
+
+            try {
+                manualAssertion.executeManualAssertion(this.compilerOutcome);
+            } catch (AssertionError e) {
+                // TODO : Trigger debug output then rethrow assertionError
+                throw e;
+            }
+
+        }
+    }
+
+
+
+
 
 
 }
