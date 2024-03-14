@@ -22,6 +22,8 @@ import java.io.Writer;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Locale;
+import java.util.stream.Collectors;
 
 /**
  * Unit tests for {@link Cute}.
@@ -63,6 +65,7 @@ public class CuteTest {
                 .andThat().compilerMessage().ofKindMandatoryWarning().contains("MANDATORY_WARNING")
                 .andThat().compilerMessage().ofKindNote().contains("NOTE")
                 .executeTest().doManualAssertions(e -> {
+                    MatcherAssert.assertThat("Expected to find warning message that contains WARNING", !e.getCompilerMessages().stream().filter(f -> f.getKind() == Diagnostic.Kind.WARNING).filter(f -> f.getMessage().contains("WARNING!")).collect(Collectors.toList()).isEmpty());
                     MatcherAssert.assertThat("Should be true", true);
                 });
 

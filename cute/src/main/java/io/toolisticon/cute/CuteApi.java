@@ -1,6 +1,7 @@
 package io.toolisticon.cute;
 
 
+import io.toolisticon.cute.extension.api.AssertionSpiServiceLocator;
 import io.toolisticon.cute.matchers.CoreGeneratedFileObjectMatchers;
 import io.toolisticon.fluapigen.api.FluentApi;
 import io.toolisticon.fluapigen.api.FluentApiBackingBean;
@@ -18,6 +19,7 @@ import io.toolisticon.fluapigen.validation.api.NotNull;
 
 import javax.annotation.processing.Processor;
 import javax.lang.model.element.Element;
+import javax.tools.Diagnostic;
 import javax.tools.FileObject;
 import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
@@ -30,6 +32,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * This class defines the fluent api used to set up and execute black box and unit compile tests.
@@ -297,13 +300,13 @@ public class CuteApi {
          * @param processor the annotation processor to use. null values are prohibited and will lead to a {@link io.toolisticon.fluapigen.validation.api.ValidatorException}.
          * @return the next fluent interface
          */
-        BlackBoxTestSourceFilesInterface processor(@FluentApiBackingBeanMapping(value = "processors")  @NotNull Class<? extends Processor> processor);
+        BlackBoxTestSourceFilesInterface processor(@FluentApiBackingBeanMapping(value = "processors") @NotNull Class<? extends Processor> processor);
 
 
         /**
          * Allows you to add annotation processors used at black-box tests compilation.
          * By passing no processors compilation will be done without using processors.
-         *
+         * <p>
          * Unfortunately this method will produce a warning of unsafe usage of varargs and can not be silenced on api side via the SafeVarargs annotation since it is defined in an interface.
          * Please suppress the warning or use the processors method that takes a Collection as input parameter.
          *
@@ -311,7 +314,7 @@ public class CuteApi {
          * @return the next fluent interface
          */
         @Deprecated
-        BlackBoxTestSourceFilesInterface processors(@FluentApiBackingBeanMapping(value = "processors")  @NotNull Class<? extends Processor>... processors);
+        BlackBoxTestSourceFilesInterface processors(@FluentApiBackingBeanMapping(value = "processors") @NotNull Class<? extends Processor>... processors);
 
         /**
          * Allows you to add annotation processors used at black-box tests compilation.
@@ -319,7 +322,7 @@ public class CuteApi {
          * @param processors the annotation processors to use. Passing an empty collection will compile the source files without using processors, null values are prohibited and will lead to a {@link io.toolisticon.fluapigen.validation.api.ValidatorException}.
          * @return the next fluent interface
          */
-        BlackBoxTestSourceFilesInterface processors(@FluentApiBackingBeanMapping(value = "processors")  @NotNull Collection<Class<? extends Processor>> processors);
+        BlackBoxTestSourceFilesInterface processors(@FluentApiBackingBeanMapping(value = "processors") @NotNull Collection<Class<? extends Processor>> processors);
 
         /**
          * More obvious method not to use processors during compilation.
@@ -892,6 +895,7 @@ public class CuteApi {
          * Be aware that the binary class names must be used to get classes ( '$' delimiter for inner types,...)
          * Test rely heavily on reflection api.
          * So please consider integration test projects for testing generated code if your code doesn't implement a precompiled interface.
+         *
          * @param generatedClassesTest the test to execute
          * @return the next interface
          */
@@ -1113,6 +1117,7 @@ public class CuteApi {
          * Be aware that the binary class names must be used to get classes ( '$' delimiter for inner types,...)
          * Test rely heavily on reflection api.
          * So please consider integration test projects for testing generated code if your code doesn't implement a precompiled interface.
+         *
          * @param generatedClassesTest the test to execute
          * @return the next interface
          */
@@ -1222,14 +1227,9 @@ public class CuteApi {
     public static class ExecuteTestCommand {
         static DoManualAssertions myCommand(CompilerTestBB backingBean) {
 
-            new CompileTest(backingBean).executeTest();
+            CompilationResult compilationResult = new CompileTest(backingBean).executeTest();
 
-            return new DoManualAssertionsImpl(new CompilerOutcome() {
-                @Override
-                public int hashCode() {
-                    return super.hashCode();
-                }
-            });
+            return new DoManualAssertionsImpl(compilationResult, backingBean);
 
         }
     }
@@ -1238,9 +1238,60 @@ public class CuteApi {
     // Endgame
     // --------------------------------------------------------------------
 
-    public interface CompilerOutcome {
+    public static class CompilationOutcome {
+
+        private final CompilationResult compilationResult;
+
+        CompilationOutcome(CompilationResult compilationResult) {
+            this.compilationResult = compilationResult;
+        }
+
+        public boolean compilationWasSuccessful () {
+            return this.compilationResult.getCompilationSucceeded();
+        }
+        
+        public List<CompilerMessage> getCompilerMessages() {
+            return this.compilationResult.getDiagnostics().getDiagnostics().stream().map(CompilerMessage::new).collect(Collectors.toList());
+        }
+
 
     }
+
+    public static class CompilerMessage {
+
+        Diagnostic<? extends JavaFileObject> diagnostic;
+
+        CompilerMessage(Diagnostic<? extends JavaFileObject> diagnostic) {
+            this.diagnostic = diagnostic;
+        }
+
+        public Diagnostic.Kind getKind() {
+            return diagnostic.getKind();
+        }
+
+        public String getMessage() {
+            return getMessage(Locale.ENGLISH);
+        }
+
+        public String getMessage(Locale locale) {
+            return diagnostic.getMessage(locale);
+        }
+
+        public long getColumnNumber() {
+            return diagnostic.getColumnNumber();
+        }
+
+        public long getLineNumber() {
+            return diagnostic.getLineNumber();
+        }
+
+        public String getSource() {
+            return ((FileObject) diagnostic.getSource()).getName();
+        }
+
+
+    }
+
 
     public interface DoManualAssertions {
 
@@ -1249,33 +1300,35 @@ public class CuteApi {
     }
 
     public interface ManualAssertion {
-        void executeManualAssertion (CompilerOutcome compilerOutcome);
+        void executeManualAssertion(CompilationOutcome compilationOutcome);
     }
 
-    private static class DoManualAssertionsImpl implements DoManualAssertions{
+    private static class DoManualAssertionsImpl implements DoManualAssertions {
 
-        private final CompilerOutcome compilerOutcome;
+        private final CompilationResult compilationResult;
 
-        public DoManualAssertionsImpl(CompilerOutcome compilerOutcome) {
-            this.compilerOutcome = compilerOutcome;
+        private final CuteApi.CompilerTestBB compileTestConfiguration;
+
+        public DoManualAssertionsImpl(CompilationResult compilationResult, CuteApi.CompilerTestBB compileTestConfiguration) {
+            this.compilationResult = compilationResult;
+            this.compileTestConfiguration = compileTestConfiguration;
         }
 
         @Override
         public void doManualAssertions(ManualAssertion manualAssertion) {
 
             try {
-                manualAssertion.executeManualAssertion(this.compilerOutcome);
+                // TODO: must provide compiler outcome
+                manualAssertion.executeManualAssertion(new CompilationOutcome(compilationResult));
             } catch (AssertionError e) {
                 // TODO : Trigger debug output then rethrow assertionError
+                FailingAssertionException failingAssertionException = new FailingAssertionException(e.getMessage(), e.getCause());
+                AssertionSpiServiceLocator.locate().fail(e.getMessage() + "\n" + DebugOutputGenerator.getDebugOutput(compilationResult, compileTestConfiguration, failingAssertionException));
                 throw e;
             }
 
         }
     }
-
-
-
-
 
 
 }
