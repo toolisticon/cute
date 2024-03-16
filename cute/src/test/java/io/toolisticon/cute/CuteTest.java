@@ -69,6 +69,8 @@ public class CuteTest {
                             f.getContent().toString().contains("TATA")
                     ).count() == 1);
                     MatcherAssert.assertThat("Should be true", true);
+
+                    MatcherAssert.assertThat("Should find file",e.getFileManager().getGeneratedResourceFile("/root/Jupp.txt").isPresent());
                 });
 
 

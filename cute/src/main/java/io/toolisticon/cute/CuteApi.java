@@ -27,12 +27,14 @@ import javax.tools.JavaFileObject;
 import javax.tools.StandardLocation;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -1256,6 +1258,14 @@ public class CuteApi {
             return this.compilationResult.getDiagnostics().getDiagnostics().stream().map(CompilerMessage::new).collect(Collectors.toList());
         }
 
+        public FileManager getFileManager () {
+            return new FileManager(compilationResult.getCompileTestFileManager());
+        }
+
+        public CuteClassLoader getClassLoader() {
+            return new CuteClassLoaderImpl(compilationResult.getCompileTestFileManager());
+        }
+
         public List<FileObjectWrapper> getFileObjects() {
            return this.compilationResult.getCompileTestFileManager().getGeneratedFileObjects().stream().map(FileObjectWrapper::new).collect(Collectors.toList());
         }
@@ -1302,12 +1312,55 @@ public class CuteApi {
 
     }
 
-    public static class JavaFileObjectWrapper {
-        final JavaFileObject javaFileObject;
+    public static class FileManager {
 
-        public JavaFileObjectWrapper(JavaFileObject javaFileObject) {
+        private final CompileTestFileManager compileTestFileManager;
+
+        public FileManager(CompileTestFileManager compileTestFileManager) {
+            this.compileTestFileManager = compileTestFileManager;
+        }
+
+        public Optional<JavaFileObjectWrapper> getGeneratedSourceFile(String className){
+
+            for (JavaFileObjectWrapper javaFileObjectWrapper : getJavaFileObjects().stream().filter(e -> (e.getKind() == JavaFileObject.Kind.SOURCE)).collect(Collectors.toList())) {
+                if (className.equals(javaFileObjectWrapper.getClassName())) {
+                    return Optional.of(javaFileObjectWrapper);
+                }
+            }
+
+            return Optional.empty();
+        }
+
+        public Optional<FileObjectWrapper> getGeneratedResourceFile(String path){
+
+            for (FileObjectWrapper fileObjectWrapper : getFileObjects()) {
+                if (path.equals(fileObjectWrapper.getName())) {
+                    return Optional.of(fileObjectWrapper);
+                }
+            }
+
+            return Optional.empty();
+        }
+
+        public List<FileObjectWrapper> getFileObjects() {
+            return compileTestFileManager.getGeneratedFileObjects().stream().map(FileObjectWrapper::new).collect(Collectors.toList());
+        }
+
+        public List<JavaFileObjectWrapper> getJavaFileObjects() {
+            return compileTestFileManager.getGeneratedJavaFileObjects().stream().map(JavaFileObjectWrapper::new).collect(Collectors.toList());
+        }
+    }
+
+    public static class JavaFileObjectWrapper {
+        final CompileTestFileManager.InMemoryOutputJavaFileObject javaFileObject;
+
+        public JavaFileObjectWrapper(CompileTestFileManager.InMemoryOutputJavaFileObject javaFileObject) {
             this.javaFileObject = javaFileObject;
 
+        }
+
+        public String getClassName() {
+            return javaFileObject.getClassName();
         }
 
         public JavaFileObject.Kind getKind(){
@@ -1318,16 +1371,20 @@ public class CuteApi {
             return javaFileObject.getNestingKind();
         }
 
+        public JavaFileManager.Location getLocation() {
+            return javaFileObject.getLocation();
+        }
+
         public String getName(){
             return javaFileObject.getName();
         }
 
+        public byte[] getContentAsByteArray() {
+            return javaFileObject.getContent();
+        }
+
         public String getContent(){
-            try {
-                return javaFileObject.getCharContent(true).toString();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+            return javaFileObject.getCharContent(true).toString();
         }
 
 
@@ -1335,22 +1392,34 @@ public class CuteApi {
     }
 
     public static class FileObjectWrapper {
-        final FileObject fileObject;
+        final CompileTestFileManager.InMemoryOutputFileObject fileObject;
 
-        public FileObjectWrapper(FileObject fileObject) {
+        public FileObjectWrapper(CompileTestFileManager.InMemoryOutputFileObject fileObject) {
             this.fileObject = fileObject;
+        }
+
+        public JavaFileManager.Location getLocation() {
+            return fileObject.getLocation();
+        }
+
+        public String getPackageName() {
+            return fileObject.getPackageName();
+        }
+
+        public String getRelativeName() {
+            return fileObject.getRelativeName();
         }
 
         public String getName(){
             return fileObject.getName();
         }
 
+        public byte[] getContentAsByteArray() {
+            return fileObject.getContent();
+        }
+
         public String getContent(){
-            try {
-                return fileObject.getCharContent(true).toString();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+            return fileObject.getCharContent(true).toString();
         }
 
 
