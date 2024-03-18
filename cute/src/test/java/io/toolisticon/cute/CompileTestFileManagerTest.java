@@ -1,6 +1,5 @@
 package io.toolisticon.cute;
 
-import io.toolisticon.cute.CompileTestFileManager;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
 import org.junit.Test;
@@ -62,7 +61,7 @@ public class CompileTestFileManagerTest {
     public void test_InMemoryOutputJavaFileObject_setContent_nullValued() throws IOException, URISyntaxException {
 
         CompileTestFileManager compileTestFileManager = new CompileTestFileManager(standardJavaFileManager);
-        CompileTestFileManager.InMemoryOutputJavaFileObject unit = new CompileTestFileManager.InMemoryOutputJavaFileObject(new URI("string://abc"), JavaFileObject.Kind.OTHER);
+        CompileTestFileManager.AbstractInMemoryOutputFileObject unit = new CompileTestFileManager.InMemoryOutputFileObject(StandardLocation.CLASS_OUTPUT,"io.toolisticon.cute","abc");
 
         unit.setContent(null);
 
@@ -74,7 +73,7 @@ public class CompileTestFileManagerTest {
     public void test_InMemoryOutputJavaFileObject_setContent() throws IOException, URISyntaxException {
 
         CompileTestFileManager compileTestFileManager = new CompileTestFileManager(standardJavaFileManager);
-        CompileTestFileManager.InMemoryOutputJavaFileObject unit = new CompileTestFileManager.InMemoryOutputJavaFileObject(new URI("string://abc"), JavaFileObject.Kind.OTHER);
+        CompileTestFileManager.AbstractInMemoryOutputFileObject unit = new CompileTestFileManager.InMemoryOutputFileObject(StandardLocation.CLASS_OUTPUT,"io.toolisticon.cute","abc");
 
         unit.setContent("ABC".getBytes());
 
@@ -86,7 +85,7 @@ public class CompileTestFileManagerTest {
     public void test_InMemoryOutputJavaFileObject_openReader() throws IOException, URISyntaxException {
 
         CompileTestFileManager compileTestFileManager = new CompileTestFileManager(standardJavaFileManager);
-        CompileTestFileManager.InMemoryOutputJavaFileObject unit = new CompileTestFileManager.InMemoryOutputJavaFileObject(new URI("string://abc"), JavaFileObject.Kind.OTHER);
+        CompileTestFileManager.AbstractInMemoryOutputFileObject unit = new CompileTestFileManager.InMemoryOutputFileObject(StandardLocation.CLASS_OUTPUT,"io.toolisticon.cute","abc");
 
         unit.setContent("ABC".getBytes());
 

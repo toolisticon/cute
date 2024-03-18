@@ -88,7 +88,7 @@ Black-Box-Compilation test allow you to define testcase source files and to appl
 ```java
  Cute.blackBoxTest()
     .given()
-        .processors(YourProcessorUnderTest.class)
+        .processor(YourProcessorUnderTest.class)
         .andSourceFiles("/exampletestcase/Testcase1.java")
     .whenCompiled()
     .thenExpectThat()
