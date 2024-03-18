@@ -1,6 +1,7 @@
 package io.toolisticon.cute;
 
 import io.toolisticon.cute.common.SimpleTestProcessor1;
+import io.toolisticon.cute.common.SimpleTestProcessor1Interface;
 import io.toolisticon.cute.testcases.SimpleTestInterface;
 import io.toolisticon.fluapigen.validation.api.ValidatorException;
 import org.hamcrest.MatcherAssert;
@@ -22,11 +23,13 @@ import java.io.Writer;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Optional;
 
 /**
  * Unit tests for {@link Cute}.
  */
 public class CuteTest {
+
 
     @Test
     public void test_UnitTest_successfulCompilation_build() throws IOException {
@@ -63,16 +66,43 @@ public class CuteTest {
                 .andThat().compilerMessage().ofKindMandatoryWarning().contains("MANDATORY_WARNING")
                 .andThat().compilerMessage().ofKindNote().contains("NOTE")
                 .executeTest().executeCustomAssertions(e -> {
+                    MatcherAssert.assertThat("Compilation should be successful", e.compilationWasSuccessful());
                     MatcherAssert.assertThat("Expected to find warning message that contains WARNING", !(e.getCompilerMessages().stream().filter(f -> f.getKind() == Diagnostic.Kind.WARNING).filter(f -> f.getMessage().contains("WARNING")).count() == 0));
-                    MatcherAssert.assertThat("Should not find generated SOURCE FILES", e.getJavaFileObjects().stream().filter(f -> f.getKind() == JavaFileObject.Kind.SOURCE).count() == 0);
-                    MatcherAssert.assertThat("Should  find generated RESOURCE file that contains TATA", e.getFileObjects().stream().filter(f -> f.getName().equals("/root/Jupp.txt")).filter(f ->
+                    MatcherAssert.assertThat("Should not find generated SOURCE FILES", e.getFileManager().getJavaFileObjects().stream().filter(f -> f.getKind() == JavaFileObject.Kind.SOURCE).count() == 0);
+                    MatcherAssert.assertThat("Should  find generated RESOURCE file that contains TATA", e.getFileManager().getFileObjects().stream().filter(f -> f.getName().equals("/root/Jupp.txt")).filter(f ->
                             f.getContent().toString().contains("TATA")
                     ).count() == 1);
                     MatcherAssert.assertThat("Should be true", true);
 
-                    MatcherAssert.assertThat("Should find file",e.getFileManager().getGeneratedResourceFile("/root/Jupp.txt").isPresent());
+                    MatcherAssert.assertThat("Should find file", e.getFileManager().getGeneratedResourceFile("/root/Jupp.txt").isPresent());
+                    MatcherAssert.assertThat(e.getFileManager().getGeneratedResourceFile("/root/Jupp.txt").get().getContent(), Matchers.is("TATA!"));
+                    MatcherAssert.assertThat(new String(e.getFileManager().getGeneratedResourceFile("/root/Jupp.txt").get().getContentAsByteArray()), Matchers.is("TATA!"));
                 });
 
+
+    }
+
+    @Test
+    public void test_testGenerationOfClassAndCustomAssertions() {
+
+        Cute.blackBoxTest().given().processor(SimpleTestProcessor1.class)
+                .andSourceFiles("/compiletests/generatedclasstest/TestClass.java")
+                .whenCompiled().thenExpectThat().compilationSucceeds()
+                .executeTest()
+                .executeCustomAssertions(
+                        e -> {
+
+                            MatcherAssert.assertThat("Should find source file", e.getFileManager().getGeneratedSourceFile("io.toolisticon.cute.testhelper.compiletest.TestClassGeneratedClass").isPresent());
+                            MatcherAssert.assertThat(e.getFileManager().getJavaFileObjects(), Matchers.hasSize(3));
+
+                            Class<?> generatedClass = e.getClassLoader().getClass("io.toolisticon.cute.testhelper.compiletest.TestClassGeneratedClass");
+                            MatcherAssert.assertThat("Class should exist", generatedClass != null);
+
+                            SimpleTestProcessor1Interface instance = (SimpleTestProcessor1Interface) generatedClass.getDeclaredConstructor().newInstance();
+                            MatcherAssert.assertThat(instance.getOutput(), Matchers.is("WORKS!!!"));
+
+                        }
+                );
 
     }
 
