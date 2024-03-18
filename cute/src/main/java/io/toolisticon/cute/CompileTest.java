@@ -44,7 +44,7 @@ class CompileTest {
     /**
      * The compile-test execution main method.
      */
-    public void executeTest() {
+    CompilationResult executeTest() {
 
         CompilationResult compilationResult = null;
 
@@ -193,6 +193,7 @@ class CompileTest {
 
             }
 
+
         } catch (FailingAssertionException e) {
 
             // now trigger failing assertion, but also enrich message with debug output
@@ -216,7 +217,7 @@ class CompileTest {
 
 
         }
-
+        return compilationResult;
     }
 
 
