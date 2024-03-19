@@ -98,6 +98,10 @@ public class CuteTest {
                             Class<?> generatedClass = e.getClassLoader().getClass("io.toolisticon.cute.testhelper.compiletest.TestClassGeneratedClass");
                             MatcherAssert.assertThat("Class should exist", generatedClass != null);
 
+                            Class<?> compiledClass = e.getClassLoader().getClass("io.toolisticon.cute.testhelper.compiletest.TestClass");
+                            MatcherAssert.assertThat("Class should exist", compiledClass != null);
+
+
                             SimpleTestProcessor1Interface instance = (SimpleTestProcessor1Interface) generatedClass.getDeclaredConstructor().newInstance();
                             MatcherAssert.assertThat(instance.getOutput(), Matchers.is("WORKS!!!"));
 
