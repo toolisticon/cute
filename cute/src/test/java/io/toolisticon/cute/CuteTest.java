@@ -1184,4 +1184,19 @@ public class CuteTest {
                 .exceptionIsThrown(IllegalStateException.class)
                 .executeTest();
     }
+
+    @Test
+    public void blackBoxTest_checkForExpectedException_failure(){
+        try {
+            Cute.blackBoxTest().given().processor(ExceptionThrowerProcessor.class)
+                    .andSourceFiles("/compiletests/exceptionthrown/ExceptionThrownUsecase.java")
+                    .whenCompiled()
+                    .thenExpectThat()
+                    .exceptionIsThrown(IllegalArgumentException.class)
+                    .executeTest();
+            throw new AssertionError("FAIL");
+        } catch (AssertionError e) {
+            MatcherAssert.assertThat(e.getMessage(), Matchers.containsString("WHOOP"));
+        }
+    }
 }
