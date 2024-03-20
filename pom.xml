@@ -4,7 +4,7 @@
 
     <groupId>io.toolisticon.cute</groupId>
     <artifactId>cute-parent</artifactId>
-    <version>1.3.0</version>
+    <version>1.3.1</version>
     <packaging>pom</packaging>
 
     <name>cute-parent</name>
@@ -55,11 +55,6 @@
     </licenses>
 
     <inceptionYear>2018</inceptionYear>
-
-    <prerequisites>
-        <maven>3.6.0</maven>
-    </prerequisites>
-
 
     <issueManagement>
         <url>https://github.com/toolisticon/cute/issues</url>

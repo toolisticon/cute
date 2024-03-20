@@ -25,10 +25,8 @@ import javax.tools.FileObject;
 import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardLocation;
-import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -262,7 +260,7 @@ public class CuteApi {
          * This method can be used to start a black-box test (aka compile-test).
          * Black-box test are compiling some source files with an annotation processor and can check the compilation's outcome.
          *
-         * @return
+         * @return the next fluent interface
          */
         @FluentApiImplicitValue(id = "testType", value = "BLACK_BOX")
         BlackBoxTestRootInterface blackBoxTest();
@@ -361,7 +359,7 @@ public class CuteApi {
          */
         // TODO: A validation if passed resource locations are correct would be good
         default BlackBoxTestFinalGivenInterface andSourceFiles(String... resources) {
-            return andSourceFiles(Arrays.stream(resources).map(e -> JavaFileObjectUtils.readFromResource(e)).toArray(JavaFileObject[]::new));
+            return andSourceFiles(Arrays.stream(resources).map(JavaFileObjectUtils::readFromResource).toArray(JavaFileObject[]::new));
         }
 
         /**
@@ -397,7 +395,7 @@ public class CuteApi {
          * @return the next fluent interface
          */
         default BlackBoxTestFinalGivenInterface andSourceFiles(@NotNull String... resources) {
-            return andSourceFiles(Arrays.stream(resources).map(e -> JavaFileObjectUtils.readFromResource(e)).toArray(String[]::new));
+            return andSourceFiles(Arrays.stream(resources).map(JavaFileObjectUtils::readFromResource).toArray(JavaFileObject[]::new));
         }
 
         /**
@@ -603,7 +601,7 @@ public class CuteApi {
          * @return the next fluent interface
          */
         default <ELEMENT_TYPE extends Element> PassInElementAndProcessorInterface<ELEMENT_TYPE> fromSourceString(String className, String sourceString) {
-            return this.<ELEMENT_TYPE>fromJavaFileObject(JavaFileObjectUtils.readFromString(className, sourceString));
+            return this.fromJavaFileObject(JavaFileObjectUtils.readFromString(className, sourceString));
         }
 
         /**
@@ -617,7 +615,7 @@ public class CuteApi {
          */
 
         default <ELEMENT_TYPE extends Element> PassInElementAndProcessorInterface<ELEMENT_TYPE> fromSourceFile(String resourceName) {
-            return this.<ELEMENT_TYPE>fromJavaFileObject(JavaFileObjectUtils.readFromResource(resourceName));
+            return this.fromJavaFileObject(JavaFileObjectUtils.readFromResource(resourceName));
         }
 
         /**
@@ -717,7 +715,7 @@ public class CuteApi {
          * @return the next fluent interface
          */
         default <ELEMENT_TYPE extends Element> UnitTestWhenWithPassedInElementAndProcessorInterface<ELEMENT_TYPE, PROCESSOR_CLASS> fromSourceString(String className, String sourceString) {
-            return this.<ELEMENT_TYPE>fromJavaFileObject(JavaFileObjectUtils.readFromString(className, sourceString));
+            return this.fromJavaFileObject(JavaFileObjectUtils.readFromString(className, sourceString));
         }
 
         /**
@@ -730,7 +728,7 @@ public class CuteApi {
          * @return the next fluent interface
          */
         default <ELEMENT_TYPE extends Element> UnitTestWhenWithPassedInElementAndProcessorInterface<ELEMENT_TYPE, PROCESSOR_CLASS> fromSourceFile(String resourceName) {
-            return this.<ELEMENT_TYPE>fromJavaFileObject(JavaFileObjectUtils.readFromResource(resourceName));
+            return this.fromJavaFileObject(JavaFileObjectUtils.readFromResource(resourceName));
         }
 
         /**
@@ -814,7 +812,7 @@ public class CuteApi {
     }
 
     @FluentApiInterface(CompilerTestBB.class)
-    public interface BlackBoxTestInterface<EXPECTED extends BlackBoxTestOutcomeInterface> {
+    public interface BlackBoxTestInterface {
 
         /**
          * Traverse to section to define checks
@@ -850,24 +848,28 @@ public class CuteApi {
          * Expect the compilation to fail.
          * This means that either a (generated) source file couldn't be compiled ot that an error compiler message has been written.
          *
-         * @return the next fluent imnterface
+         * @return the next fluent interface
          */
         @FluentApiImplicitValue(id = "compilationSucceeded", value = "false")
         CompilerTestExpectAndThatInterface compilationFails();
+
+        /**
+         * Expect an Exception to be thrown.
+         * This usually makes sense for unit tests rather than black box tests.
+         *
+         * Please keep in mind that it's discouraged for processors to throw exceptions.
+         * Please catch them in your processor and convert them to compiler messages and maybe trigger a compiler error if needed.
+         *
+         * @param exception The exception to check for
+         * @return the next fluent interface
+         */
+        CompilerTestExpectAndThatInterface exceptionIsThrown(@FluentApiBackingBeanMapping(value = "exceptionIsThrown") Class<? extends Exception> exception);
 
 
     }
 
     @FluentApiInterface(CompilerTestBB.class)
     public interface UnitTestOutcomeInterface extends BlackBoxTestOutcomeInterface {
-
-        /**
-         * Expect an Exception to be thrown
-         *
-         * @param exception The exception to check for
-         * @return the next fluent interface
-         */
-        CompilerTestExpectAndThatInterface exceptionIsThrown(@FluentApiBackingBeanMapping(value = "exceptionIsThrown") Class<? extends Exception> exception);
 
 
     }
@@ -896,7 +898,7 @@ public class CuteApi {
 
         /**
          * Sometimes it can become handy to even test the generated code.
-         * This method can used to do those tests. Compiled classes are provided via the {@link GeneratedClassesTest} interface.
+         * This method can be used to do those tests. Compiled classes are provided via the {@link GeneratedClassesTest} interface.
          * Be aware that the binary class names must be used to get classes ( '$' delimiter for inner types,...)
          * Test rely heavily on reflection api.
          * So please consider integration test projects for testing generated code if your code doesn't implement a precompiled interface.
@@ -1260,6 +1262,7 @@ public class CuteApi {
 
         /**
          * Checks if compilation was successful.
+         *
          * @return true if compilation was successful, otherwise false;
          */
         public boolean compilationWasSuccessful() {
@@ -1268,6 +1271,7 @@ public class CuteApi {
 
         /**
          * Gets a list of all compiler messages.
+         *
          * @return A list of all compiler messages or an empty list if there are none.
          */
         public List<CompilerMessage> getCompilerMessages() {
@@ -1276,14 +1280,16 @@ public class CuteApi {
 
         /**
          * Provides access to the FileManager.
+         *
          * @return the FileManager
          */
-        public FileManager getFileManager () {
+        public FileManager getFileManager() {
             return new FileManager(compilationResult.getCompileTestFileManager());
         }
 
         /**
          * Provides access to the ClassLoader of generated Classes.
+         *
          * @return the ClassLoader for generated Classes
          */
         public CuteClassLoader getClassLoader() {
@@ -1306,6 +1312,7 @@ public class CuteApi {
 
         /**
          * Gets the kind of the compiler message.
+         *
          * @return the kind
          */
         public Diagnostic.Kind getKind() {
@@ -1315,6 +1322,7 @@ public class CuteApi {
         /**
          * Gets the compiler message string.
          * Uses Locale.English per default.
+         *
          * @return the message string
          */
         public String getMessage() {
@@ -1323,6 +1331,7 @@ public class CuteApi {
 
         /**
          * Gets the compiler message string.
+         *
          * @param locale the locale to use
          * @return the message string
          */
@@ -1332,6 +1341,7 @@ public class CuteApi {
 
         /**
          * Allows checking for column number the compiler message is related to.
+         *
          * @return the column number of the compiler message
          */
         public long getColumnNumber() {
@@ -1340,6 +1350,7 @@ public class CuteApi {
 
         /**
          * Allows checking for line number the compiler message is related to.
+         *
          * @return the line number of the compiler message.
          */
         public long getLineNumber() {
@@ -1348,10 +1359,11 @@ public class CuteApi {
 
         /**
          * Gets the source file name the compiler message is related with.
+         *
          * @return The source file name
          */
         public String getSource() {
-            return ((FileObject) diagnostic.getSource()).getName();
+            return diagnostic.getSource().getName();
         }
 
 
@@ -1371,10 +1383,11 @@ public class CuteApi {
 
         /**
          * Gets specific generated source file by className.
+         *
          * @param className the fully qualified class name to look for
          * @return An Optional containing the source file or just an empty Optional if the source file can't be found.
          */
-        public Optional<JavaFileObjectWrapper> getGeneratedSourceFile(String className){
+        public Optional<JavaFileObjectWrapper> getGeneratedSourceFile(String className) {
 
             for (JavaFileObjectWrapper javaFileObjectWrapper : getJavaFileObjects().stream().filter(e -> (e.getKind() == JavaFileObject.Kind.SOURCE)).collect(Collectors.toList())) {
                 if (className.equals(javaFileObjectWrapper.getClassName())) {
@@ -1387,10 +1400,11 @@ public class CuteApi {
 
         /**
          * Gets specific generated resource file by path.
+         *
          * @param path the path of the resource file.
          * @return An Optional containing the resource file or just an empty Optional if the resource file can't be found.
          */
-        public Optional<FileObjectWrapper> getGeneratedResourceFile(String path){
+        public Optional<FileObjectWrapper> getGeneratedResourceFile(String path) {
 
             for (FileObjectWrapper fileObjectWrapper : getFileObjects()) {
                 if (path.equals(fileObjectWrapper.getName())) {
@@ -1403,6 +1417,7 @@ public class CuteApi {
 
         /**
          * Gets all Resource files (FileObjects).
+         *
          * @return All resource files
          */
         public List<FileObjectWrapper> getFileObjects() {
@@ -1411,6 +1426,7 @@ public class CuteApi {
 
         /**
          * Gets all java related source or class files(JavaFileObjects).
+         *
          * @return All java source and class files
          */
 
@@ -1427,12 +1443,13 @@ public class CuteApi {
             this.fileObject = fileObject;
         }
 
-        public String getName(){
+        public String getName() {
             return fileObject.getName();
         }
 
         /**
          * Gets the content as a byte array.
+         *
          * @return the content as a byte array
          */
         public byte[] getContentAsByteArray() {
@@ -1442,9 +1459,10 @@ public class CuteApi {
         /**
          * Gets the content as a string.
          * Encoding errors will be ignored
+         *
          * @return the content as a string
          */
-        public String getContent(){
+        public String getContent() {
             return fileObject.getCharContent(true).toString();
         }
 
@@ -1452,11 +1470,10 @@ public class CuteApi {
     }
 
 
-
     /**
      * Provides read only access to JavaFileObjects.
      */
-    public static class JavaFileObjectWrapper extends AbstractFileObjectWrapper{
+    public static class JavaFileObjectWrapper extends AbstractFileObjectWrapper {
         final CompileTestFileManager.InMemoryOutputJavaFileObject javaFileObject;
 
         JavaFileObjectWrapper(CompileTestFileManager.InMemoryOutputJavaFileObject javaFileObject) {
@@ -1466,6 +1483,7 @@ public class CuteApi {
 
         /**
          * Gets the fully qualified class name.
+         *
          * @return the fully qualified class name
          */
         public String getClassName() {
@@ -1474,22 +1492,25 @@ public class CuteApi {
 
         /**
          * Gets the kind of the JavaFileObject.
+         *
          * @return the kind of the JavaFileObject
          */
-        public JavaFileObject.Kind getKind(){
+        public JavaFileObject.Kind getKind() {
             return javaFileObject.getKind();
         }
 
         /**
          * Gets the nesting kind of the JavaFileObject.
-         * @return  the nesting kind of the JavaFileObject.
+         *
+         * @return the nesting kind of the JavaFileObject.
          */
-        public NestingKind getNestingKind(){
+        public NestingKind getNestingKind() {
             return javaFileObject.getNestingKind();
         }
 
         /**
          * Gets the location to which the JavaFileObject was written to.
+         *
          * @return the location
          */
         public JavaFileManager.Location getLocation() {
@@ -1497,11 +1518,9 @@ public class CuteApi {
         }
 
 
-
-
     }
 
-    public static class FileObjectWrapper extends AbstractFileObjectWrapper{
+    public static class FileObjectWrapper extends AbstractFileObjectWrapper {
         final CompileTestFileManager.InMemoryOutputFileObject fileObject;
 
         public FileObjectWrapper(CompileTestFileManager.InMemoryOutputFileObject fileObject) {
@@ -1511,6 +1530,7 @@ public class CuteApi {
 
         /**
          * Gets the location to which the JavaFileObject was written to.
+         *
          * @return the location
          */
         public JavaFileManager.Location getLocation() {
@@ -1519,6 +1539,7 @@ public class CuteApi {
 
         /**
          * The package name of file object
+         *
          * @return the package name
          */
         public String getPackageName() {
@@ -1527,6 +1548,7 @@ public class CuteApi {
 
         /**
          * The  name of the file relative to the package name,
+         *
          * @return name of the file
          */
         public String getRelativeName() {
@@ -1544,6 +1566,7 @@ public class CuteApi {
 
         /**
          * This method can be used to execute custom assertions.
+         *
          * @param customAssertion the custom assertions to do (use lambda!)
          */
         void executeCustomAssertions(CustomAssertion customAssertion);
@@ -1560,6 +1583,7 @@ public class CuteApi {
     public interface CustomAssertion {
         /**
          * The method used to provide custom assertions. Usually this will be used via lambda.
+         *
          * @param compilationOutcome the compiler outcome.
          */
         void executeCustomAssertions(CompilationOutcome compilationOutcome) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException, ClassNotFoundException;
