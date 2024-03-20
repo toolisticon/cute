@@ -1,5 +1,6 @@
 package io.toolisticon.cute;
 
+import io.toolisticon.cute.common.ExceptionThrowerProcessor;
 import io.toolisticon.cute.common.SimpleTestProcessor1;
 import io.toolisticon.cute.common.SimpleTestProcessor1Interface;
 import io.toolisticon.cute.testcases.SimpleTestInterface;
@@ -1171,6 +1172,16 @@ public class CuteTest {
 
                     }
                 })
+                .executeTest();
+    }
+
+    @Test
+    public void blackBoxTest_checkForExpectedException(){
+        Cute.blackBoxTest().given().processor(ExceptionThrowerProcessor.class)
+                .andSourceFiles("/compiletests/exceptionthrown/ExceptionThrownUsecase.java")
+                .whenCompiled()
+                .thenExpectThat()
+                .exceptionIsThrown(IllegalStateException.class)
                 .executeTest();
     }
 }

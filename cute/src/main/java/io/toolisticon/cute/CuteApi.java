@@ -853,20 +853,23 @@ public class CuteApi {
         @FluentApiImplicitValue(id = "compilationSucceeded", value = "false")
         CompilerTestExpectAndThatInterface compilationFails();
 
-
-    }
-
-    @FluentApiInterface(CompilerTestBB.class)
-    public interface UnitTestOutcomeInterface extends BlackBoxTestOutcomeInterface {
-
         /**
          * Expect an Exception to be thrown.
-         * This usually makes sense
+         * This usually makes sense for unit tests rather than black box tests.
+         *
+         * Please keep in mind that it's discouraged for processors to throw exceptions.
+         * Please catch them in your processor and convert them to compiler messages and maybe trigger a compiler error if needed.
          *
          * @param exception The exception to check for
          * @return the next fluent interface
          */
         CompilerTestExpectAndThatInterface exceptionIsThrown(@FluentApiBackingBeanMapping(value = "exceptionIsThrown") Class<? extends Exception> exception);
+
+
+    }
+
+    @FluentApiInterface(CompilerTestBB.class)
+    public interface UnitTestOutcomeInterface extends BlackBoxTestOutcomeInterface {
 
 
     }
