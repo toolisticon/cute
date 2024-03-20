@@ -56,11 +56,6 @@
 
     <inceptionYear>2018</inceptionYear>
 
-    <prerequisites>
-        <maven>3.6.0</maven>
-    </prerequisites>
-
-
     <issueManagement>
         <url>https://github.com/toolisticon/cute/issues</url>
         <system>GitHub Issues</system>

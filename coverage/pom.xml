@@ -30,11 +30,6 @@
         </dependency>
         <dependency>
             <groupId>io.toolisticon.cute</groupId>
-            <artifactId>extension-junit4</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.toolisticon.cute</groupId>
             <artifactId>extension-testng</artifactId>
             <version>${project.version}</version>
         </dependency>
