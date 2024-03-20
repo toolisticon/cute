@@ -17,6 +17,7 @@ This compile testing framework allows you to to do this and additionally support
 
 - allows compile time tests supporting the most relevant test frameworks (junit4, junit5, testng, ...)
 - simple, but powerful fluent api (immutable)
+- additionally provides compilation outcome to do custom assertions with your favorite unit test frameworks.
 - supports all Java versions >=8 (including support for java 9 modules)
 - Enables you to debug annotation processors during compilation tests
 - provides useful information for analysis of failing tests:
@@ -106,7 +107,12 @@ Black-Box-Compilation test allow you to define testcase source files and to appl
                 CuteApi.ExpectedFileObjectMatcherKind.BINARY,
                 JavaFileObjectUtils.readFromString("package your.test.package;\npublic class GeneratedFile{}")
             )
-        .executeTest();
+        .executeTest()
+        .executeCustomAssertions(e -> {
+            // You can do all checks as custom assertions as well :)
+            MatcherAssert.assertThat("Compilation should be successful", e.compilationWasSuccessful());
+            // ...
+        });
 ```
 
 Additionally, to the explicitly configured assertions it implicitly checks if your annotation processor has been applied and triggers an AssertionError if not.
