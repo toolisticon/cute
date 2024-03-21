@@ -153,14 +153,14 @@ public class CuteApi {
         @FluentApiBackingBeanField("searchString")
         List<String> getSearchString();
 
+        @FluentApiBackingBeanField("atSource")
+        String atSource();
+
         @FluentApiBackingBeanField("atLine")
         Integer atLine();
 
         @FluentApiBackingBeanField("atColumn")
         Integer atColumn();
-
-        @FluentApiBackingBeanField("atSource")
-        String atSource();
 
         @FluentApiBackingBeanField("withLocale")
         Locale withLocale();
@@ -914,7 +914,7 @@ public class CuteApi {
 
 
         /**
-         * Adds check that generated class exists or doesn't exist.
+         * Adds check that generated or just compiled class exists or doesn't exist.
          *
          * @param className the fully qualified class name
          * @return the next fluent interface

@@ -354,7 +354,7 @@ class CompileTest {
                 }
 
                 // Not found ==> assertion fails
-                throw new FailingAssertionException(Constants.Messages.MESSAGE_HAVENT_FOUND_MESSSAGE.produceMessage(messageToCheck.getSearchString(), messageToCheck.getKind().name()));
+                throw new FailingAssertionException(Constants.Messages.MESSAGE_HAVENT_FOUND_MESSSAGE.produceMessage(messageToCheck.getSearchString(), messageToCheck.getKind().name(), messageToCheck.toString()));
 
             }
 

@@ -20,8 +20,6 @@ import javax.tools.JavaFileObject;
 import javax.tools.StandardLocation;
 import java.io.IOException;
 import java.io.Writer;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -77,6 +75,39 @@ public class CuteTest {
 
 
     }
+
+    @Test
+    public void test_compilationWithCompilerOptions_happyPath (){
+        Cute.blackBoxTest().given().noProcessors()
+                .andSourceFiles("/compiletests/compileroptionstest/Java8Code.java")
+                .andUseCompilerOptions("-source 1.8", "-target 1.8")
+                .whenCompiled().thenExpectThat().compilationSucceeds()
+                .andThat().generatedClass("io.toolisticon.cute.testcases.Java8Code").exists()
+                .executeTest();
+    }
+
+    @Test
+    public void test_compilationWithCompilerOptions_invalidUsageOfJava8Code (){
+        Cute.blackBoxTest().given().noProcessors()
+                .andSourceFiles("/compiletests/compileroptionstest/Java8Code.java")
+                .andUseCompilerOptions("-source 1.7", "-target 1.7")
+                .whenCompiled().thenExpectThat().compilationFails()
+                .andThat().compilerMessage().ofKindError().atSource("/compiletests/compileroptionstest/Java8Code.java").atLine(10).atColumn(56).contains("lambda expressions are not supported")
+                .andThat().generatedClass("io.toolisticon.cute.testcases.Java8Code").doesntExist()
+                .executeTest();
+    }
+
+
+    @Test
+    public void test_addSourceFromString(){
+    Cute.blackBoxTest().given()
+            .noProcessors()
+            .andSourceFile("io.toolisticon.cute.Testclass","package io.toolisticon.cute; public class Testclass{}")
+            .whenCompiled().thenExpectThat().compilationSucceeds()
+            .andThat().generatedClass("io.toolisticon.cute.Testclass").exists()
+            .executeTest();
+    }
+
 
     @Test
     public void test_testGenerationOfClassAndCustomAssertions() {
@@ -169,6 +200,8 @@ public class CuteTest {
     }
 
 /*-
+    // Unfortunately these tests can not be done at the moment because the is no access to the compiletest configuration !
+
     private void assertCompilerMessages(Set<CompileTestConfiguration.CompilerMessageCheck> compilerMessageChecks, Diagnostic.Kind kind, CompileTestConfiguration.ComparisonKind comparisonKind, String... expectedMessages) {
 
         List<String> configuredExpectedMessages = new ArrayList<>();
