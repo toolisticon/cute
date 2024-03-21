@@ -77,7 +77,7 @@ public class CuteTest {
     }
 
     @Test
-    public void test_compilationWithCompilerOptions_happyPath (){
+    public void test_compilationWithCompilerOptions_happyPath() {
         Cute.blackBoxTest().given().noProcessors()
                 .andSourceFiles("/compiletests/compileroptionstest/Java8Code.java")
                 .andUseCompilerOptions("-source 1.8", "-target 1.8")
@@ -87,25 +87,40 @@ public class CuteTest {
     }
 
     @Test
-    public void test_compilationWithCompilerOptions_invalidUsageOfJava8Code (){
-        Cute.blackBoxTest().given().noProcessors()
-                .andSourceFiles("/compiletests/compileroptionstest/Java8Code.java")
-                .andUseCompilerOptions("-source 1.7", "-target 1.7")
-                .whenCompiled().thenExpectThat().compilationFails()
-                .andThat().compilerMessage().ofKindError().atSource("/compiletests/compileroptionstest/Java8Code.java").atLine(10).atColumn(56).contains("lambda expressions are not supported")
-                .andThat().generatedClass("io.toolisticon.cute.testcases.Java8Code").doesntExist()
-                .executeTest();
+    public void test_compilationWithCompilerOptions_invalidUsageOfJava8Code() {
+        if (getJavaVersion() <= 17) {
+            Cute.blackBoxTest().given().noProcessors()
+                    .andSourceFiles("/compiletests/compileroptionstest/Java8Code.java")
+                    .andUseCompilerOptions("-source 1.7", "-target 1.7")
+                    .whenCompiled().thenExpectThat().compilationFails()
+                    .andThat().compilerMessage().ofKindError().atSource("/compiletests/compileroptionstest/Java8Code.java").atLine(10).atColumn(56).contains("lambda expressions are not supported")
+                    .andThat().generatedClass("io.toolisticon.cute.testcases.Java8Code").doesntExist()
+                    .executeTest();
+        }
     }
 
 
+    private static int getJavaVersion() {
+        String version = System.getProperty("java.version");
+        if (version.startsWith("1.")) {
+            version = version.substring(2, 3);
+        } else {
+            int dot = version.indexOf(".");
+            if (dot != -1) {
+                version = version.substring(0, dot);
+            }
+        }
+        return Integer.parseInt(version);
+    }
+
     @Test
-    public void test_addSourceFromString(){
-    Cute.blackBoxTest().given()
-            .noProcessors()
-            .andSourceFile("io.toolisticon.cute.Testclass","package io.toolisticon.cute; public class Testclass{}")
-            .whenCompiled().thenExpectThat().compilationSucceeds()
-            .andThat().generatedClass("io.toolisticon.cute.Testclass").exists()
-            .executeTest();
+    public void test_addSourceFromString() {
+        Cute.blackBoxTest().given()
+                .noProcessors()
+                .andSourceFile("io.toolisticon.cute.Testclass", "package io.toolisticon.cute; public class Testclass{}")
+                .whenCompiled().thenExpectThat().compilationSucceeds()
+                .andThat().generatedClass("io.toolisticon.cute.Testclass").exists()
+                .executeTest();
     }
 
 
