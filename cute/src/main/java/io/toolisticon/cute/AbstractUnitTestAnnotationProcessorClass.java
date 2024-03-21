@@ -43,8 +43,7 @@ abstract class AbstractUnitTestAnnotationProcessorClass extends AbstractProcesso
 
         if (elements.size() == 1) {
             return elements.iterator().next();
-        }
-        if (elements.size() == 0) {
+        } else  if (elements.isEmpty()) {
             throw new FailingAssertionException(Constants.Messages.UNIT_TEST_PRECONDITION_MUST_FIND_ONE_ELEMENT.produceMessage());
         } else {
 
@@ -57,7 +56,7 @@ abstract class AbstractUnitTestAnnotationProcessorClass extends AbstractProcesso
 
             }
 
-            if (filteredList.size() == 0) {
+            if (filteredList.isEmpty()) {
                 throw new FailingAssertionException(Constants.Messages.UNIT_TEST_PRECONDITION_MUST_FIND_EXACTLY_ONE_ELEMENT.produceMessage(annotationTypeToUse.getCanonicalName()));
             } else if (filteredList.size() > 1) {
                 throw new FailingAssertionException(Constants.Messages.UNIT_TEST_PRECONDITION_MUST_FIND_EXACTLY_ONE_ELEMENT_WITH_PASSIN_ANNOTATION.produceMessage());
@@ -66,12 +65,6 @@ abstract class AbstractUnitTestAnnotationProcessorClass extends AbstractProcesso
             }
 
         }
-
-    }
-
-    protected void triggerError(String message) {
-
-        this.processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, message);
 
     }
 

@@ -1,9 +1,6 @@
 package io.toolisticon.cute;
 
 import javax.tools.JavaFileObject;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,10 +33,10 @@ class CuteClassLoaderImpl extends ClassLoader implements CuteClassLoader {
 
 
     static String convertJavaFileObjectNameToBinaryClassName(JavaFileObject javaFileObject) {
-        Pattern pattern = Pattern.compile("^[/](.*)[.]class$");
+        Pattern pattern = Pattern.compile("^/(.*)[.]class$");
         Matcher matcher = pattern.matcher(javaFileObject.getName());
         if (matcher.matches()) {
-            return matcher.group(1).replaceAll("[/]", ".");
+            return matcher.group(1).replaceAll("/", ".");
         }
         throw new IllegalStateException("Got invalid name : " + javaFileObject.getName());
     }
@@ -48,7 +45,7 @@ class CuteClassLoaderImpl extends ClassLoader implements CuteClassLoader {
     protected Class<?> findClass(String name) throws ClassNotFoundException {
 
         if (!classMap.containsKey(name)) {
-            throw new ClassNotFoundException("Couldnt't find class : " + name);
+            throw new ClassNotFoundException("Couldn't find class : " + name);
         }
 
         CompileTestFileManager.InMemoryOutputJavaFileObject javaFileObject = classMap.get(name);

@@ -103,7 +103,7 @@ public class CuteApi {
             for (String compilerOption : compilerOptions()) {
 
                 if (compilerOption != null) {
-                    for (String tokenizedCompilerOption : compilerOption.split("[ ]+")) {
+                    for (String tokenizedCompilerOption : compilerOption.split(" +")) {
                         if (!tokenizedCompilerOption.isEmpty()) {
                             normalizedCompilerOptions.add(tokenizedCompilerOption);
                         }
@@ -177,11 +177,15 @@ public class CuteApi {
     }
 
     public enum CompilerMessageComparisonType {
-        CONTAINS, EQUALS;
+        CONTAINS, EQUALS
     }
 
     public enum CompilerMessageKind {
         NOTE, WARNING, MANDATORY_WARNING, ERROR;
+
+        Diagnostic.Kind toDiagnosticsKind() {
+            return Diagnostic.Kind.valueOf(this.name());
+        }
     }
 
 
@@ -455,7 +459,7 @@ public class CuteApi {
          * Traverses to given section of unit test.
          * Allows to add source files, to define compiler options and java modules.
          *
-         * @return
+         * @return the next fluent api instance
          */
         UnitTestGivenInterface given();
 
@@ -669,7 +673,7 @@ public class CuteApi {
          * Define unit test.
          *
          * @param unitTest the Unit test
-         * @return the next fluent inteface
+         * @return the next fluent interface
          */
         @FluentApiImplicitValue(id = "getPassInType", value = "PROCESSOR", target = TargetBackingBean.NEXT)
         @FluentApiParentBackingBeanMapping(value = "passInConfiguration")
@@ -803,7 +807,7 @@ public class CuteApi {
 
         /**
          * Executes the test.
-         * All AssertionError triggered inside the unit test will bepassed through to your unit test framework.
+         * All AssertionError triggered inside the unit test will be passed through to your unit test framework.
          */
         @FluentApiCommand(ExecuteTestCommand.class)
         DoCustomAssertions executeTest();
@@ -823,7 +827,7 @@ public class CuteApi {
 
         /**
          * Executes the test.
-         * All AssertionError triggered inside the unit test will bepassed through to your unit test framework.
+         * All AssertionError triggered inside the unit test will be passed through to your unit test framework.
          */
         @FluentApiCommand(ExecuteTestCommand.class)
         DoCustomAssertions executeTest();
@@ -856,7 +860,7 @@ public class CuteApi {
         /**
          * Expect an Exception to be thrown.
          * This usually makes sense for unit tests rather than black box tests.
-         *
+         * <p>
          * Please keep in mind that it's discouraged for processors to throw exceptions.
          * Please catch them in your processor and convert them to compiler messages and maybe trigger a compiler error if needed.
          *
@@ -1120,7 +1124,7 @@ public class CuteApi {
 
         /**
          * Sometimes it can become handy to even test the generated code.
-         * This method can used to do those tests. Compiled classes are provided via the {@link GeneratedClassesTest} interface.
+         * This method can be used to do those tests. Compiled classes are provided via the {@link GeneratedClassesTest} interface.
          * Be aware that the binary class names must be used to get classes ( '$' delimiter for inner types,...)
          * Test rely heavily on reflection api.
          * So please consider integration test projects for testing generated code if your code doesn't implement a precompiled interface.

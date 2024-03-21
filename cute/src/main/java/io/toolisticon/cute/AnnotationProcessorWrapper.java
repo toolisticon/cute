@@ -9,6 +9,7 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic;
 import java.util.HashSet;
@@ -93,6 +94,9 @@ final class AnnotationProcessorWrapper implements Processor {
                             , e);
                 }
 
+                // Exception has been found
+                expectedExceptionWasThrown = true;
+
             } else {
 
                 // Got unexpected exception
@@ -107,12 +111,13 @@ final class AnnotationProcessorWrapper implements Processor {
 
         }
 
-        // check in last round if expected exception has been thrown
-        if (roundEnv.processingOver() && expectedExceptionWasThrown && this.expectedThrownException != null) {
+        // check in last round if expected exception has been thrown - in this case trigger assertion error
+        if (roundEnv.processingOver() && !expectedExceptionWasThrown && this.expectedThrownException != null) {
             throw new FailingAssertionException(
                     Constants.Messages.ASSERTION_EXPECTED_EXCEPTION_NOT_THROWN.produceMessage(this.expectedThrownException.getCanonicalName())
             );
         }
+
 
         return returnValue;
     }
@@ -177,23 +182,8 @@ final class AnnotationProcessorWrapper implements Processor {
 
     static Set<AnnotationProcessorWrapper> getWrappedProcessors(CuteApi.CompilerTestBB compilerTestBB) {
 
-        // return cached wrapped processors if available
-
-
         Set<AnnotationProcessorWrapper> wrappedProcessors = new HashSet<>();
 
-
-        // need to add unit test processor
-
-
-        // TODO: THIS CASE HANDLES PROCESSOR INSTANCES - NORMALLY ONLY USED IN UNIT TESTS ?!?
-        /*-
-        for (Processor processor : compilerTestBB.processors()) {
-
-            wrappedProcessors.add(AnnotationProcessorWrapper.wrapProcessor(processor, expectedThrownException));
-
-        }
-        */
         if (compilerTestBB.testType() == CuteApi.TestType.UNIT && compilerTestBB.unitTest() != null) {
             Processor processor = null;
 
@@ -210,13 +200,13 @@ final class AnnotationProcessorWrapper implements Processor {
                     processor = new UnitTestAnnotationProcessorClassWithPassIn<>(
                             compilerTestBB.passInConfiguration().getPassedInClass(),
                             compilerTestBB.passInConfiguration().getAnnotationToScanFor() != null ? compilerTestBB.passInConfiguration().getAnnotationToScanFor() : PassIn.class,
-                            (UnitTest<Element>) compilerTestBB.unitTest());
+                            (UnitTest<?>) compilerTestBB.unitTest());
 
                 } else {
                     // This is the legacy case
                     processor = new UnitTestAnnotationProcessorClass<>(
                             compilerTestBB.passInConfiguration() != null && compilerTestBB.passInConfiguration().getAnnotationToScanFor() != null ? compilerTestBB.passInConfiguration().getAnnotationToScanFor() : (compilerTestBB.passInConfiguration() != null && compilerTestBB.passInConfiguration().getPassInElement() ? PassIn.class : Constants.DEFAULT_ANNOTATION ),
-                            (UnitTest<Element>) compilerTestBB.unitTest());
+                            (UnitTest<?>) compilerTestBB.unitTest());
                 }
 
             } else if (compilerTestBB.unitTest() instanceof UnitTestWithoutPassIn) {
@@ -227,7 +217,7 @@ final class AnnotationProcessorWrapper implements Processor {
 
             } else if (compilerTestBB.unitTest() instanceof UnitTestForTestingAnnotationProcessors) {
 
-                Processor processorUnderTest = null;
+                Processor processorUnderTest;
                 try {
                     processorUnderTest = compilerTestBB.passInConfiguration().getPassedInProcessor().getDeclaredConstructor().newInstance();
                 } catch (Exception e) {
@@ -240,14 +230,14 @@ final class AnnotationProcessorWrapper implements Processor {
                             Constants.DEFAULT_ANNOTATION,
                             compilerTestBB.passInConfiguration().getPassedInClass(),
                             compilerTestBB.passInConfiguration().getAnnotationToScanFor() != null ? compilerTestBB.passInConfiguration().getAnnotationToScanFor() : PassIn.class,
-                            (UnitTestForTestingAnnotationProcessors) compilerTestBB.unitTest()
+                            (UnitTestForTestingAnnotationProcessors<Processor,Element>) compilerTestBB.unitTest()
 
                     );
                 } else {
                     processor = new UnitTestAnnotationProcessorClassForTestingAnnotationProcessors<>(
                             processorUnderTest,
                             compilerTestBB.passInConfiguration().getAnnotationToScanFor() != null ? compilerTestBB.passInConfiguration().getAnnotationToScanFor() : (compilerTestBB.passInConfiguration().getPassInElement() ? PassIn.class : Constants.DEFAULT_ANNOTATION ),
-                            (UnitTestForTestingAnnotationProcessors) compilerTestBB.unitTest());
+                            (UnitTestForTestingAnnotationProcessors<Processor,Element>) compilerTestBB.unitTest());
                 }
 
 
@@ -263,7 +253,7 @@ final class AnnotationProcessorWrapper implements Processor {
                 processor = new UnitTestAnnotationProcessorClassForTestingAnnotationProcessorsWithoutPassIn<>(
                         processorUnderTest,
                         Constants.DEFAULT_ANNOTATION,
-                        (UnitTestForTestingAnnotationProcessorsWithoutPassIn) compilerTestBB.unitTest());
+                        (UnitTestForTestingAnnotationProcessorsWithoutPassIn<Processor>) compilerTestBB.unitTest());
 
             }
 
@@ -276,24 +266,16 @@ final class AnnotationProcessorWrapper implements Processor {
         for (Class<? extends Processor> processorType : compilerTestBB.processors()) {
 
             try {
-                Processor processor = processorType.getDeclaredConstructor().newInstance();
 
+                Processor processor = processorType.getDeclaredConstructor().newInstance();
                 wrappedProcessors.add(AnnotationProcessorWrapper.wrapProcessor(processor, compilerTestBB.getExceptionIsThrown()));
 
             } catch (Exception e) {
-                throw new IllegalArgumentException("Passed processor " + processorType.getCanonicalName() + " cannot be instantiated.", e);
+                throw new IllegalArgumentException(Constants.Messages.IAE_CANNOT_INSTANTIATE_PROCESSOR.produceMessage(processorType.getCanonicalName()));
             }
 
         }
 
-        // TODO: CURRENTLY NOT IMPLEMENTED WITH NEW FLUENT API
-        /*-
-        for (CompileTestConfiguration.ProcessorWithExpectedException processor : this.processorsWithExpectedExceptions) {
-
-            wrappedProcessors.add(AnnotationProcessorWrapper.wrapProcessor(processor.processorType, processor.throwable != null ? processor.throwable : expectedThrownException));
-
-        }
-        */
 
 
         return wrappedProcessors;
