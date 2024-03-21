@@ -1,6 +1,5 @@
 package io.toolisticon.cute;
 
-import io.toolisticon.cute.CompileTestUtilities;
 import io.toolisticon.cute.common.SimpleTestProcessor1;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
@@ -36,7 +35,7 @@ public class CompileTestUtilitiesTest {
     }
 
     @Test
-    public void getAnnotationProcessorWasAppliedMessage_anynomousProcessor_class() {
+    public void getAnnotationProcessorWasAppliedMessage_anonymousProcessor_class() {
 
         Processor processor = new AbstractProcessor() {
             @Override
@@ -49,16 +48,16 @@ public class CompileTestUtilitiesTest {
                 CompileTestUtilities.getAnnotationProcessorWasAppliedMessage(processor),
                 Matchers.equalTo(
                         CompileTestUtilities.TEMPLATE_ANNOTATION_PROCESSOR_WAS_APPLIED.replaceFirst(
-                                "[%]s",
-                                CompileTestUtilities.ANONYMOUS_CLASS.replaceFirst("[%]s", AbstractProcessor.class.getCanonicalName())
-                        )
+                                        "[%]s",
+                                        CompileTestUtilities.ANONYMOUS_CLASS.replaceFirst("[%]s", AbstractProcessor.class.getCanonicalName())
+                                )
                                 .replaceFirst("[%]s", "" + System.identityHashCode(processor))
                 )
         );
     }
 
     @Test
-    public void getAnnotationProcessorWasAppliedMessage_anynomousProcessor_interface() {
+    public void getAnnotationProcessorWasAppliedMessage_anonymousProcessor_interface() {
 
         Processor processor = new Processor() {
             @Override
@@ -97,12 +96,12 @@ public class CompileTestUtilitiesTest {
                 Matchers.equalTo(
 
                         CompileTestUtilities.TEMPLATE_ANNOTATION_PROCESSOR_WAS_APPLIED.replaceFirst(
-                                "[%]s",
-                                CompileTestUtilities.ANONYMOUS_CLASS
-                                        .replaceFirst("[%]s", Processor.class.getCanonicalName()
-                                        )
+                                        "[%]s",
+                                        CompileTestUtilities.ANONYMOUS_CLASS
+                                                .replaceFirst("[%]s", Processor.class.getCanonicalName()
+                                                )
 
-                        )
+                                )
                                 .replaceFirst("[%]s", "" + System.identityHashCode(processor)
                                 )
                 )

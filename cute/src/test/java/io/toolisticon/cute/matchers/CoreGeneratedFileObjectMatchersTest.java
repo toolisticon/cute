@@ -57,7 +57,7 @@ public class CoreGeneratedFileObjectMatchersTest {
     @Test(expected = IllegalArgumentException.class)
     public void createIgnoreLineEndingsMatcher_nullValued() {
 
-        GeneratedFileObjectMatcher unit = CoreGeneratedFileObjectMatchers.createIgnoreLineEndingsMatcher(null);
+        CoreGeneratedFileObjectMatchers.createIgnoreLineEndingsMatcher(null);
 
     }
 
@@ -74,7 +74,7 @@ public class CoreGeneratedFileObjectMatchersTest {
     @Test(expected = IllegalArgumentException.class)
     public void createBinaryMatcher_nullValued() {
 
-        GeneratedFileObjectMatcher unit = CoreGeneratedFileObjectMatchers.createBinaryMatcher(null);
+        CoreGeneratedFileObjectMatchers.createBinaryMatcher(null);
 
     }
 }

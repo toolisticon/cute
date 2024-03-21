@@ -5,6 +5,7 @@ import javax.tools.JavaFileObject;
 
 /**
  * Compilation result.
+ * For internal usage.
  * <p>
  * Allows access to DiagnosticCollector and FileManager used during compilation test.
  */

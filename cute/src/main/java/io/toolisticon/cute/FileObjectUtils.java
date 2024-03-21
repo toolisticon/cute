@@ -30,7 +30,7 @@ public abstract class FileObjectUtils {
         }
 
         @Override
-        public OutputStream openOutputStream() throws IOException {
+        public OutputStream openOutputStream() {
             throw new UnsupportedOperationException();
         }
 
@@ -97,12 +97,6 @@ public abstract class FileObjectUtils {
         }
 
         @Override
-        public OutputStream openOutputStream() throws IOException {
-            throw new UnsupportedOperationException();
-        }
-
-
-        @Override
         public CharSequence getCharContent(boolean ignoreEncodingErrors) throws IOException {
 
             ByteArrayOutputStream buffer;
@@ -117,8 +111,7 @@ public abstract class FileObjectUtils {
                 }
 
                 buffer.flush();
-                byte[] byteArray = buffer.toByteArray();
-                return new String(byteArray);
+                return buffer.toString();
 
             }
 

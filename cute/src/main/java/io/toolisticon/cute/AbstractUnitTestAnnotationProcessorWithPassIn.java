@@ -44,9 +44,7 @@ abstract class AbstractUnitTestAnnotationProcessorWithPassIn extends AbstractUni
         List<Element> filteredElements = filterByAnnotation(allEnclosedElements);
 
         if (filteredElements.size() != 1) {
-
             throw new FailingAssertionException(Constants.Messages.UNIT_TEST_PASS_IN_PRECONDITION_MUST_FIND_EXACTLY_ONE_ELEMENT.produceMessage(annotationTypeUsedForScan.getCanonicalName(), classToScan.getCanonicalName()));
-
         }
 
         return filteredElements.get(0);

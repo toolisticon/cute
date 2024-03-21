@@ -5,6 +5,7 @@ import io.toolisticon.cute.extension.api.ModuleSupportSpiServiceLocator;
 
 import javax.tools.Diagnostic;
 import javax.tools.FileObject;
+import javax.tools.JavaFileObject;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileOutputStream;
@@ -116,12 +117,12 @@ final class DebugOutputGenerator {
     private static String getDebugMessages(CompilationResult compilationResult, Diagnostic.Kind kind) {
         StringBuilder stringBuilder = new StringBuilder();
 
-        Set<Diagnostic> filteredDiagnostics = CompileTestUtilities.getDiagnosticByKind(compilationResult.getDiagnostics(), kind);
+        Set<Diagnostic<? extends JavaFileObject>> filteredDiagnostics = CompileTestUtilities.getDiagnosticByKind(compilationResult.getDiagnostics(), kind);
         if (!filteredDiagnostics.isEmpty()) {
             stringBuilder.append(getDebugOutputHeader(kind.toString() + " MESSAGES"));
 
             int i = 1;
-            for (Diagnostic diagnostics : filteredDiagnostics) {
+            for (Diagnostic<? extends JavaFileObject> diagnostics : filteredDiagnostics) {
 
 
                 stringBuilder.append("[").append(i)
@@ -212,7 +213,7 @@ final class DebugOutputGenerator {
                 try {
                     fos.close();
                 } catch (IOException e) {
-
+                    // ignore it
                 }
             }
 
@@ -220,7 +221,7 @@ final class DebugOutputGenerator {
                 try {
                     is.close();
                 } catch (IOException e) {
-
+                    // ignore it
                 }
             }
         }

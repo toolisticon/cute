@@ -7,6 +7,7 @@ import javax.tools.DiagnosticCollector;
 import javax.tools.JavaFileObject;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Some static utility functions.
@@ -52,14 +53,7 @@ final class CompileTestUtilities {
      */
     static Set<String> getMessages(DiagnosticCollector<JavaFileObject> diagnostics, Diagnostic.Kind kind) {
 
-        Set<String> messages = new HashSet<>();
-        Set<Diagnostic> filteredDiagnostic = getDiagnosticByKind(diagnostics, kind);
-
-        for (Diagnostic diagnostic : filteredDiagnostic) {
-            messages.add(diagnostic.getMessage(null));
-        }
-
-        return messages;
+        return getDiagnosticByKind(diagnostics,kind).stream().map(e -> e.getMessage(null)).collect(Collectors.toSet());
 
     }
 
@@ -70,17 +64,9 @@ final class CompileTestUtilities {
      * @param kind        the kind of the messages to return
      * @return a Set containing all Diagnostic element of passed kind, or an empty Set.
      */
-    static Set<Diagnostic> getDiagnosticByKind(DiagnosticCollector<JavaFileObject> diagnostics, Diagnostic.Kind kind) {
+    static Set<Diagnostic<? extends JavaFileObject>> getDiagnosticByKind(DiagnosticCollector<JavaFileObject> diagnostics, Diagnostic.Kind kind) {
 
-        Set<Diagnostic> filteredDiagnostics = new HashSet<>();
-
-        for (Diagnostic diagnostic : diagnostics.getDiagnostics()) {
-            if (kind == diagnostic.getKind()) {
-                filteredDiagnostics.add(diagnostic);
-            }
-        }
-
-        return filteredDiagnostics;
+        return diagnostics.getDiagnostics().stream().filter(e -> e.getKind().equals(kind)).collect(Collectors.toSet());
 
     }
 

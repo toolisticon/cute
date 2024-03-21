@@ -12,7 +12,6 @@ import org.mockito.Mockito;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.Processor;
-import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic;
@@ -24,7 +23,6 @@ import java.io.Writer;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Optional;
 
 /**
  * Unit tests for {@link Cute}.
@@ -33,34 +31,29 @@ public class CuteTest {
 
 
     @Test
-    public void test_UnitTest_successfulCompilation_build() throws IOException {
+    public void test_UnitTest_successfulCompilation_build() {
 
-        JavaFileObject testSource = Mockito.mock(JavaFileObject.class);
-        JavaFileObject expectedGeneratedSource = JavaFileObjectUtils.readFromString("Jupp.txt", "TATA!");
         Cute
                 .unitTest()
                 .when(
-                        new UnitTestWithoutPassIn() {
-                            @Override
-                            public void unitTest(ProcessingEnvironment processingEnvironment) {
+                        processingEnvironment -> {
 
-                                processingEnvironment.getMessager().printMessage(Diagnostic.Kind.MANDATORY_WARNING, "MANDATORY_WARNING");
-                                processingEnvironment.getMessager().printMessage(Diagnostic.Kind.WARNING, "WARNING");
-                                processingEnvironment.getMessager().printMessage(Diagnostic.Kind.NOTE, "NOTE");
+                            processingEnvironment.getMessager().printMessage(Diagnostic.Kind.MANDATORY_WARNING, "MANDATORY_WARNING");
+                            processingEnvironment.getMessager().printMessage(Diagnostic.Kind.WARNING, "WARNING");
+                            processingEnvironment.getMessager().printMessage(Diagnostic.Kind.NOTE, "NOTE");
 
 
-                                try {
-                                    FileObject fileObject = processingEnvironment.getFiler().createResource(StandardLocation.SOURCE_OUTPUT, "root", "Jupp.txt");
-                                    Writer writer = fileObject.openWriter();
-                                    writer.write("TATA!");
-                                    writer.close();
+                            try {
+                                FileObject fileObject = processingEnvironment.getFiler().createResource(StandardLocation.SOURCE_OUTPUT, "root", "Jupp.txt");
+                                Writer writer = fileObject.openWriter();
+                                writer.write("TATA!");
+                                writer.close();
 
 
-                                } catch (IOException e) {
-
-                                }
-
+                            } catch (IOException e) {
+                                // ignore
                             }
+
                         })
                 .thenExpectThat().compilationSucceeds()
                 .andThat().compilerMessage().ofKindWarning().contains("WARNING")
@@ -68,10 +61,10 @@ public class CuteTest {
                 .andThat().compilerMessage().ofKindNote().contains("NOTE")
                 .executeTest().executeCustomAssertions(e -> {
                     MatcherAssert.assertThat("Compilation should be successful", e.compilationWasSuccessful());
-                    MatcherAssert.assertThat("Expected to find warning message that contains WARNING", !(e.getCompilerMessages().stream().filter(f -> f.getKind() == Diagnostic.Kind.WARNING).filter(f -> f.getMessage().contains("WARNING")).count() == 0));
-                    MatcherAssert.assertThat("Should not find generated SOURCE FILES", e.getFileManager().getJavaFileObjects().stream().filter(f -> f.getKind() == JavaFileObject.Kind.SOURCE).count() == 0);
+                    MatcherAssert.assertThat("Expected to find warning message that contains WARNING", e.getCompilerMessages().stream().filter(f -> f.getKind() == Diagnostic.Kind.WARNING).anyMatch(f -> f.getMessage().contains("WARNING")));
+                    MatcherAssert.assertThat("Should not find generated SOURCE FILES", e.getFileManager().getJavaFileObjects().stream().noneMatch(f -> f.getKind() == JavaFileObject.Kind.SOURCE));
                     MatcherAssert.assertThat("Should  find generated RESOURCE file that contains TATA", e.getFileManager().getFileObjects().stream().filter(f -> f.getName().equals("/root/Jupp.txt")).filter(f ->
-                            f.getContent().toString().contains("TATA")
+                            f.getContent().contains("TATA")
                     ).count() == 1);
                     MatcherAssert.assertThat("Should be true", true);
 
@@ -82,6 +75,54 @@ public class CuteTest {
 
 
     }
+
+    @Test
+    public void test_compilationWithCompilerOptions_happyPath() {
+        Cute.blackBoxTest().given().noProcessors()
+                .andSourceFiles("/compiletests/compileroptionstest/Java8Code.java")
+                .andUseCompilerOptions("-source 1.8", "-target 1.8")
+                .whenCompiled().thenExpectThat().compilationSucceeds()
+                .andThat().generatedClass("io.toolisticon.cute.testcases.Java8Code").exists()
+                .executeTest();
+    }
+
+    @Test
+    public void test_compilationWithCompilerOptions_invalidUsageOfJava8Code() {
+        if (getJavaVersion() <= 17) {
+            Cute.blackBoxTest().given().noProcessors()
+                    .andSourceFiles("/compiletests/compileroptionstest/Java8Code.java")
+                    .andUseCompilerOptions("-source 1.7", "-target 1.7")
+                    .whenCompiled().thenExpectThat().compilationFails()
+                    .andThat().compilerMessage().ofKindError().atSource("/compiletests/compileroptionstest/Java8Code.java").atLine(10).atColumn(56).contains("lambda expressions are not supported")
+                    .andThat().generatedClass("io.toolisticon.cute.testcases.Java8Code").doesntExist()
+                    .executeTest();
+        }
+    }
+
+
+    private static int getJavaVersion() {
+        String version = System.getProperty("java.version");
+        if (version.startsWith("1.")) {
+            version = version.substring(2, 3);
+        } else {
+            int dot = version.indexOf(".");
+            if (dot != -1) {
+                version = version.substring(0, dot);
+            }
+        }
+        return Integer.parseInt(version);
+    }
+
+    @Test
+    public void test_addSourceFromString() {
+        Cute.blackBoxTest().given()
+                .noProcessors()
+                .andSourceFile("io.toolisticon.cute.Testclass", "package io.toolisticon.cute; public class Testclass{}")
+                .whenCompiled().thenExpectThat().compilationSucceeds()
+                .andThat().generatedClass("io.toolisticon.cute.Testclass").exists()
+                .executeTest();
+    }
+
 
     @Test
     public void test_testGenerationOfClassAndCustomAssertions() {
@@ -117,14 +158,7 @@ public class CuteTest {
 
         Cute.unitTest()
                 .when().passInProcessor(SimpleTestProcessor1.class)
-                .intoUnitTest(new UnitTestForTestingAnnotationProcessorsWithoutPassIn<SimpleTestProcessor1>() {
-                    @Override
-                    public void unitTest(SimpleTestProcessor1 unit, ProcessingEnvironment processingEnvironment) {
-
-                        MatcherAssert.assertThat(unit.getProcessingEnvironment(), Matchers.equalTo(processingEnvironment));
-
-                    }
-                })
+                .intoUnitTest((unit, processingEnvironment) -> MatcherAssert.assertThat(unit.getProcessingEnvironment(), Matchers.equalTo(processingEnvironment)))
                 .thenExpectThat().compilationSucceeds()
                 .executeTest();
     }
@@ -143,14 +177,11 @@ public class CuteTest {
                 .when()
                 .passInProcessor(SimpleTestProcessor1.class)
                 .andPassInElement().<TypeElement>fromClass(PassInProcessorAndElement.class)
-                .intoUnitTest(new UnitTestForTestingAnnotationProcessors<SimpleTestProcessor1, TypeElement>() {
-                    @Override
-                    public void unitTest(SimpleTestProcessor1 unit, ProcessingEnvironment processingEnvironment, TypeElement typeElement) {
+                .intoUnitTest((unit, processingEnvironment, typeElement) -> {
 
-                        MatcherAssert.assertThat(typeElement, Matchers.notNullValue());
-                        MatcherAssert.assertThat(typeElement.getQualifiedName().toString(), Matchers.is(PassInProcessorAndElement.class.getCanonicalName()));
+                    MatcherAssert.assertThat(typeElement, Matchers.notNullValue());
+                    MatcherAssert.assertThat(typeElement.getQualifiedName().toString(), Matchers.is(PassInProcessorAndElement.class.getCanonicalName()));
 
-                    }
                 })
                 .thenExpectThat()
                 .compilationSucceeds()
@@ -159,34 +190,6 @@ public class CuteTest {
 
     }
 
-    /**
-     * @Retention(RetentionPolicy.RUNTIME) private static @interface CustomPassInAnnotation {
-     * <p>
-     * }
-     * @CustomPassInAnnotation private static class PassInProcessorAndElementWithCustomAnnotation {
-     * <p>
-     * }
-     * @Test public void test_UnitTest_successfulCompilation_withInitializedProcessorUnderTestAndPassInWithCustomAnnotation_build() {
-     * <p>
-     * CuteFluentApiStarter
-     * .unitTest()
-     * .when()
-     * .passInProcessor(SimpleTestProcessor1.class)
-     * .andPassInElement().fromClass(PassInProcessorAndElementWithCustomAnnotation.class)
-     * .defineTestWithPassedInElement(SimpleTestProcessor1.class, PassInProcessorAndElementWithCustomAnnotation.class, CustomPassInAnnotation.class, new UnitTestForTestingAnnotationProcessors<SimpleTestProcessor1, TypeElement>() {
-     * @Override public void unitTest(SimpleTestProcessor1 unit, ProcessingEnvironment processingEnvironment, TypeElement typeElement) {
-     * <p>
-     * MatcherAssert.assertThat(typeElement, Matchers.notNullValue());
-     * MatcherAssert.assertThat(typeElement.getQualifiedName().toString(), Matchers.is(PassInProcessorAndElementWithCustomAnnotation.class.getCanonicalName()));
-     * <p>
-     * }
-     * })
-     * .compilationShouldSucceed()
-     * .executeTest();
-     * <p>
-     * <p>
-     * }
-     */
 
     @Test
     public void test_UnitTest_failingCompilation_build() {
@@ -212,6 +215,8 @@ public class CuteTest {
     }
 
 /*-
+    // Unfortunately these tests can not be done at the moment because the is no access to the compiletest configuration !
+
     private void assertCompilerMessages(Set<CompileTestConfiguration.CompilerMessageCheck> compilerMessageChecks, Diagnostic.Kind kind, CompileTestConfiguration.ComparisonKind comparisonKind, String... expectedMessages) {
 
         List<String> configuredExpectedMessages = new ArrayList<>();
@@ -756,12 +761,9 @@ public class CuteTest {
                 .unitTest()
                 .when()
                 .passInElement().<TypeElement>fromSourceFile("/compiletests/passintest/PassInTestClass.java")
-                .intoUnitTest(new UnitTest<TypeElement>() {
-                    @Override
-                    public void unitTest(ProcessingEnvironment processingEnvironment, TypeElement element) {
-                        MatcherAssert.assertThat(element, Matchers.notNullValue());
-                        MatcherAssert.assertThat(element.getSimpleName().toString(), Matchers.is("InnerTestClass"));
-                    }
+                .intoUnitTest((processingEnvironment, element) -> {
+                    MatcherAssert.assertThat(element, Matchers.notNullValue());
+                    MatcherAssert.assertThat(element.getSimpleName().toString(), Matchers.is("InnerTestClass"));
                 })
                 .executeTest();
 
@@ -775,11 +777,8 @@ public class CuteTest {
                     .unitTest()
                     .when()
                     .passInElement().<TypeElement>fromSourceFile("/compiletests/passintest/PassInTestClassMultipleAnnotatedWithoutPassIn.java")
-                    .intoUnitTest(new UnitTest<TypeElement>() {
-                        @Override
-                        public void unitTest(ProcessingEnvironment processingEnvironment, TypeElement element) {
-                            throw new AssertionError("should have thrown assertion error!");
-                        }
+                    .intoUnitTest((processingEnvironment, element) -> {
+                        throw new AssertionError("should have thrown assertion error!");
                     })
                     .executeTest();
 
@@ -800,11 +799,8 @@ public class CuteTest {
                     .unitTest()
                     .when()
                     .passInElement().<TypeElement>fromSourceFile("/compiletests/passintest/PassInTestClassMultipleAnnotatedWithMultiplePassIn.java")
-                    .intoUnitTest(new UnitTest<TypeElement>() {
-                        @Override
-                        public void unitTest(ProcessingEnvironment processingEnvironment, TypeElement element) {
-                            throw new AssertionError("should have thrown assertion error!");
-                        }
+                    .intoUnitTest((processingEnvironment, element) -> {
+                        throw new AssertionError("should have thrown assertion error!");
                     })
                     .executeTest();
 
@@ -827,11 +823,8 @@ public class CuteTest {
                     .useSourceFile("/compiletests/passintest/PassInTestClass.java")
                     .when()
                     .passInElement().<ExecutableElement>fromGivenSourceFiles()
-                    .intoUnitTest(new UnitTest<ExecutableElement>() {
-                        @Override
-                        public void unitTest(ProcessingEnvironment processingEnvironment, ExecutableElement element) {
-                            throw new AssertionError("should have thrown assertion error!");
-                        }
+                    .intoUnitTest((processingEnvironment, element) -> {
+                        throw new AssertionError("should have thrown assertion error!");
                     })
                     .executeTest();
 
@@ -854,11 +847,8 @@ public class CuteTest {
                 .when()
                 .passInElement().<TypeElement>fromGivenSourceFiles()
                 .andPassInProcessor(SimpleTestProcessor1.class)
-                .intoUnitTest(new UnitTestForTestingAnnotationProcessors<SimpleTestProcessor1, TypeElement>() {
-                    @Override
-                    public void unitTest(SimpleTestProcessor1 unit, ProcessingEnvironment processingEnvironment, TypeElement element) {
-                        throw new ClassCastException("Test Class Cast Exception");
-                    }
+                .intoUnitTest((unit, processingEnvironment, element) -> {
+                    throw new ClassCastException("Test Class Cast Exception");
                 })
                 .thenExpectThat()
                 .exceptionIsThrown(ClassCastException.class)
@@ -880,11 +870,8 @@ public class CuteTest {
                     .unitTest()
                     .when()
                     .passInElement().<ExecutableElement>fromClass(PassInClass.class)
-                    .intoUnitTest(new UnitTest<ExecutableElement>() {
-                        @Override
-                        public void unitTest(ProcessingEnvironment processingEnvironment, ExecutableElement element) {
-                            throw new AssertionError("should have thrown assertion error!");
-                        }
+                    .intoUnitTest((processingEnvironment, element) -> {
+                        throw new AssertionError("should have thrown assertion error!");
                     })
                     .executeTest();
 
@@ -904,11 +891,8 @@ public class CuteTest {
                 .unitTest()
                 .when()
                 .passInElement().<TypeElement>fromClass(PassInClass.class)
-                .intoUnitTest(new UnitTest<TypeElement>() {
-                    @Override
-                    public void unitTest(ProcessingEnvironment processingEnvironment, TypeElement element) {
-                        throw new ClassCastException("Test Class Cast Exception");
-                    }
+                .intoUnitTest((processingEnvironment, element) -> {
+                    throw new ClassCastException("Test Class Cast Exception");
                 })
                 .thenExpectThat()
                 .exceptionIsThrown(ClassCastException.class)
@@ -925,11 +909,8 @@ public class CuteTest {
                     .when()
                     .passInProcessor(SimpleTestProcessor1.class)
                     .andPassInElement().<ExecutableElement>fromClass(PassInClass.class)
-                    .intoUnitTest(new UnitTestForTestingAnnotationProcessors<SimpleTestProcessor1, ExecutableElement>() {
-                        @Override
-                        public void unitTest(SimpleTestProcessor1 unit, ProcessingEnvironment processingEnvironment, ExecutableElement element) {
-                            throw new AssertionError("should have thrown assertion error!");
-                        }
+                    .intoUnitTest((unit, processingEnvironment, element) -> {
+                        throw new AssertionError("should have thrown assertion error!");
                     })
                     .executeTest();
 
@@ -950,11 +931,8 @@ public class CuteTest {
                 .when()
                 .passInProcessor(SimpleTestProcessor1.class)
                 .andPassInElement().fromClass(PassInClass.class)
-                .intoUnitTest(new UnitTestForTestingAnnotationProcessors<SimpleTestProcessor1, Element>() {
-                    @Override
-                    public void unitTest(SimpleTestProcessor1 unit, ProcessingEnvironment processingEnvironment, Element element) {
-                        throw new ClassCastException("Test Class Cast Exception");
-                    }
+                .intoUnitTest((unit, processingEnvironment, element) -> {
+                    throw new ClassCastException("Test Class Cast Exception");
                 })
                 .thenExpectThat()
                 .exceptionIsThrown(ClassCastException.class)
@@ -965,17 +943,17 @@ public class CuteTest {
 
     @Test(expected = ValidatorException.class)
     public void blackBoxTest_nullValuedProcessor() {
-        Cute.blackBoxTest().given().processor((Class<? extends Processor>) null);
+        Cute.blackBoxTest().given().processor(null);
     }
 
     @Test(expected = ValidatorException.class)
     public void blackBoxTest_nullValuedProcessors() {
-        Cute.blackBoxTest().given().processor((Class<? extends Processor>) null);
+        Cute.blackBoxTest().given().processor(null);
     }
 
     @Test(expected = ValidatorException.class)
     public void blackBoxTest_nullValuedProcessorInArray() {
-        Cute.blackBoxTest().given().processors((Class<? extends Processor>) null, (Class<? extends Processor>) null);
+        Cute.blackBoxTest().given().processors(null, null);
     }
 
     @Test(expected = ValidatorException.class)
@@ -1046,14 +1024,12 @@ public class CuteTest {
                 .whenCompiled()
                 .thenExpectThat()
                 .compilationSucceeds()
-                .andThat().generatedClass("io.toolisticon.cute.TestClass").testedSuccessfullyBy(new GeneratedClassesTestForSpecificClass() {
-                    @Override
-                    public void doTests(Class<?> clazz, CuteClassLoader cuteClassLoader) throws Exception {
-                        MatcherAssert.assertThat(clazz.getCanonicalName(), Matchers.is("io.toolisticon.cute.TestClass"));
+                .andThat().generatedClass("io.toolisticon.cute.TestClass")
+                .testedSuccessfullyBy((clazz, cuteClassLoader) -> {
+                    MatcherAssert.assertThat(clazz.getCanonicalName(), Matchers.is("io.toolisticon.cute.TestClass"));
 
-                        Object instance = clazz.getConstructor().newInstance();
-                        MatcherAssert.assertThat(instance, Matchers.notNullValue());
-                    }
+                    Object instance = clazz.getConstructor().newInstance();
+                    MatcherAssert.assertThat(instance, Matchers.notNullValue());
                 })
                 .executeTest();
     }
@@ -1065,24 +1041,22 @@ public class CuteTest {
                 .whenCompiled()
                 .thenExpectThat()
                 .compilationSucceeds()
-                .andThat().generatedClass("io.toolisticon.cute.TestClassWithInnerClasses").testedSuccessfullyBy(new GeneratedClassesTestForSpecificClass() {
-                    @Override
-                    public void doTests(Class<?> clazz, CuteClassLoader cuteClassLoader) throws Exception {
-                        MatcherAssert.assertThat(clazz.getCanonicalName(), Matchers.is("io.toolisticon.cute.TestClassWithInnerClasses"));
+                .andThat().generatedClass("io.toolisticon.cute.TestClassWithInnerClasses")
+                .testedSuccessfullyBy((clazz, cuteClassLoader) -> {
+                    MatcherAssert.assertThat(clazz.getCanonicalName(), Matchers.is("io.toolisticon.cute.TestClassWithInnerClasses"));
 
-                        Class<?> innerClazz = cuteClassLoader.getClass("io.toolisticon.cute.TestClassWithInnerClasses$InnerClass");
-                        MatcherAssert.assertThat(innerClazz.getCanonicalName(), Matchers.is("io.toolisticon.cute.TestClassWithInnerClasses.InnerClass"));
+                    Class<?> innerClazz = cuteClassLoader.getClass("io.toolisticon.cute.TestClassWithInnerClasses$InnerClass");
+                    MatcherAssert.assertThat(innerClazz.getCanonicalName(), Matchers.is("io.toolisticon.cute.TestClassWithInnerClasses.InnerClass"));
 
-                        Class<?> staticInnerClazz = cuteClassLoader.getClass("io.toolisticon.cute.TestClassWithInnerClasses$StaticInnerClass");
-                        MatcherAssert.assertThat(staticInnerClazz.getCanonicalName(), Matchers.is("io.toolisticon.cute.TestClassWithInnerClasses.StaticInnerClass"));
+                    Class<?> staticInnerClazz = cuteClassLoader.getClass("io.toolisticon.cute.TestClassWithInnerClasses$StaticInnerClass");
+                    MatcherAssert.assertThat(staticInnerClazz.getCanonicalName(), Matchers.is("io.toolisticon.cute.TestClassWithInnerClasses.StaticInnerClass"));
 
-                        Class<?> innerInterface = cuteClassLoader.getClass("io.toolisticon.cute.TestClassWithInnerClasses$InnerInterface");
-                        MatcherAssert.assertThat(innerInterface.getCanonicalName(), Matchers.is("io.toolisticon.cute.TestClassWithInnerClasses.InnerInterface"));
+                    Class<?> innerInterface = cuteClassLoader.getClass("io.toolisticon.cute.TestClassWithInnerClasses$InnerInterface");
+                    MatcherAssert.assertThat(innerInterface.getCanonicalName(), Matchers.is("io.toolisticon.cute.TestClassWithInnerClasses.InnerInterface"));
 
-                        Object instance = clazz.getConstructor().newInstance();
-                        MatcherAssert.assertThat(instance, Matchers.notNullValue());
+                    Object instance = clazz.getConstructor().newInstance();
+                    MatcherAssert.assertThat(instance, Matchers.notNullValue());
 
-                    }
                 })
                 .executeTest();
     }
@@ -1094,25 +1068,22 @@ public class CuteTest {
                 .whenCompiled()
                 .thenExpectThat()
                 .compilationSucceeds()
-                .andThat().generatedClassesTestedSuccessfullyBy(new GeneratedClassesTest() {
-                    @Override
-                    public void doTests(CuteClassLoader cuteClassLoader) throws Exception {
-                        Class<?> clazz = cuteClassLoader.getClass("io.toolisticon.cute.TestClassWithInnerClasses");
-                        MatcherAssert.assertThat(clazz.getCanonicalName(), Matchers.is("io.toolisticon.cute.TestClassWithInnerClasses"));
+                .andThat().generatedClassesTestedSuccessfullyBy(cuteClassLoader -> {
+                    Class<?> clazz = cuteClassLoader.getClass("io.toolisticon.cute.TestClassWithInnerClasses");
+                    MatcherAssert.assertThat(clazz.getCanonicalName(), Matchers.is("io.toolisticon.cute.TestClassWithInnerClasses"));
 
-                        Class<?> innerClazz = cuteClassLoader.getClass("io.toolisticon.cute.TestClassWithInnerClasses$InnerClass");
-                        MatcherAssert.assertThat(innerClazz.getCanonicalName(), Matchers.is("io.toolisticon.cute.TestClassWithInnerClasses.InnerClass"));
+                    Class<?> innerClazz = cuteClassLoader.getClass("io.toolisticon.cute.TestClassWithInnerClasses$InnerClass");
+                    MatcherAssert.assertThat(innerClazz.getCanonicalName(), Matchers.is("io.toolisticon.cute.TestClassWithInnerClasses.InnerClass"));
 
-                        Class<?> staticInnerClazz = cuteClassLoader.getClass("io.toolisticon.cute.TestClassWithInnerClasses$StaticInnerClass");
-                        MatcherAssert.assertThat(staticInnerClazz.getCanonicalName(), Matchers.is("io.toolisticon.cute.TestClassWithInnerClasses.StaticInnerClass"));
+                    Class<?> staticInnerClazz = cuteClassLoader.getClass("io.toolisticon.cute.TestClassWithInnerClasses$StaticInnerClass");
+                    MatcherAssert.assertThat(staticInnerClazz.getCanonicalName(), Matchers.is("io.toolisticon.cute.TestClassWithInnerClasses.StaticInnerClass"));
 
-                        Class<?> innerInterface = cuteClassLoader.getClass("io.toolisticon.cute.TestClassWithInnerClasses$InnerInterface");
-                        MatcherAssert.assertThat(innerInterface.getCanonicalName(), Matchers.is("io.toolisticon.cute.TestClassWithInnerClasses.InnerInterface"));
+                    Class<?> innerInterface = cuteClassLoader.getClass("io.toolisticon.cute.TestClassWithInnerClasses$InnerInterface");
+                    MatcherAssert.assertThat(innerInterface.getCanonicalName(), Matchers.is("io.toolisticon.cute.TestClassWithInnerClasses.InnerInterface"));
 
-                        Object instance = clazz.getConstructor().newInstance();
-                        MatcherAssert.assertThat(instance, Matchers.notNullValue());
+                    Object instance = clazz.getConstructor().newInstance();
+                    MatcherAssert.assertThat(instance, Matchers.notNullValue());
 
-                    }
                 })
                 .executeTest();
     }
@@ -1124,15 +1095,10 @@ public class CuteTest {
                 .whenCompiled()
                 .thenExpectThat()
                 .compilationSucceeds()
-                .andThat().generatedClass("io.toolisticon.cute.TestClassWithInnerClasses$InnerClass").testedSuccessfullyBy(new GeneratedClassesTestForSpecificClass() {
-                    @Override
-                    public void doTests(Class<?> innerClazz, CuteClassLoader cuteClassLoader) throws Exception {
-
-                        MatcherAssert.assertThat(innerClazz.getCanonicalName(), Matchers.is("io.toolisticon.cute.TestClassWithInnerClasses.InnerClass"));
-
-
-                    }
-                })
+                .andThat().generatedClass("io.toolisticon.cute.TestClassWithInnerClasses$InnerClass")
+                .testedSuccessfullyBy(
+                        (innerClazz, cuteClassLoader) ->
+                                MatcherAssert.assertThat(innerClazz.getCanonicalName(), Matchers.is("io.toolisticon.cute.TestClassWithInnerClasses.InnerClass")))
                 .executeTest();
     }
 
@@ -1143,14 +1109,12 @@ public class CuteTest {
                 .whenCompiled()
                 .thenExpectThat()
                 .compilationSucceeds()
-                .andThat().generatedClass("io.toolisticon.cute.TestClassWithImplementedInterface").testedSuccessfullyBy(new GeneratedClassesTestForSpecificClass() {
-                    @Override
-                    public void doTests(Class<?> clazz, CuteClassLoader cuteClassLoader) throws Exception {
+                .andThat().generatedClass("io.toolisticon.cute.TestClassWithImplementedInterface")
+                .testedSuccessfullyBy((clazz, cuteClassLoader) -> {
 
-                        SimpleTestInterface unit = (SimpleTestInterface) clazz.getConstructor().newInstance();
-                        MatcherAssert.assertThat(unit.saySomething(), Matchers.is("WHATS UP?"));
+                    SimpleTestInterface unit = (SimpleTestInterface) clazz.getConstructor().newInstance();
+                    MatcherAssert.assertThat(unit.saySomething(), Matchers.is("WHATS UP?"));
 
-                    }
                 })
                 .executeTest();
     }
@@ -1163,20 +1127,19 @@ public class CuteTest {
                 .whenCompiled()
                 .thenExpectThat()
                 .compilationSucceeds()
-                .andThat().generatedClass("io.toolisticon.cute.TestClassWithImplementedInterface").testedSuccessfullyBy(new GeneratedClassesTestForSpecificClass() {
-                    @Override
-                    public void doTests(Class<?> clazz, CuteClassLoader cuteClassLoader) throws Exception {
+                .andThat().generatedClass("io.toolisticon.cute.TestClassWithImplementedInterface")
+                .testedSuccessfullyBy(
+                        (clazz, cuteClassLoader) -> {
 
-                        SimpleTestInterface unit = (SimpleTestInterface) clazz.getConstructor().newInstance();
-                        MatcherAssert.assertThat(unit.saySomething(), Matchers.is("WHATS UP???"));
+                            SimpleTestInterface unit = (SimpleTestInterface) clazz.getConstructor().newInstance();
+                            MatcherAssert.assertThat(unit.saySomething(), Matchers.is("WHATS UP???"));
 
-                    }
-                })
+                        })
                 .executeTest();
     }
 
     @Test
-    public void blackBoxTest_checkForExpectedException(){
+    public void blackBoxTest_checkForExpectedException_happyPath() {
         Cute.blackBoxTest().given().processor(ExceptionThrowerProcessor.class)
                 .andSourceFiles("/compiletests/exceptionthrown/ExceptionThrownUsecase.java")
                 .whenCompiled()
@@ -1186,7 +1149,7 @@ public class CuteTest {
     }
 
     @Test
-    public void blackBoxTest_checkForExpectedException_failure(){
+    public void blackBoxTest_checkForExpectedException_failure_otherException() {
         try {
             Cute.blackBoxTest().given().processor(ExceptionThrowerProcessor.class)
                     .andSourceFiles("/compiletests/exceptionthrown/ExceptionThrownUsecase.java")
@@ -1194,9 +1157,28 @@ public class CuteTest {
                     .thenExpectThat()
                     .exceptionIsThrown(IllegalArgumentException.class)
                     .executeTest();
-            throw new AssertionError("FAIL");
+
         } catch (AssertionError e) {
             MatcherAssert.assertThat(e.getMessage(), Matchers.containsString("WHOOP"));
+            return;
         }
+        throw new AssertionError("Expected an Assertion Error to be thrown");
+    }
+
+    @Test
+    public void blackBoxTest_checkForExpectedException_failure_noException() {
+        try {
+            Cute.blackBoxTest().given().processor(SimpleTestProcessor1.class)
+                    .andSourceFiles("/compiletests/exceptionthrown/ExceptionThrownUsecase.java")
+                    .whenCompiled()
+                    .thenExpectThat()
+                    .exceptionIsThrown(IllegalArgumentException.class)
+                    .executeTest();
+
+        } catch (AssertionError e) {
+            MatcherAssert.assertThat(e.getMessage(), Matchers.containsString("Expected exception of type 'java.lang.IllegalArgumentException' to be thrown"));
+            return;
+        }
+        throw new AssertionError("Expected exceptions wasn't triggered!!!");
     }
 }
