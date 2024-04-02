@@ -44,7 +44,7 @@ class CompileTest {
     /**
      * The compile-test execution main method.
      */
-    public void executeTest() {
+    CompilationResult executeTest() {
 
         CompilationResult compilationResult = null;
 
@@ -88,6 +88,7 @@ class CompileTest {
                 try {
                     generatedClassesTest.doTests(cuteClassLoader);
                 } catch (AssertionError e) {
+                    // make sure AssertionErrors will pass
                     throw e;
                 } catch (Exception e) {
                     throw new FailingAssertionException(Constants.Messages.MESSAGE_GOT_UNEXPECTED_EXCEPTION_DURING_CLASS_TEST_ERROR.produceMessage(generatedClassesTest, e.getMessage()));
@@ -193,6 +194,7 @@ class CompileTest {
 
             }
 
+
         } catch (FailingAssertionException e) {
 
             // now trigger failing assertion, but also enrich message with debug output
@@ -216,7 +218,7 @@ class CompileTest {
 
 
         }
-
+        return compilationResult;
     }
 
 
@@ -304,12 +306,12 @@ class CompileTest {
 
         for (Map.Entry<Diagnostic.Kind, List<CuteApi.CompilerMessageCheckBB>> entry : compileMessageChecks.entrySet()) {
 
-            Set<Diagnostic> filteredDiagnostics = CompileTestUtilities.getDiagnosticByKind(diagnostics, entry.getKey());
+            Set<Diagnostic<? extends JavaFileObject>> filteredDiagnostics = CompileTestUtilities.getDiagnosticByKind(diagnostics, entry.getKey());
 
             outer:
             for (CuteApi.CompilerMessageCheckBB messageToCheck : entry.getValue()) {
 
-                for (Diagnostic element : filteredDiagnostics) {
+                for (Diagnostic<?> element : filteredDiagnostics) {
 
                     String localizedMessage = element.getMessage(messageToCheck.withLocale());
 
@@ -325,7 +327,7 @@ class CompileTest {
                         }
                         case CONTAINS:
                         default: {
-                            if (!messageToCheck.getSearchString().stream().allMatch(e -> localizedMessage.contains(e))) {
+                            if (!messageToCheck.getSearchString().stream().allMatch(localizedMessage::contains)) {
                                 continue;
                             }
                         }
@@ -352,7 +354,7 @@ class CompileTest {
                 }
 
                 // Not found ==> assertion fails
-                throw new FailingAssertionException(Constants.Messages.MESSAGE_HAVENT_FOUND_MESSSAGE.produceMessage(messageToCheck.getSearchString(), messageToCheck.getKind().name()));
+                throw new FailingAssertionException(Constants.Messages.MESSAGE_HAVENT_FOUND_MESSSAGE.produceMessage(messageToCheck.getSearchString(), messageToCheck.getKind().name(), messageToCheck.toString()));
 
             }
 
@@ -365,18 +367,12 @@ class CompileTest {
         Map<Diagnostic.Kind, List<CuteApi.CompilerMessageCheckBB>> map = new HashMap<>();
 
         for (CuteApi.CompilerMessageCheckBB compilerMessageCheck : compilerTestBB.compilerMessageChecks()) {
-
-            List<CuteApi.CompilerMessageCheckBB> checkByKindList = map.get(compilerMessageCheck.getKind());
-            if (checkByKindList == null) {
-                checkByKindList = new ArrayList<>();
-                map.put(Diagnostic.Kind.valueOf(compilerMessageCheck.getKind().name()), checkByKindList);
-
-            }
-
-            checkByKindList.add(compilerMessageCheck);
+            map.computeIfAbsent(compilerMessageCheck.getKind().toDiagnosticsKind(),(k) -> new ArrayList<>()).add(compilerMessageCheck);
         }
 
         return map;
     }
+
+
 
 }

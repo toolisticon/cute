@@ -1,10 +1,6 @@
 package io.toolisticon.cute;
 
 
-import io.toolisticon.cute.AnnotationProcessorWrapper;
-import io.toolisticon.cute.Cute;
-import io.toolisticon.cute.TestAnnotation;
-import io.toolisticon.cute.UnitTestWithoutPassIn;
 import io.toolisticon.cute.testcases.TestAnnotationProcessor;
 import io.toolisticon.cute.testcases.TestAnnotationProcessorWithMissingNoArgConstructor;
 import org.hamcrest.MatcherAssert;
@@ -35,15 +31,14 @@ public class AnnotationProcessorWrapperTest {
 
         Processor unit = AnnotationProcessorWrapper.wrapProcessor(TestAnnotationProcessor.class);
 
-        MatcherAssert.assertThat("Must return non null valued Processor", unit != null);
+        MatcherAssert.assertThat("Must return non null valued Processor", unit, Matchers.notNullValue());
 
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void createWrapperWithNullValuedInstance() {
 
-        Processor unit = AnnotationProcessorWrapper.wrapProcessor((AbstractProcessor) null);
-
+        AnnotationProcessorWrapper.wrapProcessor((AbstractProcessor) null);
 
     }
 
@@ -51,8 +46,7 @@ public class AnnotationProcessorWrapperTest {
     public void createWrapperWithType() {
 
         Processor unit = AnnotationProcessorWrapper.wrapProcessor(TestAnnotationProcessor.class);
-
-        MatcherAssert.assertThat("Must return non null valued Processor", unit != null);
+        MatcherAssert.assertThat("Must return non null valued Processor", unit, Matchers.notNullValue());
 
     }
 
@@ -60,8 +54,7 @@ public class AnnotationProcessorWrapperTest {
     public void createWrapperWithTypeAndException() {
 
         Processor unit = AnnotationProcessorWrapper.wrapProcessor(TestAnnotationProcessor.class, IllegalStateException.class);
-
-        MatcherAssert.assertThat("Must return non null valued Processor", unit != null);
+        MatcherAssert.assertThat("Must return non null valued Processor", unit, Matchers.notNullValue());
 
     }
 
@@ -185,7 +178,7 @@ public class AnnotationProcessorWrapperTest {
         unit.init(processingEnvironment);
 
 
-        Set<? extends TypeElement> set = new HashSet<TypeElement>();
+        Set<? extends TypeElement> set = new HashSet<>();
         RoundEnvironment roundEnvironment = Mockito.mock(RoundEnvironment.class);
 
 
@@ -251,8 +244,8 @@ public class AnnotationProcessorWrapperTest {
 
 
         Cute.unitTest().when(processingEnvironment -> {
-            throw new IllegalArgumentException();
-        })
+                    throw new IllegalArgumentException();
+                })
                 .thenExpectThat().exceptionIsThrown(IllegalArgumentException.class)
                 .executeTest();
 
@@ -263,17 +256,17 @@ public class AnnotationProcessorWrapperTest {
     public void process_testExpectedExceptionNotThrown_assertionShouldFail() {
 
         try {
-            Cute.unitTest().when(new UnitTestWithoutPassIn() {
-                        @Override
-                        public void unitTest(ProcessingEnvironment processingEnvironment) {
+            Cute.unitTest().when(processingEnvironment -> {
 
-                        }
-                    })
+            })
                     .thenExpectThat().exceptionIsThrown(IllegalArgumentException.class)
                     .executeTest();
-        } catch (Exception e) {
+        } catch (AssertionError e) {
             MatcherAssert.assertThat(e.getMessage(), Matchers.containsString("Expected exception of type 'java.lang.IllegalArgumentException'"));
+            return;
         }
+
+        MatcherAssert.assertThat("Expected assertion error wasn't triggered", false);
 
     }
 
@@ -281,12 +274,9 @@ public class AnnotationProcessorWrapperTest {
     public void process_testUnexpectedExceptionWasThrown_assertionShouldFail() {
 
         try {
-            Cute.unitTest().when(new UnitTestWithoutPassIn() {
-                        @Override
-                        public void unitTest(ProcessingEnvironment processingEnvironment) {
-                            throw new IllegalStateException();
-                        }
-                    })
+            Cute.unitTest().when(processingEnvironment -> {
+                throw new IllegalStateException();
+            })
                     .thenExpectThat().exceptionIsThrown(IllegalArgumentException.class)
                     .executeTest();
         } catch (Throwable e) {

@@ -17,12 +17,11 @@ public class ProcessorWasAppliedTest {
     public void concreteProcessorClassInstance_wasApplied() {
 
         Cute.blackBoxTest()
-                .given().processors( SimpleTestProcessor1.class)
+                .given().processor(SimpleTestProcessor1.class)
                 .andSourceFiles(JavaFileObjectUtils.readFromResource("/integrationtest/AnnotationProcessorAppliedTestClass.java"))
                 .whenCompiled()
                 .thenExpectThat().compilationSucceeds()
                 .executeTest();
-
 
     }
 
@@ -31,7 +30,7 @@ public class ProcessorWasAppliedTest {
         boolean assertionErrorWasTriggered = false;
         try {
             Cute.blackBoxTest()
-                    .given().processors( SimpleTestProcessor2.class)
+                    .given().processor(SimpleTestProcessor2.class)
                     .andSourceFiles(JavaFileObjectUtils.readFromResource("/integrationtest/AnnotationProcessorAppliedTestClass.java"))
                     .executeTest();
 
@@ -46,47 +45,11 @@ public class ProcessorWasAppliedTest {
 
     }
 
-    /*-
-    @Test
-    public void anonymousProcessorClassInstanceOfProcessor_wasApplied() {
-        CuteFluentApiStarter.unitTest()
-                .unitTest()
-                .useProcessor(new SimpleTestProcessor1() {
-                })
-                .useSource(JavaFileObjectUtils.readFromResource("/integrationtest/AnnotationProcessorAppliedTestClass.java"))
-                .executeTest();
-
-    }
-
-    @Test
-    public void anonymousProcessorClassInstanceOfProcessor_wasNotApplied() {
-        boolean assertionErrorWasTriggered = false;
-        try {
-            CompileTestBuilder
-                    .unitTest()
-                    .useProcessor(new SimpleTestProcessor2() {
-                    })
-                    .useSource(JavaFileObjectUtils.readFromResource("/integrationtest/AnnotationProcessorAppliedTestClass.java"))
-                    .executeTest();
-
-        } catch (AssertionError e) {
-            assertionErrorWasTriggered = true;
-
-            MatcherAssert.assertThat(e.getMessage(), Matchers.containsString("Annotation processor null hasn't been called"));
-
-        }
-
-        MatcherAssert.assertThat("AssertionError should have been triggered", assertionErrorWasTriggered);
-
-    }
-
-    */
-
     @Test
     public void anonymousProcessorClassInstanceOfClass_wasApplied() {
 
         Cute.blackBoxTest()
-                .given().processors(SimpleTestProcessor1.class)
+                .given().processor(SimpleTestProcessor1.class)
                 .andSourceFiles(JavaFileObjectUtils.readFromResource("/integrationtest/AnnotationProcessorAppliedTestClass.java"))
                 .executeTest();
 
@@ -99,13 +62,12 @@ public class ProcessorWasAppliedTest {
         try {
 
             Cute.blackBoxTest()
-                    .given().processors(SimpleTestProcessor2.class)
+                    .given().processor(SimpleTestProcessor2.class)
                     .andSourceFiles(JavaFileObjectUtils.readFromResource("/integrationtest/AnnotationProcessorAppliedTestClass.java"))
                     .executeTest();
 
         } catch (AssertionError e) {
             assertionErrorWasTriggered = true;
-
             MatcherAssert.assertThat(e.getMessage(), Matchers.containsString("Annotation processor " + SimpleTestProcessor2.class.getCanonicalName() + " hasn't been called"));
 
         }

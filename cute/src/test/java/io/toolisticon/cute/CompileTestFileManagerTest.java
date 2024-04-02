@@ -1,6 +1,5 @@
 package io.toolisticon.cute;
 
-import io.toolisticon.cute.CompileTestFileManager;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
 import org.junit.Test;
@@ -59,22 +58,20 @@ public class CompileTestFileManagerTest {
     private StandardJavaFileManager standardJavaFileManager = Mockito.mock(StandardJavaFileManager.class);
 
     @Test
-    public void test_InMemoryOutputJavaFileObject_setContent_nullValued() throws IOException, URISyntaxException {
+    public void test_InMemoryOutputJavaFileObject_setContent_nullValued() {
 
-        CompileTestFileManager compileTestFileManager = new CompileTestFileManager(standardJavaFileManager);
-        CompileTestFileManager.InMemoryOutputJavaFileObject unit = new CompileTestFileManager.InMemoryOutputJavaFileObject(new URI("string://abc"), JavaFileObject.Kind.OTHER);
+        CompileTestFileManager.AbstractInMemoryOutputFileObject unit = new CompileTestFileManager.InMemoryOutputFileObject(StandardLocation.CLASS_OUTPUT,"io.toolisticon.cute","abc");
 
         unit.setContent(null);
 
-        MatcherAssert.assertThat((String) unit.getCharContent(false), Matchers.isEmptyString());
+        MatcherAssert.assertThat((String) unit.getCharContent(false), Matchers.is(Matchers.emptyString()));
 
     }
 
     @Test
-    public void test_InMemoryOutputJavaFileObject_setContent() throws IOException, URISyntaxException {
+    public void test_InMemoryOutputJavaFileObject_setContent() {
 
-        CompileTestFileManager compileTestFileManager = new CompileTestFileManager(standardJavaFileManager);
-        CompileTestFileManager.InMemoryOutputJavaFileObject unit = new CompileTestFileManager.InMemoryOutputJavaFileObject(new URI("string://abc"), JavaFileObject.Kind.OTHER);
+        CompileTestFileManager.AbstractInMemoryOutputFileObject unit = new CompileTestFileManager.InMemoryOutputFileObject(StandardLocation.CLASS_OUTPUT,"io.toolisticon.cute","abc");
 
         unit.setContent("ABC".getBytes());
 
@@ -83,10 +80,9 @@ public class CompileTestFileManagerTest {
     }
 
     @Test
-    public void test_InMemoryOutputJavaFileObject_openReader() throws IOException, URISyntaxException {
+    public void test_InMemoryOutputJavaFileObject_openReader() throws IOException {
 
-        CompileTestFileManager compileTestFileManager = new CompileTestFileManager(standardJavaFileManager);
-        CompileTestFileManager.InMemoryOutputJavaFileObject unit = new CompileTestFileManager.InMemoryOutputJavaFileObject(new URI("string://abc"), JavaFileObject.Kind.OTHER);
+        CompileTestFileManager.AbstractInMemoryOutputFileObject unit = new CompileTestFileManager.InMemoryOutputFileObject(StandardLocation.CLASS_OUTPUT,"io.toolisticon.cute","abc");
 
         unit.setContent("ABC".getBytes());
 
@@ -105,7 +101,7 @@ public class CompileTestFileManagerTest {
     @Test
     public void test_FileObjectCache() throws URISyntaxException {
 
-        CompileTestFileManager.FileObjectCache unit = new CompileTestFileManager.FileObjectCache();
+        CompileTestFileManager.FileObjectCache<FileObject> unit = new CompileTestFileManager.FileObjectCache<>();
 
         JavaFileObject javaFileObject = Mockito.mock(JavaFileObject.class);
 

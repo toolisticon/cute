@@ -4,7 +4,7 @@
 
     <groupId>io.toolisticon.cute</groupId>
     <artifactId>cute-parent</artifactId>
-    <version>1.1.1-SNAPSHOT</version>
+    <version>1.4.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>cute-parent</name>
@@ -56,11 +56,6 @@
 
     <inceptionYear>2018</inceptionYear>
 
-    <prerequisites>
-        <maven>3.6.0</maven>
-    </prerequisites>
-
-
     <issueManagement>
         <url>https://github.com/toolisticon/cute/issues</url>
         <system>GitHub Issues</system>
@@ -85,20 +80,20 @@
 
         <!-- dependencies: compile and runtime -->
         <spiap.version>0.8.0</spiap.version>
-        <fluapigen.version>1.0.1-SNAPSHOT</fluapigen.version>
+        <fluapigen.version>1.1.0</fluapigen.version>
+
 
         <!-- versions of test dependencies -->
-        <junit4.version>4.13.1</junit4.version>
+        <junit4.version>4.13.2</junit4.version>
         <junit5.version>5.7.2</junit5.version>
-        <testng.version>6.14.3</testng.version>
-
+        <testng.version>7.4.0</testng.version>
         <hamcrest.version>2.2</hamcrest.version>
         <mockito.version>2.28.2</mockito.version>
 
         <!-- plugin versions -->
         <animal-sniffer-maven-plugin.version>1.18</animal-sniffer-maven-plugin.version>
         <coveralls-maven-plugin.version>4.3.0</coveralls-maven-plugin.version>
-        <jacoco-maven-plugin.version>0.8.8</jacoco-maven-plugin.version>
+        <jacoco-maven-plugin.version>0.8.11</jacoco-maven-plugin.version>
         <maven-assembly-plugin.version>2.4</maven-assembly-plugin.version>
         <maven-bundle-plugin.version>2.5.3</maven-bundle-plugin.version>
         <maven-failsafe-plugin.version>2.22.2</maven-failsafe-plugin.version>

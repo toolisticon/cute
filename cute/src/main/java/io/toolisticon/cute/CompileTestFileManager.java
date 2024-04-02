@@ -1,7 +1,5 @@
 package io.toolisticon.cute;
 
-import io.toolisticon.cute.Constants;
-
 import javax.tools.FileObject;
 import javax.tools.ForwardingJavaFileManager;
 import javax.tools.JavaFileManager;
@@ -59,8 +57,8 @@ class CompileTestFileManager extends ForwardingJavaFileManager<StandardJavaFileM
     }
 
 
-    private final FileObjectCache<JavaFileObject> generatedJavaFileObjectCache = new FileObjectCache<>();
-    private final FileObjectCache<FileObject> generatedFileObjectCache = new FileObjectCache<>();
+    private final FileObjectCache<InMemoryOutputJavaFileObject> generatedJavaFileObjectCache = new FileObjectCache<>();
+    private final FileObjectCache<InMemoryOutputFileObject> generatedFileObjectCache = new FileObjectCache<>();
 
 
     public CompileTestFileManager(StandardJavaFileManager standardJavaFileManager) {
@@ -68,11 +66,11 @@ class CompileTestFileManager extends ForwardingJavaFileManager<StandardJavaFileM
 
     }
 
-    List<JavaFileObject> getGeneratedJavaFileObjects() {
+    List<InMemoryOutputJavaFileObject> getGeneratedJavaFileObjects() {
         return new ArrayList<>(generatedJavaFileObjectCache.getEntries());
     }
 
-    List<FileObject> getGeneratedFileObjects() {
+    List<InMemoryOutputFileObject> getGeneratedFileObjects() {
         return new ArrayList<>(generatedFileObjectCache.getEntries());
     }
 
@@ -84,7 +82,7 @@ class CompileTestFileManager extends ForwardingJavaFileManager<StandardJavaFileM
     @Override
     public JavaFileObject getJavaFileForOutput(Location location, String className, JavaFileObject.Kind kind, FileObject sibling) {
 
-        JavaFileObject result = new InMemoryOutputJavaFileObject(uriForJavaFileObject(location, className, kind), kind);
+        InMemoryOutputJavaFileObject result = new InMemoryOutputJavaFileObject(location, className, kind);
         generatedJavaFileObjectCache.addFileObject(result.toUri(), result);
         return result;
 
@@ -92,7 +90,7 @@ class CompileTestFileManager extends ForwardingJavaFileManager<StandardJavaFileM
 
     @Override
     public FileObject getFileForOutput(Location location, String packageName, String relativeName, FileObject sibling) {
-        JavaFileObject result = new InMemoryOutputJavaFileObject(uriForFileObject(location, packageName, relativeName), JavaFileObject.Kind.OTHER);
+        InMemoryOutputFileObject result = new InMemoryOutputFileObject(location, packageName, relativeName);
         generatedFileObjectCache.addFileObject(result.toUri(), result);
         return result;
     }
@@ -183,12 +181,16 @@ class CompileTestFileManager extends ForwardingJavaFileManager<StandardJavaFileM
     }
 
 
-    public static class InMemoryOutputJavaFileObject extends SimpleJavaFileObject implements OutputStreamCallback {
+    public static abstract class AbstractInMemoryOutputFileObject extends SimpleJavaFileObject implements OutputStreamCallback {
 
         private byte[] content = new byte[0];
 
-        public InMemoryOutputJavaFileObject(URI uri, Kind kind) {
+        public AbstractInMemoryOutputFileObject(URI uri, Kind kind) {
             super(uri, kind);
+        }
+
+        public byte[] getContent() {
+            return content;
         }
 
         @Override
@@ -212,13 +214,67 @@ class CompileTestFileManager extends ForwardingJavaFileManager<StandardJavaFileM
         }
 
         @Override
-        public CharSequence getCharContent(boolean ignoreEncodingErrors){
+        public CharSequence getCharContent(boolean ignoreEncodingErrors) {
             return new String(content);
         }
 
         @Override
-        public Writer openWriter(){
+        public Writer openWriter() {
             return new OutputStreamWriter(openOutputStream());
+        }
+    }
+
+    public static class InMemoryOutputJavaFileObject extends AbstractInMemoryOutputFileObject {
+
+        private final Location location;
+        private final String className;
+        private final JavaFileObject.Kind kind;
+
+        InMemoryOutputJavaFileObject(Location location, String className, JavaFileObject.Kind kind) {
+            super(uriForJavaFileObject(location, className, kind), kind);
+            this.location = location;
+            this.className = className;
+            this.kind = kind;
+        }
+
+        public Location getLocation() {
+            return location;
+        }
+
+        public String getClassName() {
+            return className;
+        }
+
+        @Override
+        public Kind getKind() {
+            return kind;
+        }
+    }
+
+    public static class InMemoryOutputFileObject extends AbstractInMemoryOutputFileObject {
+
+        private final Location location;
+        private final String packageName;
+        private final String relativeName;
+
+        InMemoryOutputFileObject(Location location, String packageName, String relativeName) {
+            super(uriForFileObject(location, packageName, relativeName), JavaFileObject.Kind.OTHER);
+            this.location = location;
+            this.packageName = packageName;
+            this.relativeName = relativeName;
+        }
+
+
+        public Location getLocation() {
+            return location;
+        }
+
+        public String getPackageName() {
+            return packageName;
+        }
+
+        public String getRelativeName() {
+            return relativeName;
         }
     }
 
@@ -243,7 +299,7 @@ class CompileTestFileManager extends ForwardingJavaFileManager<StandardJavaFileM
         }
 
         @Override
-        public void write( byte[] b) throws IOException {
+        public void write(byte[] b) throws IOException {
             super.write(b);
             outputStreamCallback.setContent(this.toByteArray());
         }
