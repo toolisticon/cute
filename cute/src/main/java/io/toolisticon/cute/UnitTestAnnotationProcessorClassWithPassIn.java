@@ -6,7 +6,7 @@ import javax.lang.model.element.TypeElement;
 import java.lang.annotation.Annotation;
 import java.util.Set;
 
-public class UnitTestAnnotationProcessorClassWithPassIn<ELEMENT_TYPE extends Element> extends AbstractUnitTestAnnotationProcessorWithPassIn {
+class UnitTestAnnotationProcessorClassWithPassIn<ELEMENT_TYPE extends Element> extends AbstractUnitTestAnnotationProcessorWithPassIn {
 
 
     /**

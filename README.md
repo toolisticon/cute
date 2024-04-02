@@ -3,7 +3,7 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.toolisticon.cute/cute/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.toolisticon.cute/cute)
 ![Build Status](https://github.com/toolisticon/cute/workflows/default/badge.svg)
 [![codecov](https://codecov.io/gh/toolisticon/cute/branch/master/graph/badge.svg)](https://codecov.io/gh/toolisticon/cute)
-
+[![javadoc](https://javadoc.io/badge2/io.toolisticon.cute/cute/javadoc.svg)](https://javadoc.io/doc/io.toolisticon.cute/cute)
 # Why you should use this project?
 Testing of annotation processors can be a very difficult task.
 Usually annotation procecssors are tighly bound to the compile time model of Java and are relying on tools provided by the java compiler during the compilation process.
@@ -17,7 +17,8 @@ This compile testing framework allows you to to do this and additionally support
 
 - allows compile time tests supporting the most relevant test frameworks (junit4, junit5, testng, ...)
 - simple, but powerful fluent api (immutable)
-- supports all Java versions >=7 (including support for java 9 modules)
+- additionally provides compilation outcome to do custom assertions with your favorite unit test frameworks.
+- supports all Java versions >=8 (including support for java 9 modules)
 - Enables you to debug annotation processors during compilation tests
 - provides useful information for analysis of failing tests:
    - error and warning messages
@@ -34,13 +35,24 @@ Simply add the following dependencies to your project to be able to use this tes
 <dependencies>
 
    <!-- Compile testing framework -->
-       <dependency>
+   <dependency>
        <groupId>io.toolisticon.cute</groupId>
        <artifactId>cute</artifactId>
        <version>${currentVersion}</version>
        <scope>test</scope>
    </dependency>
-
+    
+   <!-- 
+        Legacy API : Only add it if you don't want to use the new API.
+                     or migration to new API isn't an option.
+    -->
+    <dependency>
+        <groupId>io.toolisticon.cute</groupId>
+        <artifactId>cute-legacy</artifactId>
+        <version>${currentVersion}</version>
+        <scope>test</scope>
+    </dependency>
+   
    <!-- 
        optional : only needed if you want to trigger assertion 
                   errors via your unit test framework
@@ -56,7 +68,7 @@ Simply add the following dependencies to your project to be able to use this tes
 </dependencies>
 ```
      
-# Tests types
+# Tests Types
 
 There are two types of tests: Unit tests and Compilation (or Integration) Tests.
 
@@ -70,39 +82,45 @@ For both test types you can test
 The CompileTestBuilder always returns immutable CompileTestBuilder instances. 
 So it's safe to initialize a base CompileTestBuilder instance once in a testclass and to refine it further in the testcases.
 
-## Compilation tests
+## Black-Box-Compilation tests
 
-Compilation test allow you to define testcase source files and to apply your processor on it.
+Black-Box-Compilation test allow you to define testcase source files and to apply your processor on it during its compilation.
 
 ```java
-@Test
-public void exampleCompilationTest() {
-
-   CompileTestBuilder.compilationTest()
-       .addSources("/exampletestcase/Testcase1.java")
-       .addProcessors(YourProcessorUnderTest.class)
-       .compilationShouldSucceed()
-       .expectWarningMessage()
+ Cute.blackBoxTest()
+    .given()
+        .processor(YourProcessorUnderTest.class)
+        .andSourceFiles("/exampletestcase/Testcase1.java")
+    .whenCompiled()
+    .thenExpectThat()
+        .compilationSucceeds()
+        .andThat()
+            .compilerMessage()
+            .ofKindWarning()
             .atSource("/exampletestcase/Testcase1.java")
-            .atLineNumber(10L)
-            .atColumnNumber(20L)
-            .thatContains("WARNING SNIPPET(will check if a warning exists that contains passed string)")
-       .expectThatGeneratedSourceFileExists(
-               "your.test.package.GeneratedFile",
-               JavaFileObjectUtils.readFromString("package your.test.package;\npublic class GeneratedFile{}"))
-       .executeTest();
-
-}
+            .atLine(10L)
+            .atColumn(20L)
+            .contains("WARNING SNIPPET(will check if a warning exists that contains passed string)")
+        .andThat()
+            .generatedSourceFile("your.test.package.GeneratedFile")
+            .matches(
+                CuteApi.ExpectedFileObjectMatcherKind.BINARY,
+                JavaFileObjectUtils.readFromString("package your.test.package;\npublic class GeneratedFile{}")
+            )
+        .executeTest()
+        .executeCustomAssertions(e -> {
+            // You can do all checks as custom assertions as well :)
+            MatcherAssert.assertThat("Compilation should be successful", e.compilationWasSuccessful());
+            // ...
+        });
 ```
 
 Additionally, to the explicitly configured assertions it implicitly checks if your annotation processor has been applied and triggers an AssertionError if not.
 
-
-
 ## Unit tests
 
 Usually - if you are developing annotation processors - your code is likely to rely on the tools provided to the annotation processor via the ProcessingEnvironment like Filer, Messager, Types and Elements.
-These classes and the Java compile time model are hard to mock. Thats why unit testing is usually very hard to do.
+These classes and the Java compile time model are hard to mock. That's why unit testing is usually very hard to do.
 This library helps you to execute unit test at compile time, giving you the ProcessingEnvironment's tools and access to the compile time model for free.
 
 The unit test concept provided by this library uses a default source file and applies a default annotation processor on it. 
@@ -115,24 +133,29 @@ Your unit test code can be declared via the fluent api:
 @Test
 public void exampleUnitTest() {
 
-    CompileTestBuilder.unitTest()
-        .defineTest(SampleProcesssor.class, new UnitTestForTestingAnnotationProcessors<SampleProcesssor,TypeElement>() {
+    Cute.unitTest()
+        .when()
+        .passInProcessor(SampleProcesssor.class)
+        .intoUnitTest( new UnitTestForTestingAnnotationProcessorsWithoutPassIn<SampleProcesssor>() {
             @Override
-            public void unitTest(SampleProcesssor unit, ProcessingEnvironment processingEnvironment, TypeElement typeElement) {
-
+            public void unitTest(SampleProcesssor unit, ProcessingEnvironment processingEnvironment) {
+            
                 // Processor's init() method was called by cute framework
                 String result = unit.yourMethodToTest("ABC");
-
+            
                 // AssertionErrors will be passed through your external unit test function
                 MatcherAssert.assertThat(result, Matchers.is("EXPECTED RESULT"));
-
+            
             }
         })
-        .compilationShouldSucceed()
-        .expectWarningMessage()
-            .thatContains("WARNING SNIPPET(will check if a warning exists that contains passed string)")
+        .thenExpectThat()
+            .compilationSucceeds()
+            .andThat()
+            .compilerMessage()
+                .ofKindWarning()
+                .contains("WARNING SNIPPET(will check if a warning exists that contains passed string)")
         .executeTest();
-    
+
 }
 ```
  
@@ -146,61 +169,98 @@ Another cute feature is that it's possible to easily pass in elements and even a
 For passing in elements all you need to do is to create a static class next to your unit tests and to add the _PassIn_ annotation on the element you want to pass in.
 The static class then can be used as parameter in _defineTestWithPassedInElement_ method.
 
-Additional you can pass in an annotation processor by using the annotation processor class  as a parameter in _defineTestWithPassedInElement_ method.
+Additionally, you can pass in an annotation processor by using the annotation processor class  as a parameter in _defineTestWithPassedInElement_ method.
 An instance of the annotation processor will be created and initialized.
 
 ```java
-    private static class PassedInElement {
-        // Add your custom code like
-        @PassIn
-        void yourMethodToBePassedIn(){
-        }   
+private static class PassedInElement {
+    // Add your custom code like
+    @PassIn
+    void yourMethodToBePassedIn(){
     }
-    
+}
+
     // Example 1 : Pass in element
-    @Test
-    public void yourUnitTestWithPassedInElement() {
+@Test
+public void yourUnitTestWithPassedInElement() {
 
-        CompileTestBuilder
-                .unitTest()
-                .defineTestWithPassedInElement(PassedInElement.class, new UnitTest<ExecutableElement>() {
-                    @Override
-                    public void unitTest(ProcessingEnvironment processingEnvironment, ExecutableElement element) {
+    Cute
+        .unitTest()
+        .when().passInElement().<ExecutableElement>fromClass(PassedInElement.class)
+        .intoUnitTest( new UnitTest<ExecutableElement>() {
+            @Override
+            public void unitTest(ProcessingEnvironment processingEnvironment, ExecutableElement element) {
 
-                        // put your unit test code
+                // put your unit test code
+                // ....
 
-                    }
-                })
-                .compilationShouldSucceed()
-                .executeTest();
-
-
-    }
-
-    // Example 2 : Pass in annotation processor and element
-    // The processor will be instantiated and initialized
-    @Test
-    public void yourUnitTestWithPassedInElementAndProcessor() {
-
-        CompileTestBuilder
-                .unitTest()
-                .defineTestWithPassedInElement(YourProcessorToTest.class, PassedInElement.class, new UnitTestForTestingAnnotationProcessors<YourProcessorToTest, ExecutableElement>() {
-                    @Override
-                    public void unitTest(YourProcessorToTest unit, ProcessingEnvironment processingEnvironment, ExecutableElement element) {
-
-                        // put your unit test code
-                        String result = unit.methodToTest(element);
-                        MatcherAssert.assertThat(result, Matchers.is("EXPECTED RESULT"));
-
-                    }
-                })
-                .compilationShouldSucceed()
-                .executeTest();
+            }
+        })
+        .thenExpectThat()
+        .compilationSucceeds()
+        .executeTest();
 
 
-    }
+}
+
+// Example 2 : Pass in annotation processor and element
+// The processor will be instantiated and initialized
+@Test
+public void yourUnitTestWithPassedInElementAndProcessor() {
+
+    Cute
+        .unitTest()
+        .when()
+        .passInProcessor(YourProcessorToTest.class)
+        .andPassInElement().<ExecutableElement>fromClass(PassedInElement.class)
+        .intoUnitTest( new UnitTestForTestingAnnotationProcessors<YourProcessorToTest, ExecutableElement>() {
+            @Override
+            public void unitTest(YourProcessorToTest unit, ProcessingEnvironment processingEnvironment, ExecutableElement element) {
+
+                // put your unit test code
+                String result = unit.methodToTest(element);
+                MatcherAssert.assertThat(result, Matchers.is("EXPECTED RESULT"));
+
+            }
+        })
+        .thenExpectThat()
+        .compilationSucceeds()
+        .executeTest();
+
+
+}
 ```
- 
+
+### Testing generated and compiled classes
+Testing of the generated code can either be done by providing an integration test project or by using Cute as part of the compilation test.
+Unfortunately, testing generated code with Cute heavily relies on the Javas reflection api, since generated classes aren't available in your unit test code.
+But it's working flawlessly if your generated classes are implementing precompiled interfaces:
+
+````java
+@Test
+public void blackBoxTest_justCompileCodeAndDoClassTestWithImplementedInterface() {
+    Cute.blackBoxTest().given().noProcessors()
+        .andSourceFiles("/TestClassWithImplementedInterface.java")
+        .whenCompiled()
+        .thenExpectThat()
+        .compilationSucceeds()
+        .andThat()
+            .generatedClass("io.toolisticon.cute.TestClassWithImplementedInterface")
+            .testedSuccessfullyBy(new GeneratedClassesTestForSpecificClass() {
+                @Override
+                public void doTests(Class<?> clazz, CuteClassLoader cuteClassLoader) throws Exception{
+    
+                    SimpleTestInterface unit = (SimpleTestInterface) clazz.getConstructor().newInstance();
+                    MatcherAssert.assertThat(unit.saySomething(), Matchers.is("WHATS UP?"));
+    
+                }
+            })
+        .executeTest();
+}
+````
+
+Consider to prefer integration tests over Cute if no precompiled interface is implemented by the generated classes.
+
 # Projects using this toolkit library
 
 - [Annotation processor toolkit](https://github.com/toolisticon/annotation-processor-toolkit) : Toolkit that allows you to build annotation processors in a more comfortable way

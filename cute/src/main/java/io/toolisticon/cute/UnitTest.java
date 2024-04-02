@@ -11,7 +11,7 @@ import javax.lang.model.element.Element;
  * <p>
  * Please use {@link UnitTestForTestingAnnotationProcessors} if you want to unit test annotation processor methods.
  */
-public interface UnitTest<ELEMENT_TYPE extends Element> {
+public interface UnitTest<ELEMENT_TYPE extends Element> extends UnitTestBase {
 
     /**
      * The unit test method.

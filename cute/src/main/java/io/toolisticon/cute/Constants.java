@@ -35,7 +35,7 @@ public final class Constants {
         public final static Message UNIT_TEST_PRECONDITION_INCOMPATIBLE_ELEMENT_TYPE = new Message("PRECONDITION : Processed Element type doesn't match the one expected by your unit test processor");
         public final static Message UNIT_TEST_PRECONDITION_MUST_FIND_ONE_ELEMENT = new Message("PRECONDITION: Expected to find at an element annotated with %s in processed sources files.");
         public final static Message UNIT_TEST_PRECONDITION_MUST_FIND_EXACTLY_ONE_ELEMENT = new Message("PRECONDITION: Expected to find exactly one element annotated with %s in processed sources files. Please add PassIn annotation to the one Element you want to pass in.");
-        public final static Message UNIT_TEST_PRECONDITION_MUST_FIND_EXACTLY_ONE_ELEMENT_WITH_PASSIN_ANNOTATION = new Message("PRECONDITION: Expected to find exactly one element annotated with %s and " + PassIn.class.getName() + " in processed sources files. Found more than one element annotated with " + PassIn.class.getName() +".");
+        public final static Message UNIT_TEST_PRECONDITION_MUST_FIND_EXACTLY_ONE_ELEMENT_WITH_PASSIN_ANNOTATION = new Message("PRECONDITION: Expected to find exactly one element annotated with " + PassIn.class.getName() + " in processed sources files, but found more than one element annotated with " + PassIn.class.getName() +".");
 
 
         public final static Message UNIT_TEST_PASS_IN_PRECONDITION_MUST_FIND_EXACTLY_ONE_ELEMENT = new Message("PRECONDITION: Expected to find exactly one element annotated with %s in passed in class %s");
@@ -65,9 +65,11 @@ public final class Constants {
         public final static Message MESSAGE_FO_EXISTS_BUT_DOESNT_MATCH_MATCHER = new Message("Expected generated FileObject (%s) exists but doesn't match passed GeneratedFileObjectMatcher: %s");
 
         public final static Message MESSAGE_PROCESSOR_HASNT_BEEN_APPLIED = new Message("Annotation processor %s hasn't been called! Please check that there's at least one source file using an annotation supported by the processor: %s");
-        public final static Message MESSAGE_HAVENT_FOUND_MESSSAGE = new Message("Haven't found expected message string '%s' of kind %s!");
+        public final static Message MESSAGE_HAVENT_FOUND_MESSSAGE = new Message("Haven't found expected compiler message string '%s' of kind '%s'! (Check configuration : %s)");
 
         public final static Message MESSAGE_TECHNICAL_ERROR = new Message("TECHNICAL ERROR : %s");
+
+        public final static Message MESSAGE_GOT_UNEXPECTED_EXCEPTION_DURING_CLASS_TEST_ERROR = new Message("Unexpected Exception happened during test of generated class %s : %s");
 
 
         // IllegalArgumentException Messages

@@ -8,7 +8,7 @@
     <parent>
         <groupId>io.toolisticon.cute</groupId>
         <artifactId>extension-parent</artifactId>
-        <version>0.11.2-SNAPSHOT</version>
+        <version>1.4.1-SNAPSHOT</version>
     </parent>
 
     <name>extension-plainjava</name>
@@ -67,7 +67,7 @@
                                     <version>[3.0.4,)</version>
                                 </requireMavenVersion>
                                 <requireJavaVersion>
-                                    <version>1.6</version>
+                                    <version>${java.version}</version>
                                 </requireJavaVersion>
                                 <bannedDependencies>
                                     <searchTransitive>false</searchTransitive>

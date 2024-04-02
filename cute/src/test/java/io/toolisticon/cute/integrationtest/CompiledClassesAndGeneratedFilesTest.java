@@ -1,8 +1,7 @@
 package io.toolisticon.cute.integrationtest;
 
-import io.toolisticon.cute.CompileTestBuilder;
 import io.toolisticon.cute.Constants;
-import io.toolisticon.cute.GeneratedFileObjectMatcher;
+import io.toolisticon.cute.Cute;
 import io.toolisticon.cute.JavaFileObjectUtils;
 import io.toolisticon.cute.TestUtilities;
 import io.toolisticon.cute.common.SimpleTestProcessor1;
@@ -27,11 +26,40 @@ public class CompiledClassesAndGeneratedFilesTest {
     @Test
     public void testCompiledClassesExist() {
 
-        CompileTestBuilder.compilationTest()
-                .addProcessors(SimpleTestProcessor1.class)
-                .addSources(JavaFileObjectUtils.readFromResource("/integrationtest/CompiledClassesAndGeneratedFilesExistTestcase.java"))
-                .compilationShouldSucceed()
-                .expectThatJavaFileObjectExists(StandardLocation.CLASS_OUTPUT, "io.toolisticon.cute.integrationtest.CompiledClassesAndGeneratedFilesExistTestcase", JavaFileObject.Kind.CLASS)
+        Cute.blackBoxTest()
+                .given().processor(SimpleTestProcessor1.class)
+                .andSourceFiles(JavaFileObjectUtils.readFromResource("/integrationtest/CompiledClassesAndGeneratedFilesExistTestcase.java"))
+                .whenCompiled()
+                .thenExpectThat().compilationSucceeds()
+                .andThat().javaFileObject(StandardLocation.CLASS_OUTPUT, "io.toolisticon.cute.integrationtest.CompiledClassesAndGeneratedFilesExistTestcase", JavaFileObject.Kind.CLASS).exists()
+                .executeTest();
+
+
+    }
+
+    @Test
+    public void testCompiledClassesExist_withProcessorCollection() {
+
+        Cute.blackBoxTest()
+                .given().processor(SimpleTestProcessor1.class)
+                .andSourceFiles(JavaFileObjectUtils.readFromResource("/integrationtest/CompiledClassesAndGeneratedFilesExistTestcase.java"))
+                .whenCompiled()
+                .thenExpectThat().compilationSucceeds()
+                .andThat().javaFileObject(StandardLocation.CLASS_OUTPUT, "io.toolisticon.cute.integrationtest.CompiledClassesAndGeneratedFilesExistTestcase", JavaFileObject.Kind.CLASS).exists()
+                .executeTest();
+
+
+    }
+
+    @Test
+    public void testCompiledClassesExist_withSingleProcessor() {
+
+        Cute.blackBoxTest()
+                .given().processor(SimpleTestProcessor1.class)
+                .andSourceFiles(JavaFileObjectUtils.readFromResource("/integrationtest/CompiledClassesAndGeneratedFilesExistTestcase.java"))
+                .whenCompiled()
+                .thenExpectThat().compilationSucceeds()
+                .andThat().javaFileObject(StandardLocation.CLASS_OUTPUT, "io.toolisticon.cute.integrationtest.CompiledClassesAndGeneratedFilesExistTestcase", JavaFileObject.Kind.CLASS).exists()
                 .executeTest();
 
 
@@ -76,11 +104,12 @@ public class CompiledClassesAndGeneratedFilesTest {
         boolean assertionErrorWasThrown = false;
 
         try {
-            CompileTestBuilder.compilationTest()
-                    .addProcessors(FileGeneratorProcessor.class)
-                    .addSources(JavaFileObjectUtils.readFromResource("/integrationtest/CompiledClassesAndGeneratedFilesExistTestcase.java"))
-                    .compilationShouldSucceed()
-                    .expectThatFileObjectDoesntExist(StandardLocation.SOURCE_OUTPUT, "/META-INF", "jupp.txt")
+            Cute.blackBoxTest()
+                    .given().processor(FileGeneratorProcessor.class)
+                    .andSourceFiles(JavaFileObjectUtils.readFromResource("/integrationtest/CompiledClassesAndGeneratedFilesExistTestcase.java"))
+                    .whenCompiled()
+                    .thenExpectThat().compilationSucceeds()
+                    .andThat().fileObject(StandardLocation.SOURCE_OUTPUT, "/META-INF", "jupp.txt").doesntExist()
                     .executeTest();
         } catch (AssertionError e) {
 
@@ -97,11 +126,12 @@ public class CompiledClassesAndGeneratedFilesTest {
     @Test
     public void testCompiledResourceExist_byFileObject() {
 
-        CompileTestBuilder.compilationTest()
-                .addProcessors(FileGeneratorProcessor.class)
-                .addSources("/integrationtest/CompiledClassesAndGeneratedFilesExistTestcase.java")
-                .compilationShouldSucceed()
-                .expectThatFileObjectExists(StandardLocation.SOURCE_OUTPUT, "/META-INF", "jupp.txt", JavaFileObjectUtils.readFromString("XXX"))
+        Cute.blackBoxTest()
+                .given().processor(FileGeneratorProcessor.class)
+                .andSourceFiles("/integrationtest/CompiledClassesAndGeneratedFilesExistTestcase.java")
+                .whenCompiled()
+                .thenExpectThat().compilationSucceeds()
+                .andThat().fileObject(StandardLocation.SOURCE_OUTPUT, "/META-INF", "jupp.txt").equals(JavaFileObjectUtils.readFromString("XXX"))
                 .executeTest();
 
 
@@ -110,16 +140,12 @@ public class CompiledClassesAndGeneratedFilesTest {
     @Test
     public void testCompiledResourceExist_ByMatcher() {
 
-        CompileTestBuilder.compilationTest()
-                .addProcessors(FileGeneratorProcessor.class)
-                .addSources(JavaFileObjectUtils.readFromResource("/integrationtest/CompiledClassesAndGeneratedFilesExistTestcase.java"))
-                .compilationShouldSucceed()
-                .expectThatFileObjectExists(StandardLocation.SOURCE_OUTPUT, "/META-INF", "jupp.txt", new GeneratedFileObjectMatcher() {
-                    @Override
-                    public boolean check(FileObject fileObject) throws IOException {
-                        return true;
-                    }
-                })
+        Cute.blackBoxTest()
+                .given().processor(FileGeneratorProcessor.class)
+                .andSourceFiles(JavaFileObjectUtils.readFromResource("/integrationtest/CompiledClassesAndGeneratedFilesExistTestcase.java"))
+                .whenCompiled()
+                .thenExpectThat().compilationSucceeds()
+                .andThat().fileObject(StandardLocation.SOURCE_OUTPUT, "/META-INF", "jupp.txt").matches(fileObject -> true)
                 .executeTest();
 
 
@@ -131,11 +157,12 @@ public class CompiledClassesAndGeneratedFilesTest {
         boolean assertionErrorWasThrown = false;
 
         try {
-            CompileTestBuilder.compilationTest()
-                    .addProcessors(FileGeneratorProcessor.class)
-                    .addSources(JavaFileObjectUtils.readFromResource("/integrationtest/CompiledClassesAndGeneratedFilesExistTestcase.java"))
-                    .compilationShouldSucceed()
-                    .expectThatFileObjectExists(StandardLocation.SOURCE_OUTPUT, "/META-INF", "jupp.txt", JavaFileObjectUtils.readFromString("XXX!!!"))
+            Cute.blackBoxTest()
+                    .given().processor(FileGeneratorProcessor.class)
+                    .andSourceFiles(JavaFileObjectUtils.readFromResource("/integrationtest/CompiledClassesAndGeneratedFilesExistTestcase.java"))
+                    .whenCompiled()
+                    .thenExpectThat().compilationSucceeds()
+                    .andThat().fileObject(StandardLocation.SOURCE_OUTPUT, "/META-INF", "jupp.txt").equals(JavaFileObjectUtils.readFromString("XXX!!!"))
                     .executeTest();
         } catch (AssertionError e) {
 
@@ -154,16 +181,11 @@ public class CompiledClassesAndGeneratedFilesTest {
         boolean assertionErrorWasThrown = false;
 
         try {
-            CompileTestBuilder.compilationTest()
-                    .addProcessors(FileGeneratorProcessor.class)
-                    .addSources(JavaFileObjectUtils.readFromResource("/integrationtest/CompiledClassesAndGeneratedFilesExistTestcase.java"))
-                    .compilationShouldSucceed()
-                    .expectThatFileObjectExists(StandardLocation.SOURCE_OUTPUT, "/META-INF", "jupp.txt", new GeneratedFileObjectMatcher() {
-                        @Override
-                        public boolean check(FileObject fileObject) throws IOException {
-                            return false;
-                        }
-                    })
+            Cute.blackBoxTest()
+                    .given().processor(FileGeneratorProcessor.class)
+                    .andSourceFiles(JavaFileObjectUtils.readFromResource("/integrationtest/CompiledClassesAndGeneratedFilesExistTestcase.java"))
+                    .whenCompiled().thenExpectThat().compilationSucceeds()
+                    .andThat().fileObject(StandardLocation.SOURCE_OUTPUT, "/META-INF", "jupp.txt").matches(fileObject -> false)
                     .executeTest();
         } catch (AssertionError e) {
 
@@ -215,12 +237,12 @@ public class CompiledClassesAndGeneratedFilesTest {
     @Test
     public void testCompiledJavaFileObjectExist() {
 
-        CompileTestBuilder.compilationTest()
-                .addProcessors(JavaFileGeneratorProcessor.class)
-                .addSources(JavaFileObjectUtils.readFromResource("/integrationtest/CompiledClassesAndGeneratedFilesExistTestcase.java"))
-                .compilationShouldSucceed()
-                .expectThatJavaFileObjectExists(StandardLocation.SOURCE_OUTPUT, JavaFileGeneratorProcessor.PACKAGE_NAME + "." + JavaFileGeneratorProcessor.CLASS_NAME, JavaFileObject.Kind.SOURCE)
-                .expectThatJavaFileObjectExists(StandardLocation.CLASS_OUTPUT, JavaFileGeneratorProcessor.PACKAGE_NAME + "." + JavaFileGeneratorProcessor.CLASS_NAME, JavaFileObject.Kind.CLASS)
+        Cute.blackBoxTest()
+                .given().processor(JavaFileGeneratorProcessor.class)
+                .andSourceFiles(JavaFileObjectUtils.readFromResource("/integrationtest/CompiledClassesAndGeneratedFilesExistTestcase.java"))
+                .whenCompiled().thenExpectThat().compilationSucceeds()
+                .andThat().javaFileObject(StandardLocation.SOURCE_OUTPUT, JavaFileGeneratorProcessor.PACKAGE_NAME + "." + JavaFileGeneratorProcessor.CLASS_NAME, JavaFileObject.Kind.SOURCE).exists()
+                .andThat().javaFileObject(StandardLocation.CLASS_OUTPUT, JavaFileGeneratorProcessor.PACKAGE_NAME + "." + JavaFileGeneratorProcessor.CLASS_NAME, JavaFileObject.Kind.CLASS).exists()
                 .executeTest();
 
 
@@ -233,11 +255,11 @@ public class CompiledClassesAndGeneratedFilesTest {
         boolean assertionErrorWasThrown = false;
 
         try {
-            CompileTestBuilder.compilationTest()
-                    .addProcessors(JavaFileGeneratorProcessor.class)
-                    .addSources(JavaFileObjectUtils.readFromResource("/integrationtest/CompiledClassesAndGeneratedFilesExistTestcase.java"))
-                    .compilationShouldSucceed()
-                    .expectThatJavaFileObjectExists(StandardLocation.SOURCE_OUTPUT, JavaFileGeneratorProcessor.PACKAGE_NAME + ".Murks", JavaFileObject.Kind.SOURCE)
+            Cute.blackBoxTest()
+                    .given().processor(JavaFileGeneratorProcessor.class)
+                    .andSourceFiles(JavaFileObjectUtils.readFromResource("/integrationtest/CompiledClassesAndGeneratedFilesExistTestcase.java"))
+                    .whenCompiled().thenExpectThat().compilationSucceeds()
+                    .andThat().javaFileObject(StandardLocation.SOURCE_OUTPUT, JavaFileGeneratorProcessor.PACKAGE_NAME + ".Murks", JavaFileObject.Kind.SOURCE).exists()
                     .executeTest();
         } catch (AssertionError e) {
 
@@ -257,11 +279,12 @@ public class CompiledClassesAndGeneratedFilesTest {
         boolean assertionErrorWasThrown = false;
 
         try {
-            CompileTestBuilder.compilationTest()
-                    .addProcessors(JavaFileGeneratorProcessor.class)
-                    .addSources(JavaFileObjectUtils.readFromResource("/integrationtest/CompiledClassesAndGeneratedFilesExistTestcase.java"))
-                    .compilationShouldSucceed()
-                    .expectThatGeneratedSourceFileExists(JavaFileGeneratorProcessor.PACKAGE_NAME + ".Murks")
+            Cute.blackBoxTest()
+                    .given().processor(JavaFileGeneratorProcessor.class)
+                    .andSourceFiles(JavaFileObjectUtils.readFromResource("/integrationtest/CompiledClassesAndGeneratedFilesExistTestcase.java"))
+                    .whenCompiled()
+                    .thenExpectThat().compilationSucceeds()
+                    .andThat().generatedSourceFile(JavaFileGeneratorProcessor.PACKAGE_NAME + ".Murks").exists()
                     .executeTest();
         } catch (AssertionError e) {
 
@@ -281,11 +304,12 @@ public class CompiledClassesAndGeneratedFilesTest {
         boolean assertionErrorWasThrown = false;
 
         try {
-            CompileTestBuilder.compilationTest()
-                    .addProcessors(JavaFileGeneratorProcessor.class)
-                    .addSources(JavaFileObjectUtils.readFromResource("/integrationtest/CompiledClassesAndGeneratedFilesExistTestcase.java"))
-                    .compilationShouldSucceed()
-                    .expectThatJavaFileObjectDoesntExist(StandardLocation.SOURCE_OUTPUT, JavaFileGeneratorProcessor.PACKAGE_NAME + "." + JavaFileGeneratorProcessor.CLASS_NAME, JavaFileObject.Kind.SOURCE)
+            Cute.blackBoxTest()
+                    .given().processor(JavaFileGeneratorProcessor.class)
+                    .andSourceFiles(JavaFileObjectUtils.readFromResource("/integrationtest/CompiledClassesAndGeneratedFilesExistTestcase.java"))
+                    .whenCompiled()
+                    .thenExpectThat().compilationSucceeds()
+                    .andThat().javaFileObject(StandardLocation.SOURCE_OUTPUT, JavaFileGeneratorProcessor.PACKAGE_NAME + "." + JavaFileGeneratorProcessor.CLASS_NAME, JavaFileObject.Kind.SOURCE).doesntExist()
                     .executeTest();
         } catch (AssertionError e) {
 
@@ -305,11 +329,12 @@ public class CompiledClassesAndGeneratedFilesTest {
         boolean assertionErrorWasThrown = false;
 
         try {
-            CompileTestBuilder.compilationTest()
-                    .addProcessors(JavaFileGeneratorProcessor.class)
-                    .addSources(JavaFileObjectUtils.readFromResource("/integrationtest/CompiledClassesAndGeneratedFilesExistTestcase.java"))
-                    .compilationShouldSucceed()
-                    .expectThatGeneratedSourceFileDoesntExist(JavaFileGeneratorProcessor.PACKAGE_NAME + "." + JavaFileGeneratorProcessor.CLASS_NAME)
+            Cute.blackBoxTest()
+                    .given().processor(JavaFileGeneratorProcessor.class)
+                    .andSourceFiles(JavaFileObjectUtils.readFromResource("/integrationtest/CompiledClassesAndGeneratedFilesExistTestcase.java"))
+                    .whenCompiled()
+                    .thenExpectThat().compilationSucceeds()
+                    .andThat().generatedSourceFile(JavaFileGeneratorProcessor.PACKAGE_NAME + "." + JavaFileGeneratorProcessor.CLASS_NAME).doesntExist()
                     .executeTest();
         } catch (AssertionError e) {
 
@@ -329,11 +354,12 @@ public class CompiledClassesAndGeneratedFilesTest {
         boolean assertionErrorWasThrown = false;
 
         try {
-            CompileTestBuilder.compilationTest()
-                    .addProcessors(JavaFileGeneratorProcessor.class)
-                    .addSources(JavaFileObjectUtils.readFromResource("/integrationtest/CompiledClassesAndGeneratedFilesExistTestcase.java"))
-                    .compilationShouldSucceed()
-                    .expectThatJavaFileObjectExists(StandardLocation.SOURCE_OUTPUT, JavaFileGeneratorProcessor.PACKAGE_NAME + "." + JavaFileGeneratorProcessor.CLASS_NAME, JavaFileObject.Kind.SOURCE, JavaFileObjectUtils.readFromString("XXX!!"))
+            Cute.blackBoxTest()
+                    .given().processor(JavaFileGeneratorProcessor.class)
+                    .andSourceFiles(JavaFileObjectUtils.readFromResource("/integrationtest/CompiledClassesAndGeneratedFilesExistTestcase.java"))
+                    .whenCompiled()
+                    .thenExpectThat().compilationSucceeds()
+                    .andThat().javaFileObject(StandardLocation.SOURCE_OUTPUT, JavaFileGeneratorProcessor.PACKAGE_NAME + "." + JavaFileGeneratorProcessor.CLASS_NAME, JavaFileObject.Kind.SOURCE).equals(JavaFileObjectUtils.readFromString("XXX!!"))
                     .executeTest();
         } catch (AssertionError e) {
 
@@ -353,16 +379,11 @@ public class CompiledClassesAndGeneratedFilesTest {
         boolean assertionErrorWasThrown = false;
 
         try {
-            CompileTestBuilder.compilationTest()
-                    .addProcessors(JavaFileGeneratorProcessor.class)
-                    .addSources(JavaFileObjectUtils.readFromResource("/integrationtest/CompiledClassesAndGeneratedFilesExistTestcase.java"))
-                    .compilationShouldSucceed()
-                    .expectThatJavaFileObjectExists(StandardLocation.SOURCE_OUTPUT, JavaFileGeneratorProcessor.PACKAGE_NAME + "." + JavaFileGeneratorProcessor.CLASS_NAME, JavaFileObject.Kind.SOURCE, new GeneratedFileObjectMatcher() {
-                        @Override
-                        public boolean check(FileObject fileObject) throws IOException {
-                            return false;
-                        }
-                    })
+            Cute.blackBoxTest()
+                    .given().processor(JavaFileGeneratorProcessor.class)
+                    .andSourceFiles(JavaFileObjectUtils.readFromResource("/integrationtest/CompiledClassesAndGeneratedFilesExistTestcase.java"))
+                    .whenCompiled().thenExpectThat().compilationSucceeds()
+                    .andThat().javaFileObject(StandardLocation.SOURCE_OUTPUT, JavaFileGeneratorProcessor.PACKAGE_NAME + "." + JavaFileGeneratorProcessor.CLASS_NAME, JavaFileObject.Kind.SOURCE).matches(fileObject -> false)
                     .executeTest();
         } catch (AssertionError e) {
 

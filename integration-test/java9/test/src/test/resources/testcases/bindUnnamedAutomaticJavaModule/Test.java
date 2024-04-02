@@ -1,6 +1,6 @@
-package io.toolisticon.cute.integrationtest.java9;
+package io.toolisticon.cute.integrationtest.javanine;
 
-import io.toolisticon.cute.integrationtest.java9.unnamednonmodule.UnnamedAutomaticModuleTestClass;
+import io.toolisticon.cute.integrationtest.javanine.unnamednonmodule.UnnamedAutomaticModuleTestClass;
 
 import javax.annotation.processing.Processor;
 

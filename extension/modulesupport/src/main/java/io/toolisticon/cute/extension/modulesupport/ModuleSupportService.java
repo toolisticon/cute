@@ -32,7 +32,7 @@ public class ModuleSupportService implements ModuleSupportSpi {
         if (modules != null) {
             try {
 
-                List<File> files = new ArrayList<File>();
+                List<File> files = new ArrayList<>();
                 for (String module : modules) {
 
                     File moduleFile = moduleNameToJarMap.get(module);
@@ -73,7 +73,7 @@ public class ModuleSupportService implements ModuleSupportSpi {
     Map<String, File> getModuleNameToJarMap(Set<String> modules) {
 
         // get a map for lookup of jar files by module name
-        Map<String, File> moduleToJarMap = new HashMap<String, File>();
+        Map<String, File> moduleToJarMap = new HashMap<>();
         if (modules != null) {
             try {
 
@@ -161,7 +161,7 @@ public class ModuleSupportService implements ModuleSupportSpi {
 
 
     static List<File> getJarsFromClasspath() {
-        List<File> urls = new ArrayList<File>();
+        List<File> urls = new ArrayList<>();
 
         String[] pathElements = System.getProperty("java.class.path").split(System.getProperty("path.separator"));
 
