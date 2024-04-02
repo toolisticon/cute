@@ -948,7 +948,7 @@ public class CuteTest {
 
     @Test(expected = ValidatorException.class)
     public void blackBoxTest_nullValuedProcessors() {
-        Cute.blackBoxTest().given().processor(null);
+        Cute.blackBoxTest().given().processors((Class<Processor>)null);
     }
 
     @Test(expected = ValidatorException.class)

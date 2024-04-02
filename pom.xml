@@ -82,6 +82,7 @@
         <spiap.version>0.8.0</spiap.version>
         <fluapigen.version>1.1.0</fluapigen.version>
 
+
         <!-- versions of test dependencies -->
         <junit4.version>4.13.2</junit4.version>
         <junit5.version>5.7.2</junit5.version>
