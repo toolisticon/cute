@@ -139,7 +139,7 @@ final class DebugOutputGenerator {
 
     private static String getDiagnosticString(Diagnostic<? extends JavaFileObject> diagnostics) {
         return "[ " + diagnostics.getKind() + ", "
-                + "s:'" + diagnostics.getSource().getName() + "', "
+                + "s:" + ( diagnostics.getSource() != null ? "'" +  diagnostics.getSource().getName() + "'" : "<NOT_RELATED_WITH_SOURCE_FILE>") + ", "
                 + "l:" + diagnostics.getLineNumber() + ", "
                 + "c:" + diagnostics.getColumnNumber()+ " ] "
                 + ":= '" + diagnostics.getMessage(null) + "'";
