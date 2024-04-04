@@ -3,6 +3,7 @@ package io.toolisticon.cute;
 import io.toolisticon.cute.common.ExceptionThrowerProcessor;
 import io.toolisticon.cute.common.SimpleTestProcessor1;
 import io.toolisticon.cute.common.SimpleTestProcessor1Interface;
+import io.toolisticon.cute.common.SimpleTestProcessor2;
 import io.toolisticon.cute.testcases.SimpleTestInterface;
 import io.toolisticon.fluapigen.validation.api.ValidatorException;
 import org.hamcrest.MatcherAssert;
@@ -20,6 +21,7 @@ import javax.tools.JavaFileObject;
 import javax.tools.StandardLocation;
 import java.io.IOException;
 import java.io.Writer;
+import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -1168,7 +1170,7 @@ public class CuteTest {
     @Test
     public void blackBoxTest_checkForExpectedException_failure_noException() {
         try {
-            Cute.blackBoxTest().given().processor(SimpleTestProcessor1.class)
+            Cute.blackBoxTest().given().processor(SimpleTestProcessor1.class).andProcessor(SimpleTestProcessor2.class)
                     .andSourceFiles("/compiletests/exceptionthrown/ExceptionThrownUsecase.java")
                     .whenCompiled()
                     .thenExpectThat()
@@ -1181,4 +1183,22 @@ public class CuteTest {
         }
         throw new AssertionError("Expected exceptions wasn't triggered!!!");
     }
+
+    @Test
+    public void blackBoxTest_AddMultipleProcessorsWithLinkedProcessorApi() throws NoSuchFieldException, IllegalAccessException {
+
+            CuteApi.CompilerTestExpectAndThatInterface expectThat = Cute.blackBoxTest().given()
+                    .processor(SimpleTestProcessor1.class)
+                    .andProcessor(SimpleTestProcessor2.class)
+                    .andSourceFiles("/compiletests/generatedclasstest/TestClass.java")
+                    .whenCompiled()
+                    .thenExpectThat()
+                    .compilationSucceeds()
+                    .andThat().generatedClass("io.toolisticon.cute.testhelper.compiletest.TestClassGeneratedClass").exists();
+
+            
+            expectThat.executeTest();
+
+    }
+
 }

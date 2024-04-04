@@ -297,21 +297,10 @@ public class CuteApi {
 
     }
 
-    public interface BlackBoxTestProcessorInterface
-    {
-
-        /**
-         * Allows you to add a single annotation processor used at black-box tests compilation.
-         *
-         * @param processor the annotation processor to use. null values are prohibited and will lead to a {@link io.toolisticon.fluapigen.validation.api.ValidatorException}.
-         * @return the next fluent interface
-         */
-        BlackBoxTestSourceFilesAndProcessorInterface processor(@FluentApiBackingBeanMapping(value = "processors") @NotNull Class<? extends Processor> processor);
-    }
 
 
     @FluentApiInterface(CompilerTestBB.class)
-    public interface BlackBoxTestProcessorsInterface extends BlackBoxTestProcessorInterface{
+    public interface BlackBoxTestProcessorsInterface{
 
         /**
          * Allows you to add annotation processors used at black-box tests compilation.
@@ -336,6 +325,14 @@ public class CuteApi {
 
 
         /**
+         * Allows you to add a single annotation processor used at black-box tests compilation.
+         *
+         * @param processor the annotation processor to use. null values are prohibited and will lead to a {@link io.toolisticon.fluapigen.validation.api.ValidatorException}.
+         * @return the next fluent interface
+         */
+        BlackBoxTestSourceFilesAndProcessorInterface processor(@FluentApiBackingBeanMapping(value = "processors") @NotNull Class<? extends Processor> processor);
+
+        /**
          * More obvious method not to use processors during compilation.
          * Same as calling processors without values.
          *
@@ -348,7 +345,17 @@ public class CuteApi {
     }
 
     @FluentApiInterface(CompilerTestBB.class)
-    public interface BlackBoxTestSourceFilesAndProcessorInterface extends BlackBoxTestProcessorInterface, BlackBoxTestSourceFilesInterface{}
+    public interface BlackBoxTestSourceFilesAndProcessorInterface extends BlackBoxTestSourceFilesInterface{
+
+        /**
+         * Allows you to add a single annotation processor used at black-box tests compilation.
+         *
+         * @param processor the annotation processor to use. null values are prohibited and will lead to a {@link io.toolisticon.fluapigen.validation.api.ValidatorException}.
+         * @return the next fluent interface
+         */
+        BlackBoxTestSourceFilesAndProcessorInterface andProcessor(@FluentApiBackingBeanMapping(value = "processors", action = MappingAction.ADD) @NotNull Class<? extends Processor> processor);
+
+    }
 
     @FluentApiInterface(CompilerTestBB.class)
     public interface BlackBoxTestSourceFilesInterface {
