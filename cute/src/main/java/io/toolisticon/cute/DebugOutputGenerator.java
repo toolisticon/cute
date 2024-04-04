@@ -126,18 +126,23 @@ final class DebugOutputGenerator {
 
 
                 stringBuilder.append("[").append(i)
-                        //.append(diagnostics.getSource() != null ? "|s:'" + ((FileObject)diagnostics.getSource()).getName() + "'" : "")
-                        //.append(diagnostics.getLineNumber() != Diagnostic.NOPOS ? "|l:'" + diagnostics.getLineNumber() + "'" : "")
-                        //.append(diagnostics.getColumnNumber() != Diagnostic.NOPOS ? "|c:'" + diagnostics.getColumnNumber() + "'" : "")
-                        .append("]'")
-                        .append(diagnostics)
-                        .append("'\n");
+                        .append("] : ")
+                        .append(getDiagnosticString(diagnostics))
+                        .append("\n");
                 i++;
             }
 
         }
 
         return stringBuilder.toString();
+    }
+
+    private static String getDiagnosticString(Diagnostic<? extends JavaFileObject> diagnostics) {
+        return "[ " + diagnostics.getKind() + ", "
+                + "s:" + ( diagnostics.getSource() != null ? "'" +  diagnostics.getSource().getName() + "'" : "<NOT_RELATED_WITH_SOURCE_FILE>") + ", "
+                + "l:" + diagnostics.getLineNumber() + ", "
+                + "c:" + diagnostics.getColumnNumber()+ " ] "
+                + ":= '" + diagnostics.getMessage(null) + "'";
     }
 
     private static String getGeneratedFileOverview(CompilationResult compilationResult) {
