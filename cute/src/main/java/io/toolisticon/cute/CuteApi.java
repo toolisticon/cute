@@ -404,13 +404,6 @@ public class CuteApi {
          */
         default BlackBoxTestFinalGivenInterface andSourceFilesFromFolders(String ... folders) {
 
-            final String baseDir;
-            try {
-                baseDir = (new File(getClass().getResource("/").toURI())).getAbsolutePath();
-            }  catch (URISyntaxException e){
-                // this should never happen
-                throw new IllegalStateException();
-            }
 
             Set<String> files = new HashSet<>();
             for (String folder : folders) {
@@ -426,7 +419,7 @@ public class CuteApi {
                         throw new IllegalArgumentException("Passed folder '" + folder + "' is no folder");
                     }
 
-                    files.addAll(Arrays.stream(enclosedFiles).filter(File::isFile).map(e -> e.getPath().startsWith(baseDir) ? e.getPath().substring(baseDir.length()): e.getPath()).collect(Collectors.toSet()));
+                    files.addAll(Arrays.stream(enclosedFiles).filter(File::isFile).map(e ->  folder + (folder.endsWith("/") ? "" : "/") + e.getName()).collect(Collectors.toSet()));
 
 
                 } catch (URISyntaxException e){
