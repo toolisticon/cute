@@ -21,7 +21,6 @@ import javax.tools.JavaFileObject;
 import javax.tools.StandardLocation;
 import java.io.IOException;
 import java.io.Writer;
-import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -950,7 +949,7 @@ public class CuteTest {
 
     @Test(expected = ValidatorException.class)
     public void blackBoxTest_nullValuedProcessors() {
-        Cute.blackBoxTest().given().processors((Class<Processor>)null);
+        Cute.blackBoxTest().given().processors((Class<Processor>) null);
     }
 
     @Test(expected = ValidatorException.class)
@@ -1187,18 +1186,69 @@ public class CuteTest {
     @Test
     public void blackBoxTest_AddMultipleProcessorsWithLinkedProcessorApi() throws NoSuchFieldException, IllegalAccessException {
 
-            CuteApi.CompilerTestExpectAndThatInterface expectThat = Cute.blackBoxTest().given()
-                    .processor(SimpleTestProcessor1.class)
-                    .andProcessor(SimpleTestProcessor2.class)
-                    .andSourceFiles("/compiletests/generatedclasstest/TestClass.java")
-                    .whenCompiled()
-                    .thenExpectThat()
-                    .compilationSucceeds()
-                    .andThat().generatedClass("io.toolisticon.cute.testhelper.compiletest.TestClassGeneratedClass").exists();
+        CuteApi.CompilerTestExpectAndThatInterface expectThat = Cute.blackBoxTest().given()
+                .processor(SimpleTestProcessor1.class)
+                .andProcessor(SimpleTestProcessor2.class)
+                .andSourceFiles("/compiletests/generatedclasstest/TestClass.java")
+                .whenCompiled()
+                .thenExpectThat()
+                .compilationSucceeds()
+                .andThat().generatedClass("io.toolisticon.cute.testhelper.compiletest.TestClassGeneratedClass").exists();
 
-            
-            expectThat.executeTest();
+
+        expectThat.executeTest();
 
     }
 
+
+    @Test
+    public void blackBoxTest_addSourcesByFolder() {
+
+        Cute.blackBoxTest().given()
+                .noProcessors()
+                .andSourceFilesFromFolders("/compiletests/withmultiplerelatedsourcefiles", "/compiletests/javafileobjectutilstest")
+                .whenCompiled()
+                .thenExpectThat()
+                .compilationSucceeds()
+                .andThat().generatedClass("io.toolisticon.cute.JustOutput").exists()
+                .andThat().generatedClass("io.toolisticon.cute.TestClassWithImplementedInterface").exists()
+                .andThat().generatedClass("io.toolisticon.annotationprocessortoolkit.testhelper.compiletest.JavaSourceFromResourceTestClass").exists()
+                .executeTest();
+
+    }
+
+    @Test
+    public void blackBoxTest_addSourcesByFolder_multipleStatements() {
+
+        Cute.blackBoxTest().given()
+                .noProcessors()
+                .andSourceFilesFromFolders("/compiletests/withmultiplerelatedsourcefiles")
+                .andSourceFilesFromFolders("/compiletests/javafileobjectutilstest")
+                .whenCompiled()
+                .thenExpectThat()
+                .compilationSucceeds()
+                .andThat().generatedClass("io.toolisticon.cute.JustOutput").exists()
+                .andThat().generatedClass("io.toolisticon.cute.TestClassWithImplementedInterface").exists()
+                .andThat().generatedClass("io.toolisticon.annotationprocessortoolkit.testhelper.compiletest.JavaSourceFromResourceTestClass").exists()
+                .executeTest();
+
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void blackBoxTest_addSourcesByFolder_invalidPath() {
+
+        Cute.blackBoxTest().given()
+                .noProcessors()
+                .andSourceFilesFromFolders("xyz");
+
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void blackBoxTest_addSourcesByFolder_noFolderButFile() {
+
+        Cute.blackBoxTest().given()
+                .noProcessors()
+                .andSourceFilesFromFolders("/compiletests/generatedclasstest/TestClass.java");
+
+    }
 }
