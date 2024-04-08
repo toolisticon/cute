@@ -25,11 +25,15 @@ import javax.tools.FileObject;
 import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardLocation;
+import java.io.File;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -391,41 +395,46 @@ public class CuteApi {
             return andSourceFiles(JavaFileObjectUtils.readFromString(className, content));
         }
 
+        /**
+         * Adds a source files of resource folder.
+         * Ignores sub-folders.
+         *
+         * @param folders the fully qualified name of the class
+         * @return the next fluent interface
+         */
+        default BlackBoxTestFinalGivenInterface andSourceFilesFromFolders(String ... folders) {
+
+
+            Set<String> files = new HashSet<>();
+            for (String folder : folders) {
+                try {
+
+                    URL folderUrl = getClass().getResource(folder);
+                    if (folderUrl == null) {
+                        throw new IllegalArgumentException("Passed folder '" + folder + "' doesn't exist.");
+                    }
+
+                    File[] enclosedFiles = (new File(folderUrl.toURI())).listFiles();
+                    if (enclosedFiles == null) {
+                        throw new IllegalArgumentException("Passed folder '" + folder + "' is no folder");
+                    }
+
+                    files.addAll(Arrays.stream(enclosedFiles).filter(File::isFile).map(e ->  folder + (folder.endsWith("/") ? "" : "/") + e.getName()).collect(Collectors.toSet()));
+
+
+                } catch (URISyntaxException e){
+                    // ignore - should not happen
+                }
+            }
+
+            return andSourceFiles(files.toArray(new String[0]));
+        }
+
 
     }
 
     @FluentApiInterface(CompilerTestBB.class)
-    public interface BlackBoxTestFinalGivenInterface {
-
-        /**
-         * Adds source files as JavaFileObjects.
-         * The {@link JavaFileObjectUtils} class can be used to provide source files.
-         *
-         * @param sourceFile the source files to use during compilation
-         * @return the next fluent interface
-         */
-        BlackBoxTestFinalGivenInterface andSourceFiles(@FluentApiBackingBeanMapping(value = "sourceFiles", action = MappingAction.ADD) JavaFileObject... sourceFile);
-
-        /**
-         * Add sources files by reading them from resource Strings.
-         *
-         * @param resources the resource paths used to read the source files from
-         * @return the next fluent interface
-         */
-        default BlackBoxTestFinalGivenInterface andSourceFiles(@NotNull String... resources) {
-            return andSourceFiles(Arrays.stream(resources).map(JavaFileObjectUtils::readFromResource).toArray(JavaFileObject[]::new));
-        }
-
-        /**
-         * Adds a source file by providing a fully qualified class name and the class code provided as a String.
-         *
-         * @param className the fully qualified name of the class
-         * @param content   the source code of the class as a string. Of course fully qualified class name must match className parameter.
-         * @return the next fluent interface
-         */
-        default BlackBoxTestFinalGivenInterface andSourceFile(String className, String content) {
-            return andSourceFiles(JavaFileObjectUtils.readFromString(className, content));
-        }
+    public interface BlackBoxTestFinalGivenInterface extends BlackBoxTestSourceFilesInterface {
 
         /**
          * Use compiler options.
