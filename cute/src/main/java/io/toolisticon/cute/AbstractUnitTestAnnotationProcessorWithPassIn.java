@@ -5,6 +5,8 @@ import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -66,6 +68,18 @@ abstract class AbstractUnitTestAnnotationProcessorWithPassIn extends AbstractUni
 
             if (elementToScan.getKind() == ElementKind.CONSTRUCTOR || elementToScan.getKind() == ElementKind.METHOD) {
                 result.addAll(((ExecutableElement) elementToScan).getParameters());
+            }
+
+            // need to handle record components
+            if (elementToScan.getKind().name() == "RECORD") {
+
+                try {
+                    Method getRecordComponentsMethod = TypeElement.class.getMethod("getRecordComponents");
+                    result.addAll((List<Element>)(getRecordComponentsMethod.invoke(elementToScan)));
+                } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+                    // Java version < 16 - so just ignore since kind couldn't be of RECORD already - so this can't happen
+                }
+
             }
 
             for (Element enclosedElement : elementToScan.getEnclosedElements()) {
