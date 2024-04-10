@@ -14,6 +14,7 @@ import javax.tools.ToolProvider;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -261,7 +262,13 @@ class CompileTest {
         if (!Java9SupportCheck.UNSUPPORTED_JAVA_VERSION) {
             ModuleSupportSpi moduleService = ModuleSupportSpiServiceLocator.locate();
             if (moduleService != null) {
-                moduleService.applyModulePath(stdJavaFileManager, compilationTask, compileTestConfiguration.modules());
+
+                Set<String> modulePath = new HashSet<>(compileTestConfiguration.modules());
+                if (compileTestConfiguration.testType() == CuteApi.TestType.UNIT && hasModuleInfoSourceFile(compileTestConfiguration)) {
+                    modulePath.add("cute");
+                }
+
+                moduleService.applyModulePath(stdJavaFileManager, compilationTask, modulePath);
             }
         }
 
@@ -269,6 +276,10 @@ class CompileTest {
 
         return new CompilationResult(compilationSucceeded, diagnostics, javaFileManager);
 
+    }
+
+    private static boolean hasModuleInfoSourceFile(CuteApi.CompilerTestBB compileTestConfiguration){
+        return compileTestConfiguration.sourceFiles().stream().filter(sourceFile -> sourceFile.getName().endsWith("/module-info.java")).count() > 0;
     }
 
     /**
