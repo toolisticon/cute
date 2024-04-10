@@ -261,6 +261,15 @@ public void blackBoxTest_justCompileCodeAndDoClassTestWithImplementedInterface()
 
 Consider to prefer integration tests over Cute if no precompiled interface is implemented by the generated classes.
 
+### Doing unit tests with Java 9 modules involved
+Once cute detects that a JDK >= 9 is involved and that a module-info.java file is amongst the source files, it will automatically add the automatic cute module to the compilations module path.
+
+Nevertheless, the following directive must be added to that module-info.java file to make the unit test work:
+
+```java
+requires cute;
+```
+
 # Projects using this toolkit library
 
 - [Annotation processor toolkit](https://github.com/toolisticon/annotation-processor-toolkit) : Toolkit that allows you to build annotation processors in a more comfortable way
