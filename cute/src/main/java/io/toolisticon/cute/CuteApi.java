@@ -444,7 +444,7 @@ public class CuteApi {
          * @param compilerOptions the options to use
          * @return the next builder instance
          */
-        BlackBoxTestFinalGivenInterface andUseCompilerOptions(@FluentApiBackingBeanMapping(value = "compilerOptions") @NotNull String... compilerOptions);
+        BlackBoxTestFinalGivenInterface andUseCompilerOptions(@FluentApiBackingBeanMapping(value = "compilerOptions", action = MappingAction.ADD) @NotNull String... compilerOptions);
 
         /**
          * Defines modules used during compilation.
@@ -453,7 +453,7 @@ public class CuteApi {
          * @param modules The modules to use during compilation
          * @return the next builder instance
          */
-        BlackBoxTestFinalGivenInterface andUseModules(@FluentApiBackingBeanMapping(value = "modules") @NotNull String... modules);
+        BlackBoxTestFinalGivenInterface andUseModules(@FluentApiBackingBeanMapping(value = "modules", action = MappingAction.ADD) @NotNull String... modules);
 
         /**
          * Traverses to the compilation result validation section.
@@ -515,7 +515,7 @@ public class CuteApi {
          * @param compilerOptions the options to use
          * @return the next builder instance
          */
-        UnitTestGivenInterface useCompilerOptions(@FluentApiBackingBeanMapping(value = "compilerOptions") @NotNull String... compilerOptions);
+        UnitTestGivenInterface useCompilerOptions(@FluentApiBackingBeanMapping(value = "compilerOptions",action = MappingAction.ADD) @NotNull String... compilerOptions);
 
         /**
          * Defines modules used during compilation.
@@ -524,7 +524,7 @@ public class CuteApi {
          * @param modules The modules to use during compilation
          * @return the next builder instance
          */
-        UnitTestGivenInterface useModules(@FluentApiBackingBeanMapping(value = "modules") @NotNull String... modules);
+        UnitTestGivenInterface useModules(@FluentApiBackingBeanMapping(value = "modules", action = MappingAction.ADD) @NotNull String... modules);
 
         /**
          * Convenience method to add multiple source files via resource strings.
@@ -570,7 +570,43 @@ public class CuteApi {
          * @param sourceFile the source file
          * @return the next fluent interface
          */
-        UnitTestGivenInterface useSourceFile(@FluentApiBackingBeanMapping(value = "sourceFiles") @NotNull JavaFileObject sourceFile);
+        UnitTestGivenInterface useSourceFile(@FluentApiBackingBeanMapping(value = "sourceFiles", action = MappingAction.ADD) @NotNull JavaFileObject sourceFile);
+
+
+        /**
+         * Adds a source files of resource folder.
+         * Ignores sub-folders.
+         *
+         * @param folders the fully qualified name of the class
+         * @return the next fluent interface
+         */
+        default UnitTestGivenInterface useSourceFilesFromFolders(String ... folders) {
+
+
+            Set<String> files = new HashSet<>();
+            for (String folder : folders) {
+                try {
+
+                    URL folderUrl = getClass().getResource(folder);
+                    if (folderUrl == null) {
+                        throw new IllegalArgumentException("Passed folder '" + folder + "' doesn't exist.");
+                    }
+
+                    File[] enclosedFiles = (new File(folderUrl.toURI())).listFiles();
+                    if (enclosedFiles == null) {
+                        throw new IllegalArgumentException("Passed folder '" + folder + "' is no folder");
+                    }
+
+                    files.addAll(Arrays.stream(enclosedFiles).filter(File::isFile).map(e ->  folder + (folder.endsWith("/") ? "" : "/") + e.getName()).collect(Collectors.toSet()));
+
+
+                } catch (URISyntaxException e){
+                    // ignore - should not happen
+                }
+            }
+
+            return useSourceFiles(files.toArray(new String[0]));
+        }
 
 
         /**
