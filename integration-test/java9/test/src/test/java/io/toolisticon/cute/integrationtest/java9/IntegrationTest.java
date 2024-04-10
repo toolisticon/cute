@@ -5,6 +5,9 @@ import io.toolisticon.cute.JavaFileObjectUtils;
 import io.toolisticon.cute.integrationtest.javanine.namednonmodule.NamedAutomaticModuleTestClass;
 import org.junit.Test;
 
+import javax.lang.model.element.TypeElement;
+import javax.tools.Diagnostic;
+
 /**
  * Java 9+ related integration tests.
  * Addresses mainly the jigsaw module system.
@@ -78,6 +81,19 @@ public class IntegrationTest {
                 .compilationSucceeds()
                 .executeTest();
 
+    }
+
+    @Test
+    public void testUnitTestWithModules() {
+        Cute.unitTest().given().useSourceFilesFromFolders("/testcases/unitTest")
+                .when()
+                .passInElement().<TypeElement>fromGivenSourceFiles()
+                .intoUnitTest( ((processingEnvironment, element) -> {
+                    processingEnvironment.getMessager().printMessage(Diagnostic.Kind.NOTE,"IT WORKED!!!");
+                }))
+                .thenExpectThat().compilationSucceeds()
+                .andThat().compilerMessage().ofKindNote().equals("IT WORKED!!!" )
+                .executeTest();
     }
 
 
