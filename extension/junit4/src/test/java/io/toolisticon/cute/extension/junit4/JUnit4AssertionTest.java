@@ -1,12 +1,12 @@
-package io.toolisticon.cute.extension.plainjava;
+package io.toolisticon.cute.extension.junit4;
 
-import io.toolisticon.cute.extension.api.AssertionSpi;
-import io.toolisticon.cute.extension.api.AssertionSpiServiceLocator;
-import io.toolisticon.cute.extension.junit4.JUnit4Assertion;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Test;
+
+import io.toolisticon.cute.extension.api.AssertionSpi;
+import io.toolisticon.cute.extension.api.AssertionSpiServiceLocator;
 
 /**
  * Unit test for {@link JUnit4Assertion}.

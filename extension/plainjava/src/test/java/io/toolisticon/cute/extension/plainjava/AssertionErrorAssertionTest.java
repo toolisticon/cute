@@ -1,6 +1,8 @@
 package io.toolisticon.cute.extension.plainjava;
 
 import io.toolisticon.cute.extension.api.AssertionSpi;
+import io.toolisticon.cute.extension.api.AssertionSpiServiceLocator;
+
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
 import org.junit.Assert;

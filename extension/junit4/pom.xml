@@ -44,7 +44,23 @@
     <build>
 
         <plugins>
-
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration combine.self="append">
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>io.toolisticon.spiap</groupId>
+                            <artifactId>spiap-processor</artifactId>
+                            <version>${spiap.version}</version>
+                        </path>
+                        <path>
+                            <groupId>io.toolisticon.spiap</groupId>
+                            <artifactId>spiap-api</artifactId>
+                            <version>${spiap.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
             <plugin>
                 <artifactId>maven-enforcer-plugin</artifactId>
                 <executions>
