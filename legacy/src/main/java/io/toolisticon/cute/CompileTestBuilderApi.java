@@ -43,6 +43,13 @@ public class CompileTestBuilderApi {
 
 
     @FluentApiBackingBean
+    public interface ExceptionCheckBB extends CuteApi.ExceptionCheckBB {
+
+
+    }
+
+    
+    @FluentApiBackingBean
     public interface PassInConfigurationBB extends CuteApi.PassInConfigurationBB {
 
     }
@@ -737,7 +744,8 @@ public class CompileTestBuilderApi {
          * @param expectedException the exceptions expected to be thrown
          * @return the UnitTestBuilder instance
          */
-        UnitTestBuilder expectedThrownException(@FluentApiBackingBeanMapping(value = "exceptionIsThrown") Class<? extends Exception> expectedException);
+        @FluentApiInlineBackingBeanMapping("exceptionChecks")
+        UnitTestBuilder expectedThrownException(@FluentApiBackingBeanMapping(value = "exceptionIsThrown", target = TargetBackingBean.INLINE) Class<? extends Exception> expectedException);
 
 
         /**

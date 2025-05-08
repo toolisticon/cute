@@ -1148,6 +1148,37 @@ public class CuteTest {
                 .exceptionIsThrown(IllegalStateException.class)
                 .executeTest();
     }
+    
+    @Test
+    public void blackBoxTest_checkForExpectedException_happyPath_withCustomAssertion() {
+        Cute.blackBoxTest().given().processor(ExceptionThrowerProcessor.class)
+                .andSourceFiles("/compiletests/exceptionthrown/ExceptionThrownUsecase.java")
+                .whenCompiled()
+                .thenExpectThat()
+                .exceptionIsThrown(IllegalStateException.class, (e) -> {
+                	MatcherAssert.assertThat(e.getMessage(), Matchers.is("WHOOPS!!!"));
+                })
+                .executeTest();
+    }
+    
+    @Test
+    public void blackBoxTest_checkForExpectedException_failure_becauseOfCustomAssertion() {
+    	try {
+    		Cute.blackBoxTest().given().processor(ExceptionThrowerProcessor.class)
+                .andSourceFiles("/compiletests/exceptionthrown/ExceptionThrownUsecase.java")
+                .whenCompiled()
+                .thenExpectThat()
+                .exceptionIsThrown(IllegalStateException.class, (e) -> {
+                	MatcherAssert.assertThat(e.getMessage(), Matchers.is("NOPE"));
+                })
+                .executeTest();
+    	 } catch (AssertionError e) {
+             MatcherAssert.assertThat(e.getMessage(), Matchers.containsString("NOPE"));
+             return;
+         }
+         throw new AssertionError("Expected an Assertion Error to be thrown");
+    }
+   
 
     @Test
     public void blackBoxTest_checkForExpectedException_failure_otherException() {

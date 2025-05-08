@@ -2,6 +2,7 @@ package io.toolisticon.cute.extension.junit5;
 
 import io.toolisticon.cute.extension.api.AssertionSpi;
 import io.toolisticon.cute.extension.api.AssertionSpiServiceLocator;
+
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Assertions;

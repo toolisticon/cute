@@ -12,6 +12,10 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic;
+
+import io.toolisticon.cute.CuteApi.ExceptionAssertion;
+import io.toolisticon.cute.CuteApi.ExceptionCheckBB;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -21,7 +25,7 @@ import java.util.Set;
 final class AnnotationProcessorWrapper implements Processor {
 
     private final Processor wrappedProcessor;
-    private final Class<? extends Throwable> expectedThrownException;
+    private final ExceptionCheckBB exceptionChecks;
     private Messager messager;
 
     private boolean firstRound = true;
@@ -31,9 +35,9 @@ final class AnnotationProcessorWrapper implements Processor {
         this(processor, null);
     }
 
-    private AnnotationProcessorWrapper(Processor processor, Class<? extends Throwable> expectedThrownException) {
+    private AnnotationProcessorWrapper(Processor processor, ExceptionCheckBB exceptionChecks) {
         this.wrappedProcessor = processor;
-        this.expectedThrownException = expectedThrownException;
+        this.exceptionChecks = exceptionChecks;
     }
 
 
@@ -83,12 +87,12 @@ final class AnnotationProcessorWrapper implements Processor {
                 throw (AssertionError) e;
             }
 
-            if (this.expectedThrownException != null) {
+            if (this.exceptionChecks != null && this.exceptionChecks.getExceptionIsThrown() != null) {
 
-                if (!this.expectedThrownException.isAssignableFrom(e.getClass())) {
+                if (!this.exceptionChecks.getExceptionIsThrown().isAssignableFrom(e.getClass())) {
                     throw new FailingAssertionException(
                             Constants.Messages.ASSERTION_GOT_UNEXPECTED_EXCEPTION_INSTEAD_OF_EXPECTED.produceMessage(
-                                    this.expectedThrownException.getCanonicalName(),
+                                    this.exceptionChecks.getExceptionIsThrown().getCanonicalName(),
                                     e.getClass().getCanonicalName(),
                                     e.getMessage() != null ? Constants.Messages.TOKEN__WITH_MESSAGE + e.getMessage() : "")
                             , e);
@@ -96,6 +100,10 @@ final class AnnotationProcessorWrapper implements Processor {
 
                 // Exception has been found
                 expectedExceptionWasThrown = true;
+                
+                if (this.exceptionChecks.getExceptionAssertion() != null) {
+                	doExceptionAssertion(this.exceptionChecks.getExceptionAssertion(), (Exception) e);
+                }
 
             } else {
 
@@ -112,14 +120,19 @@ final class AnnotationProcessorWrapper implements Processor {
         }
 
         // check in last round if expected exception has been thrown - in this case trigger assertion error
-        if (roundEnv.processingOver() && !expectedExceptionWasThrown && this.expectedThrownException != null) {
+        if (roundEnv.processingOver() && !expectedExceptionWasThrown && this.exceptionChecks != null && this.exceptionChecks.getExceptionIsThrown() != null) {
             throw new FailingAssertionException(
-                    Constants.Messages.ASSERTION_EXPECTED_EXCEPTION_NOT_THROWN.produceMessage(this.expectedThrownException.getCanonicalName())
+                    Constants.Messages.ASSERTION_EXPECTED_EXCEPTION_NOT_THROWN.produceMessage(this.exceptionChecks.getExceptionIsThrown().getCanonicalName())
             );
         }
 
 
         return returnValue;
+    }
+    
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+	private <EXCEPTION extends Exception> void doExceptionAssertion(ExceptionAssertion exceptionAssertion, Exception e) {
+    	((ExceptionAssertion<EXCEPTION>)exceptionAssertion).doAssertion((EXCEPTION)e);
     }
 
     @Override
@@ -139,13 +152,13 @@ final class AnnotationProcessorWrapper implements Processor {
         return wrapProcessor(processorToWrap, null);
     }
 
-    public static AnnotationProcessorWrapper wrapProcessor(Processor processorToWrap, Class<? extends Throwable> expectedThrownException) {
+    public static AnnotationProcessorWrapper wrapProcessor(Processor processorToWrap, ExceptionCheckBB exceptionChecks) {
 
         if (processorToWrap == null) {
             throw new IllegalArgumentException(Constants.Messages.IAE_PASSED_PARAMETER_MUST_NOT_BE_NULL.produceMessage("processor"));
         }
 
-        return new AnnotationProcessorWrapper(processorToWrap, expectedThrownException);
+        return new AnnotationProcessorWrapper(processorToWrap, exceptionChecks);
     }
 
     public static <T extends Processor> AnnotationProcessorWrapper wrapProcessor(Class<T> processorTypeToWrap) {
@@ -161,18 +174,18 @@ final class AnnotationProcessorWrapper implements Processor {
 
     }
 
-    public static <T extends Processor> AnnotationProcessorWrapper wrapProcessor(Class<T> processorTypeToWrap, Class<? extends Throwable> expectedThrownException) {
+    public static <T extends Processor> AnnotationProcessorWrapper wrapProcessor(Class<T> processorTypeToWrap, ExceptionCheckBB exceptionChecks) {
 
         if (processorTypeToWrap == null) {
             throw new IllegalArgumentException(Constants.Messages.IAE_PASSED_PARAMETER_MUST_NOT_BE_NULL.produceMessage("type"));
         }
 
-        if (expectedThrownException == null) {
+        if (exceptionChecks == null || exceptionChecks.getExceptionIsThrown() == null) {
             throw new IllegalArgumentException(Constants.Messages.IAE_PASSED_PARAMETER_MUST_NOT_BE_NULL.produceMessage("expected exception"));
         }
 
         try {
-            return new AnnotationProcessorWrapper(processorTypeToWrap.getDeclaredConstructor().newInstance(), expectedThrownException);
+            return new AnnotationProcessorWrapper(processorTypeToWrap.getDeclaredConstructor().newInstance(), exceptionChecks);
         } catch (Exception e) {
             throw new IllegalArgumentException(Constants.Messages.IAE_CANNOT_INSTANTIATE_PROCESSOR.produceMessage(processorTypeToWrap.getCanonicalName()), e);
         }
@@ -258,7 +271,7 @@ final class AnnotationProcessorWrapper implements Processor {
             }
 
             if (processor != null) {
-                wrappedProcessors.add(AnnotationProcessorWrapper.wrapProcessor(processor, compilerTestBB.getExceptionIsThrown()));
+                wrappedProcessors.add(AnnotationProcessorWrapper.wrapProcessor(processor, compilerTestBB.getExceptionChecks()));
             }
         }
 
@@ -268,7 +281,7 @@ final class AnnotationProcessorWrapper implements Processor {
             try {
 
                 Processor processor = processorType.getDeclaredConstructor().newInstance();
-                wrappedProcessors.add(AnnotationProcessorWrapper.wrapProcessor(processor, compilerTestBB.getExceptionIsThrown()));
+                wrappedProcessors.add(AnnotationProcessorWrapper.wrapProcessor(processor, compilerTestBB.getExceptionChecks()));
 
             } catch (Exception e) {
                 throw new IllegalArgumentException(Constants.Messages.IAE_CANNOT_INSTANTIATE_PROCESSOR.produceMessage(processorType.getCanonicalName()));

@@ -7,7 +7,7 @@
     <parent>
         <groupId>io.toolisticon.cute</groupId>
         <artifactId>extension-parent</artifactId>
-        <version>1.7.0</version>
+        <version>1.8.0</version>
     </parent>
 
     <name>extension-api</name>
@@ -20,17 +20,31 @@
             <artifactId>spiap-api</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>io.toolisticon.spiap</groupId>
-            <artifactId>spiap-processor</artifactId>
-        </dependency>
-
     </dependencies>
 
 
     <build>
 
         <plugins>
+
+			<plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration combine.self="append">
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>io.toolisticon.spiap</groupId>
+                            <artifactId>spiap-processor</artifactId>
+                            <version>${spiap.version}</version>
+                        </path>
+                        <path>
+                            <groupId>io.toolisticon.spiap</groupId>
+                            <artifactId>spiap-api</artifactId>
+                            <version>${spiap.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
+
 
             <plugin>
                 <artifactId>maven-enforcer-plugin</artifactId>
