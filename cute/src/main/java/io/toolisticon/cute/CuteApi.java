@@ -10,6 +10,7 @@ import io.toolisticon.fluapigen.api.FluentApiBackingBeanMapping;
 import io.toolisticon.fluapigen.api.FluentApiCommand;
 import io.toolisticon.fluapigen.api.FluentApiConverter;
 import io.toolisticon.fluapigen.api.FluentApiImplicitValue;
+import io.toolisticon.fluapigen.api.FluentApiInlineBackingBeanMapping;
 import io.toolisticon.fluapigen.api.FluentApiInterface;
 import io.toolisticon.fluapigen.api.FluentApiParentBackingBeanMapping;
 import io.toolisticon.fluapigen.api.FluentApiRoot;
@@ -68,8 +69,8 @@ public class CuteApi {
         @FluentApiBackingBeanField("compilationSucceeded")
         Boolean compilationSucceeded();
 
-        @FluentApiBackingBeanField("exceptionIsThrown")
-        Class<? extends Exception> getExceptionIsThrown();
+        @FluentApiBackingBeanField("exceptionChecks")
+        ExceptionCheckBB getExceptionChecks();
 
         UnitTestBase unitTest();
 
@@ -119,6 +120,17 @@ public class CuteApi {
         }
 
 
+    }
+    
+    @FluentApiBackingBean
+    public interface ExceptionCheckBB {
+    	
+        @FluentApiBackingBeanField("exceptionIsThrown")
+        Class<? extends Exception> getExceptionIsThrown();
+        
+        @FluentApiBackingBeanField("exceptionAssertion")
+        ExceptionAssertion<? extends Exception> getExceptionAssertion();
+    	
     }
 
 
@@ -926,9 +938,34 @@ public class CuteApi {
          * @param exception The exception to check for
          * @return the next fluent interface
          */
-        CompilerTestExpectAndThatInterface exceptionIsThrown(@FluentApiBackingBeanMapping(value = "exceptionIsThrown") Class<? extends Exception> exception);
+        @FluentApiInlineBackingBeanMapping(value = "exceptionChecks")
+        CompilerTestExpectAndThatInterface exceptionIsThrown(@FluentApiBackingBeanMapping(value = "exceptionIsThrown", target = TargetBackingBean.INLINE) Class<? extends Exception> exception);
 
-
+        /**
+         * Expect an Exception to be thrown.
+         * This usually makes sense for unit tests rather than black box tests.
+         * <p>
+         * Please keep in mind that it's discouraged for processors to throw exceptions.
+         * Please catch them in your processor and convert them to compiler messages and maybe trigger a compiler error if needed.
+         *
+         * @param exception The exception to check for
+         * @return the next fluent interface
+         */
+        @FluentApiInlineBackingBeanMapping(value = "exceptionChecks")
+        <T extends Exception> CompilerTestExpectAndThatInterface exceptionIsThrown(
+        		@FluentApiBackingBeanMapping(value = "exceptionIsThrown", target = TargetBackingBean.INLINE) Class<T> exception,
+        		@FluentApiBackingBeanMapping(value = "exceptionAssertion", target = TargetBackingBean.INLINE) ExceptionAssertion<T> exceptionAssertion);
+        
+    }
+    
+    /**
+     * Used to do an assertion on an expected exception.
+     * @param <T> The exceptions type
+     */
+    public interface ExceptionAssertion<T extends Exception> {
+    	
+    	void doAssertion(T exception);
+    	
     }
 
     @FluentApiInterface(CompilerTestBB.class)

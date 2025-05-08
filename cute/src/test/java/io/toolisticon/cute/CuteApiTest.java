@@ -171,7 +171,7 @@ public class CuteApiTest {
                 .andSourceFiles("/compiletests/TestClass.java")
                 .whenCompiled().thenExpectThat().exceptionIsThrown(IllegalStateException.class)
         ).backingBean;
-        MatcherAssert.assertThat(unit.getExceptionIsThrown(), Matchers.is(IllegalStateException.class));
+        MatcherAssert.assertThat(unit.getExceptionChecks().getExceptionIsThrown(), Matchers.is(IllegalStateException.class));
 
     }
 

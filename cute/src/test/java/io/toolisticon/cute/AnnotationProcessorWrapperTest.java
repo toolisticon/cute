@@ -1,6 +1,8 @@
 package io.toolisticon.cute;
 
 
+import io.toolisticon.cute.CuteApi.ExceptionAssertion;
+import io.toolisticon.cute.CuteApi.ExceptionCheckBB;
 import io.toolisticon.cute.testcases.TestAnnotationProcessor;
 import io.toolisticon.cute.testcases.TestAnnotationProcessorWithMissingNoArgConstructor;
 import org.hamcrest.MatcherAssert;
@@ -52,8 +54,8 @@ public class AnnotationProcessorWrapperTest {
 
     @Test
     public void createWrapperWithTypeAndException() {
-
-        Processor unit = AnnotationProcessorWrapper.wrapProcessor(TestAnnotationProcessor.class, IllegalStateException.class);
+    	
+        Processor unit = AnnotationProcessorWrapper.wrapProcessor(TestAnnotationProcessor.class, createExceptionCheckBB(IllegalStateException.class));
         MatcherAssert.assertThat("Must return non null valued Processor", unit, Matchers.notNullValue());
 
     }
@@ -61,14 +63,14 @@ public class AnnotationProcessorWrapperTest {
     @Test(expected = IllegalArgumentException.class)
     public void createWrapperWithTypeAndException_nullValuedProcessorClass() {
 
-        AnnotationProcessorWrapper.wrapProcessor((Class) null, IllegalStateException.class);
+        AnnotationProcessorWrapper.wrapProcessor((Class) null, createExceptionCheckBB(IllegalStateException.class));
 
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void createWrapperWithTypeAndException_nullValuedExceptionClass() {
 
-        AnnotationProcessorWrapper.wrapProcessor(TestAnnotationProcessor.class, (Class) null);
+        AnnotationProcessorWrapper.wrapProcessor(TestAnnotationProcessor.class, createExceptionCheckBB((Class) null));
 
     }
 
@@ -87,7 +89,7 @@ public class AnnotationProcessorWrapperTest {
     @Test(expected = IllegalArgumentException.class)
     public void createWrapperWithTypeAndException_notIntancableProcessorClass() {
 
-        AnnotationProcessorWrapper.wrapProcessor(InvalidProcessor.class, IllegalStateException.class);
+        AnnotationProcessorWrapper.wrapProcessor(InvalidProcessor.class, createExceptionCheckBB(IllegalStateException.class));
 
     }
 
@@ -251,6 +253,39 @@ public class AnnotationProcessorWrapperTest {
 
 
     }
+    
+    @Test
+    public void process_testExpectedExceptionIsThrown_assertionShouldSucceed_withAdditionalChecks() {
+
+        Cute.unitTest().when(processingEnvironment -> {
+                    throw new IllegalArgumentException("XXX");
+                })
+                .thenExpectThat().exceptionIsThrown(IllegalArgumentException.class, (e)->{
+                	MatcherAssert.assertThat(e.getMessage(), Matchers.containsString("XXX"));
+                })
+                .executeTest();
+
+       
+    }
+    
+    @Test
+    public void process_testExpectedExceptionIsThrown_assertionShouldFail_becauseOfAdditionalChecks() {
+
+    	try {
+        Cute.unitTest().when(processingEnvironment -> {
+                    throw new IllegalArgumentException("ABC");
+                })
+                .thenExpectThat().exceptionIsThrown(IllegalArgumentException.class, (e)->{
+                	MatcherAssert.assertThat(e.getMessage(), Matchers.containsString("XXX"));
+                })
+               .executeTest();
+    	} catch (AssertionError e) {
+            MatcherAssert.assertThat(e.getMessage(), Matchers.containsString("a string containing \"XXX\""));
+            MatcherAssert.assertThat(e.getMessage(), Matchers.containsString("was \"ABC\""));
+            return;
+        }
+
+    }
 
     @Test
     public void process_testExpectedExceptionNotThrown_assertionShouldFail() {
@@ -313,4 +348,20 @@ public class AnnotationProcessorWrapperTest {
     }
 
 
+    private ExceptionCheckBB createExceptionCheckBB(final Class<? extends Exception> expectedExceptionType) {
+    	return new ExceptionCheckBB() {
+			
+			@Override
+			public Class<? extends Exception> getExceptionIsThrown() {
+				return expectedExceptionType;
+			}
+			
+			@Override
+			public ExceptionAssertion<? extends Exception> getExceptionAssertion() {
+				// TODO Auto-generated method stub
+				return null;
+			}
+		};
+    }
+    
 }
