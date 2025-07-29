@@ -246,7 +246,7 @@ class CompileTest {
 
 
         // Configure java compilation task
-        CompileTestFileManager javaFileManager = new CompileTestFileManager(stdJavaFileManager);
+        CompileTestFileManager javaFileManager = new CompileTestFileManager(stdJavaFileManager, compileTestConfiguration.resourceFiles());
 
         JavaCompiler.CompilationTask compilationTask = compiler.getTask(
                 null,

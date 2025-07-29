@@ -1,15 +1,11 @@
 package io.toolisticon.cute;
 
-import io.toolisticon.cute.common.ExceptionThrowerProcessor;
-import io.toolisticon.cute.common.SimpleTestProcessor1;
-import io.toolisticon.cute.common.SimpleTestProcessor1Interface;
-import io.toolisticon.cute.common.SimpleTestProcessor2;
-import io.toolisticon.cute.testcases.SimpleTestInterface;
-import io.toolisticon.fluapigen.validation.api.ValidatorException;
-import org.hamcrest.MatcherAssert;
-import org.hamcrest.Matchers;
-import org.junit.Test;
-import org.mockito.Mockito;
+import java.io.IOException;
+import java.io.Writer;
+import java.net.URISyntaxException;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.Processor;
@@ -18,12 +14,20 @@ import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic;
 import javax.tools.FileObject;
 import javax.tools.JavaFileObject;
+import javax.tools.JavaFileObject.Kind;
 import javax.tools.StandardLocation;
-import java.io.IOException;
-import java.io.Writer;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
+
+import org.hamcrest.MatcherAssert;
+import org.hamcrest.Matchers;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import io.toolisticon.cute.common.ExceptionThrowerProcessor;
+import io.toolisticon.cute.common.SimpleTestProcessor1;
+import io.toolisticon.cute.common.SimpleTestProcessor1Interface;
+import io.toolisticon.cute.common.SimpleTestProcessor2;
+import io.toolisticon.cute.testcases.SimpleTestInterface;
+import io.toolisticon.fluapigen.validation.api.ValidatorException;
 
 /**
  * Unit tests for {@link Cute}.
@@ -79,6 +83,7 @@ public class CuteTest {
 
     @Test
     public void test_compilationWithCompilerOptions_happyPath() {
+    	
         Cute.blackBoxTest().given().noProcessors()
                 .andSourceFiles("/compiletests/compileroptionstest/Java8Code.java")
                 .andUseCompilerOptions("-source 1.8", "-target 1.8")
@@ -86,6 +91,80 @@ public class CuteTest {
                 .andThat().generatedClass("io.toolisticon.cute.testcases.Java8Code").exists()
                 .executeTest();
     }
+    
+    @Test
+    public void test_accessing_classpath() throws URISyntaxException {
+    	
+
+    	
+    	Cute.unitTest().given()
+    		.useResourceFile("abc.def.hij", "/compiletests/classpathtest/resourceFile.txt")
+    		.when()
+    		.unitTestWithoutPassIn( env -> {
+    			
+    			FileObject resource = null;
+    			try {
+    				resource = env.getFiler().getResource(StandardLocation.CLASS_PATH, "abc.def.hij", "resourceFile.txt");
+    				
+				} catch (IOException e) {
+					throw new AssertionError();
+				}
+    			MatcherAssert.assertThat(resource, Matchers.notNullValue());
+    			try {
+					MatcherAssert.assertThat(resource.getCharContent(false), Matchers.is("TATA!"));
+				} catch (IOException e) {
+					throw new AssertionError();
+				}
+    			
+    			
+    		}).executeTest();
+    }
+    
+    @Test
+    public void test_accessing_classpath_withPackageRelativeName() throws URISyntaxException {
+    	
+
+    	
+    	Cute.unitTest().given()
+    		.useResourceFile("abc.def.hij", "/compiletests/classpathtest/resourceFile.txt")
+    		.when()
+    		.unitTestWithoutPassIn( env -> {
+    			
+    			FileObject resource = null;
+    			try {
+    				
+    				resource = env.getFiler().getResource(StandardLocation.CLASS_PATH, "abc.def", "hij/resourceFile.txt");
+    				
+				} catch (IOException e) {
+					throw new AssertionError();
+				}
+    			MatcherAssert.assertThat(resource, Matchers.notNullValue());
+    			try {
+					MatcherAssert.assertThat(resource.getCharContent(false), Matchers.is("TATA!"));
+				} catch (IOException e) {
+					throw new AssertionError();
+				}
+    			
+    			
+    		}).executeTest();
+    }
+    
+    @Test
+    public void test_checkingForSourceAndResourceFiles() throws URISyntaxException {
+    	
+    	Cute.blackBoxTest().given().noProcessors()
+    		.andSourceFiles("/compiletests/TestClass.java")
+    		.whenCompiled()
+    	
+    		.thenExpectThat()
+    		.compilationSucceeds()
+    		.andThat().javaFileObject(StandardLocation.CLASS_OUTPUT, "io.toolisticon.annotationprocessortoolkit.testhelper.TestClass", Kind.CLASS).exists()
+    		.andThat().fileObject(StandardLocation.CLASS_PATH, "", "compiletests/classpathtest/resourceFile.txt").exists()
+    		.andThat().fileObject(StandardLocation.CLASS_PATH, "compiletests", "classpathtest/resourceFile.txt").exists()
+    		.andThat().fileObject(StandardLocation.CLASS_PATH, "compiletests.classpathtest", "resourceFile.txt").exists()
+    		.executeTest();
+    }
+    
 
     @Test
     public void test_compilationWithCompilerOptions_invalidUsageOfJava8Code() {

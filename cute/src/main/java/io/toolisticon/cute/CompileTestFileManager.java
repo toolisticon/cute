@@ -1,11 +1,5 @@
 package io.toolisticon.cute;
 
-import javax.tools.FileObject;
-import javax.tools.ForwardingJavaFileManager;
-import javax.tools.JavaFileManager;
-import javax.tools.JavaFileObject;
-import javax.tools.SimpleJavaFileObject;
-import javax.tools.StandardJavaFileManager;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -22,12 +16,26 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.tools.FileObject;
+import javax.tools.ForwardingJavaFileManager;
+import javax.tools.JavaFileManager;
+import javax.tools.JavaFileObject;
+import javax.tools.SimpleJavaFileObject;
+import javax.tools.StandardJavaFileManager;
+import javax.tools.StandardLocation;
+
+import io.toolisticon.cute.CuteApi.ResourceFileBB;
+
 /**
  * Forwarding file manager to be able to test for generated sources and resources
  */
 class CompileTestFileManager extends ForwardingJavaFileManager<StandardJavaFileManager> {
 
 
+	/**
+	 * The file object cache that is used to store generated classes and resources.
+	 * @param <T> The type of cached file objects, must be either FileObject or JavaFileObject
+	 */
     public static class FileObjectCache<T extends FileObject> {
 
         final Map<URI, T> fileObjectCache = new HashMap<>();
@@ -55,14 +63,45 @@ class CompileTestFileManager extends ForwardingJavaFileManager<StandardJavaFileM
 
 
     }
+   
+    /**
+     * This internal class is used to provide resources from class path via a custom package.
+     * Internally this works like an alias.
+     * It hides any pre-existing resources with uri.
+     */
+    public static class ProvidedResourceFilesCache{
+    	
+    	
+    	final Map<URI, FileObject> resourcesMap = new HashMap<>();
+    	
+    	ProvidedResourceFilesCache (List<ResourceFileBB> resourceFiles) {
+    		
+    		if (resourceFiles != null) {
+    			resourceFiles.stream().filter(e -> e.getRelativeName() != null).forEach( e -> resourcesMap.put(uriForFileObject(StandardLocation.CLASS_PATH, e.targetPackageName(), e.getRelativeName()), FileObjectUtils.forPassedInResource(e)));
+    		}
+    		
+    	}
+    	
+    	FileObject get(String packageName, String relativeName) {
+    		URI uri = uriForFileObject(StandardLocation.CLASS_PATH, packageName,relativeName);
+    		return this.resourcesMap.get(uri);
+    	}
+    	
+    	
+    	
+    }
 
 
     private final FileObjectCache<InMemoryOutputJavaFileObject> generatedJavaFileObjectCache = new FileObjectCache<>();
     private final FileObjectCache<InMemoryOutputFileObject> generatedFileObjectCache = new FileObjectCache<>();
+    private final ProvidedResourceFilesCache providedResourceFilesCache;
 
 
-    public CompileTestFileManager(StandardJavaFileManager standardJavaFileManager) {
+    public CompileTestFileManager(StandardJavaFileManager standardJavaFileManager, List<CuteApi.ResourceFileBB> resourceFiles) {
         super(standardJavaFileManager);
+        
+        // configure cache for resource files
+        providedResourceFilesCache = new ProvidedResourceFilesCache(resourceFiles);
 
     }
 
@@ -124,7 +163,18 @@ class CompileTestFileManager extends ForwardingJavaFileManager<StandardJavaFileM
             } else {
                 throw new IllegalArgumentException(Constants.Messages.IAE_CANNOT_FIND_FILEOBJECT.produceMessage(uri.toString()));
             }
+        } else if (StandardLocation.CLASS_PATH.equals(location)) {
+        	
+        	// Try to get it from provided resource file cache
+        	FileObject providedResource = this.providedResourceFilesCache.get(packageName, relativeName);
+        	
+        	if (providedResource != null) {
+        		return providedResource;
+        	}
+        	
         }
+        
+        // use standard manager if file haven't been found so far
         return super.getFileForInput(location, packageName, relativeName);
     }
 
@@ -138,8 +188,17 @@ class CompileTestFileManager extends ForwardingJavaFileManager<StandardJavaFileM
      * @return true if JavaFileObject exists, otherwise false
      */
     public boolean existsExpectedJavaFileObject(JavaFileManager.Location location, String className, JavaFileObject.Kind kind) {
-
-        return this.generatedJavaFileObjectCache.contains(uriForJavaFileObject(location, className, kind));
+    	
+    	if (location.isOutputLocation()) {
+    		return this.generatedJavaFileObjectCache.contains(uriForJavaFileObject(location, className, kind));
+    	} 
+    	
+    	try {
+			return super.getJavaFileForInput(location, className, kind) != null;
+		} catch (IOException e) {
+			throw new IllegalStateException("Something went wrong while accessing the default FileManager", e);
+		}
+        
 
     }
 
@@ -152,10 +211,24 @@ class CompileTestFileManager extends ForwardingJavaFileManager<StandardJavaFileM
      * @return true if FileObject exists, otherwise false
      */
     public boolean existsExpectedFileObject(JavaFileManager.Location location, String packageName, String relativeName) {
-
-        return this.generatedFileObjectCache.contains(uriForFileObject(location, packageName, relativeName));
-
-
+    	
+    	// return true if file could be found in resource cache, otherwise check regular file manager
+    	if (StandardLocation.CLASS_PATH.equals(location) && this.providedResourceFilesCache.get(packageName, relativeName) != null) {
+    		return true;
+    	} 
+    	
+    	// otherwise check the generated file object cache
+    	if (location.isOutputLocation()) {
+    		return this.generatedFileObjectCache.contains(uriForFileObject(location, packageName, relativeName));
+    	}
+    	
+    	// use standard file manager for input files
+    	try {
+			return super.getFileForInput(location, packageName, relativeName) != null;
+		} catch (IOException e) {
+			throw new IllegalStateException("Something went wrong while accessing the default FileManager", e);
+		}
+    	
     }
 
 
@@ -166,7 +239,7 @@ class CompileTestFileManager extends ForwardingJavaFileManager<StandardJavaFileM
     }
 
 
-    private static URI uriForFileObject(Location location, String packageName, String relativeName) {
+    static URI uriForFileObject(Location location, String packageName, String relativeName) {
         StringBuilder uri = new StringBuilder("mem://").append(location.getName()).append('/');
         if (!packageName.isEmpty()) {
             uri.append(packageName.replace('.', '/')).append('/');
@@ -304,4 +377,5 @@ class CompileTestFileManager extends ForwardingJavaFileManager<StandardJavaFileM
             outputStreamCallback.setContent(this.toByteArray());
         }
     }
+    
 }

@@ -3,6 +3,9 @@ package io.toolisticon.cute;
 
 import javax.tools.FileObject;
 import javax.tools.StandardLocation;
+
+import io.toolisticon.cute.CuteApi.ResourceFileBB;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -118,6 +121,77 @@ public abstract class FileObjectUtils {
         }
 
     }
+    
+    static class ResourceFileObject implements FileObject {
+		
+		final CuteApi.ResourceFileBB resourceFileBB;
+		
+		ResourceFileObject(CuteApi.ResourceFileBB resourceFileBB) {
+			this.resourceFileBB = resourceFileBB;
+		}
+
+		@Override
+		public URI toUri() {
+			return CompileTestFileManager.uriForFileObject(StandardLocation.CLASS_PATH, resourceFileBB.targetPackageName(), resourceFileBB.resource());
+		}
+
+		@Override
+		public String getName() {
+			return resourceFileBB.getRelativeName();
+		}
+
+		@Override
+		public InputStream openInputStream() throws IOException {
+			return CompileTestFileManager.class.getResourceAsStream(this.resourceFileBB.resource());
+		}
+
+		@Override
+		public OutputStream openOutputStream() throws IOException {
+			throw new IllegalStateException();
+		}
+
+		@Override
+		public Reader openReader(boolean ignoreEncodingErrors) throws IOException {
+			return new InputStreamReader(openInputStream());
+		}
+
+		@Override
+		public CharSequence getCharContent(boolean ignoreEncodingErrors) throws IOException {
+			
+			ByteArrayOutputStream buffer;
+            try (InputStream inputStream = openInputStream()) {
+
+                buffer = new ByteArrayOutputStream();
+                int nRead;
+                byte[] data = new byte[1024];
+
+                while ((nRead = inputStream.read(data, 0, data.length)) != -1) {
+                    buffer.write(data, 0, nRead);
+                }
+
+                buffer.flush();
+                return buffer.toString();
+
+            }
+		}
+
+		@Override
+		public Writer openWriter() throws IOException {
+			throw new IllegalStateException();
+		}
+
+		@Override
+		public long getLastModified() {
+			return 0;
+		}
+
+		@Override
+		public boolean delete() {
+			throw new IllegalStateException();
+		}
+		
+	}
+    
 
     public static FileObject fromString(String content) {
         return new FileObjectFromString(content);
@@ -125,6 +199,10 @@ public abstract class FileObjectUtils {
 
     public static FileObject fromResource(String resource) {
         return new FileObjectFromResource(resource);
+    }
+    
+    static FileObject forPassedInResource(ResourceFileBB resourceFileBB) {
+    	return new ResourceFileObject(resourceFileBB);
     }
 
 }
