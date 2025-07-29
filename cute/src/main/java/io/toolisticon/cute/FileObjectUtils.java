@@ -132,7 +132,7 @@ public abstract class FileObjectUtils {
 
 		@Override
 		public URI toUri() {
-			return CompileTestFileManager.uriForFileObject(StandardLocation.CLASS_PATH, resourceFileBB.targetPackageName(), resourceFileBB.resource());
+			return CompileTestFileManager.uriForFileObject(StandardLocation.CLASS_PATH, resourceFileBB.targetPackageNameOrAbsolutePath(), resourceFileBB.resource());
 		}
 
 		@Override

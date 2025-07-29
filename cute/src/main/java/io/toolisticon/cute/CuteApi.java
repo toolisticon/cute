@@ -128,8 +128,8 @@ public class CuteApi {
     @FluentApiBackingBean
     public interface ResourceFileBB {
     	
-    	@FluentApiBackingBeanField("targetPackageName")
-    	String targetPackageName();
+    	@FluentApiBackingBeanField("targetPackageNameOrAbsolutePath")
+    	String targetPackageNameOrAbsolutePath();
     	
     	@FluentApiBackingBeanField("resource")
     	String resource();
@@ -474,17 +474,17 @@ public class CuteApi {
         }
 
         /**
-         * Adds a resource file to a specific package in the class path. 
-         * By doing that the passed resource file will be available with it's original name in the passed target package.
+         * Adds a resource file to a specific package or path in the class path.
+         * By doing that the passed resource file will be available with it's original name in the passed target package or path.
          * This shadows existing resource files in CLASS_PATH location!
          * !!! WARNING - This will work in the tests but it's not guaranteed that your annotation processor will work out of the box with all the different kind of build tools or compilers out there !!!
-         * @param targetPackageName The target package name to use
+         * @param targetPackageNameOrAbsolutePath The target package name to use or the absolute path to use(absolute path must start with '/') 
          * @param resource The resource to use
          * @return the next fluent interface
          */
         @FluentApiInlineBackingBeanMapping("resourceFiles")
         BlackBoxTestFinalGivenInterface andResourceFile(
-        		@FluentApiBackingBeanMapping(action = MappingAction.SET, value =  "targetPackageName" , target = TargetBackingBean.INLINE) String targetPackageName, 
+        		@FluentApiBackingBeanMapping(action = MappingAction.SET, value =  "targetPackageNameOrAbsolutePath" , target = TargetBackingBean.INLINE) String targetPackageNameOrAbsolutePath, 
         		@FluentApiBackingBeanMapping(action = MappingAction.SET, value =  "resource" , target = TargetBackingBean.INLINE) @ResourceIsFileAndExists String resource
         		);
         
@@ -668,17 +668,17 @@ public class CuteApi {
         
 
         /**
-         * Adds a resource file to a specific package in the class path. 
-         * By doing that the passed resource file will be available with it's original name in the passed target package.
+         * Adds a resource file to a specific package or path in the class path.
+         * By doing that the passed resource file will be available with it's original name in the passed target package or path.
          * This shadows existing resource files in CLASS_PATH location!
          * !!! WARNING - This will work in the tests but it's not guaranteed that your annotation processor will work out of the box with all the different kind of build tools or compilers out there !!!
-         * @param targetPackageName The target package name to use
+         * @param targetPackageNameOrAbsolutePath The target package name to use or the absolute path to use (absolute path must start with a '/') 
          * @param resource The resource to use
          * @return the next fluent interface
          */
         @FluentApiInlineBackingBeanMapping("resourceFiles")
         UnitTestGivenInterface useResourceFile(
-        		@FluentApiBackingBeanMapping(action = MappingAction.SET, value =  "targetPackageName" , target = TargetBackingBean.INLINE) String targetPackageName, 
+        		@FluentApiBackingBeanMapping(action = MappingAction.SET, value =  "targetPackageNameOrAbsolutePath" , target = TargetBackingBean.INLINE) String targetPackageNameOrAbsolutePath, 
         		@FluentApiBackingBeanMapping(action = MappingAction.SET, value =  "resource" , target = TargetBackingBean.INLINE) @ResourceIsFileAndExists String resource
         		);
         

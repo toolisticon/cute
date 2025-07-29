@@ -77,7 +77,7 @@ class CompileTestFileManager extends ForwardingJavaFileManager<StandardJavaFileM
     	ProvidedResourceFilesCache (List<ResourceFileBB> resourceFiles) {
     		
     		if (resourceFiles != null) {
-    			resourceFiles.stream().filter(e -> e.getRelativeName() != null).forEach( e -> resourcesMap.put(uriForFileObject(StandardLocation.CLASS_PATH, e.targetPackageName(), e.getRelativeName()), FileObjectUtils.forPassedInResource(e)));
+    			resourceFiles.stream().filter(e -> e.getRelativeName() != null).forEach( e -> resourcesMap.put(uriForFileObjectForProvidedResource(StandardLocation.CLASS_PATH, e.targetPackageNameOrAbsolutePath(), e.getRelativeName()), FileObjectUtils.forPassedInResource(e)));
     		}
     		
     	}
@@ -238,6 +238,15 @@ class CompileTestFileManager extends ForwardingJavaFileManager<StandardJavaFileM
 
     }
 
+    
+    static URI uriForFileObjectForProvidedResource(Location location, String packageNameOrPath, String relativeName) {
+        StringBuilder uri = new StringBuilder("mem://").append(location.getName()).append('/');
+        if (!packageNameOrPath.isEmpty()) {
+            uri.append(packageNameOrPath.startsWith("/") ?  packageNameOrPath.substring(1) : packageNameOrPath.replace('.', '/')).append('/');
+        }
+        uri.append(relativeName);
+        return URI.create(uri.toString());
+    }
 
     static URI uriForFileObject(Location location, String packageName, String relativeName) {
         StringBuilder uri = new StringBuilder("mem://").append(location.getName()).append('/');

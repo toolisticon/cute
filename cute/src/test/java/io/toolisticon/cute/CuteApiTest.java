@@ -486,10 +486,10 @@ public class CuteApiTest {
         ).backingBean;
         MatcherAssert.assertThat(unit.resourceFiles(), Matchers.hasSize(2));
         
-        MatcherAssert.assertThat(unit.resourceFiles().get(0).targetPackageName(), Matchers.is("AP"));
+        MatcherAssert.assertThat(unit.resourceFiles().get(0).targetPackageNameOrAbsolutePath(), Matchers.is("AP"));
         MatcherAssert.assertThat(unit.resourceFiles().get(0).resource(), Matchers.is("/compiletests/classpathtest/AR"));
         
-        MatcherAssert.assertThat(unit.resourceFiles().get(1).targetPackageName(), Matchers.is("BP"));
+        MatcherAssert.assertThat(unit.resourceFiles().get(1).targetPackageNameOrAbsolutePath(), Matchers.is("BP"));
         MatcherAssert.assertThat(unit.resourceFiles().get(1).resource(), Matchers.is("/compiletests/classpathtest/BR"));
         
     }
@@ -530,10 +530,10 @@ public class CuteApiTest {
         ).backingBean;
         MatcherAssert.assertThat(unit.resourceFiles(), Matchers.hasSize(2));
         
-        MatcherAssert.assertThat(unit.resourceFiles().get(0).targetPackageName(), Matchers.is("AP"));
+        MatcherAssert.assertThat(unit.resourceFiles().get(0).targetPackageNameOrAbsolutePath(), Matchers.is("AP"));
         MatcherAssert.assertThat(unit.resourceFiles().get(0).resource(), Matchers.is("/compiletests/classpathtest/AR"));
         
-        MatcherAssert.assertThat(unit.resourceFiles().get(1).targetPackageName(), Matchers.is("BP"));
+        MatcherAssert.assertThat(unit.resourceFiles().get(1).targetPackageNameOrAbsolutePath(), Matchers.is("BP"));
         MatcherAssert.assertThat(unit.resourceFiles().get(1).resource(), Matchers.is("/compiletests/classpathtest/BR"));
         
     }
