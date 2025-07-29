@@ -150,6 +150,64 @@ public class CuteTest {
     }
     
     @Test
+    public void test_accessing_classpath_withPackageRelativeName2() throws URISyntaxException {
+    	
+
+    	
+    	Cute.unitTest().given()
+    		.useResourceFile("/META-INF/services", "/compiletests/classpathtest/resourceFile.txt")
+    		.when()
+    		.unitTestWithoutPassIn( env -> {
+    			
+    			FileObject resource = null;
+    			try {
+    				
+    				resource = env.getFiler().getResource(StandardLocation.CLASS_PATH, "", "META-INF/services/resourceFile.txt");
+    				
+				} catch (IOException e) {
+					throw new AssertionError();
+				}
+    			MatcherAssert.assertThat(resource, Matchers.notNullValue());
+    			try {
+					MatcherAssert.assertThat(resource.getCharContent(false), Matchers.is("TATA!"));
+				} catch (IOException e) {
+					throw new AssertionError();
+				}
+    			
+    			
+    		}).executeTest();
+    }
+    
+    @Test
+    public void test_accessing_classpath_withPackageRelativeName3() throws URISyntaxException {
+    	
+
+    	
+    	Cute.unitTest().given()
+    		.useResourceFile("/META-INF/ser.vices", "/compiletests/classpathtest/resourceFile.txt")
+    		.when()
+    		.unitTestWithoutPassIn( env -> {
+    			
+    			FileObject resource = null;
+    			try {
+    				
+    				resource = env.getFiler().getResource(StandardLocation.CLASS_PATH, "", "META-INF/ser.vices/resourceFile.txt");
+    				
+				} catch (IOException e) {
+					throw new AssertionError();
+				}
+    			MatcherAssert.assertThat(resource, Matchers.notNullValue());
+    			try {
+					MatcherAssert.assertThat(resource.getCharContent(false), Matchers.is("TATA!"));
+				} catch (IOException e) {
+					throw new AssertionError();
+				}
+    			
+    			
+    		}).executeTest();
+    }
+    
+    @Test
     public void test_checkingForSourceAndResourceFiles() throws URISyntaxException {
     	
     	Cute.blackBoxTest().given().noProcessors()
