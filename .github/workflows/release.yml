@@ -33,7 +33,7 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: 9
-          server-id: sonatype-nexus-staging
+          server-id: central
           server-username: OSS_CENTRAL_USERNAME # env variable for Maven Central
           server-password: OSS_CENTRAL_PASSWORD # env variable for Maven Central
 
