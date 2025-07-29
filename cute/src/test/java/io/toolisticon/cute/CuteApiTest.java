@@ -1,5 +1,6 @@
 package io.toolisticon.cute;
 
+import io.toolisticon.cute.CuteApi.BlackBoxTestFinalGivenInterface;
 import io.toolisticon.cute.common.SimpleTestProcessor1;
 import io.toolisticon.cute.common.SimpleTestProcessor2;
 import io.toolisticon.cute.common.SimpleTestProcessor3;
@@ -176,7 +177,7 @@ public class CuteApiTest {
     }
 
     @Test
-    public void test_blackbox_compilerMessage_error_comtains() {
+    public void test_blackbox_compilerMessage_error_contains() {
 
         CuteApi.CompilerTestBB unit = ((Cute.CompilerTestExpectAndThatInterfaceImpl) Cute.blackBoxTest().given()
                 .noProcessors()
@@ -472,6 +473,95 @@ public class CuteApiTest {
         ).backingBean;
         MatcherAssert.assertThat(unit.compilationSucceeded(), Matchers.is(false));
 
+    }
+    
+    @Test
+    public void test_unittest_andResourceFiles() {
+
+        CuteApi.CompilerTestBB unit = ((Cute.UnitTestGivenInterfaceImpl) Cute.unitTest().given()
+                
+        		.useResourceFile("AP", "/compiletests/classpathtest/AR")
+        		.useResourceFile("BP", "/compiletests/classpathtest/BR")
+        		
+        ).backingBean;
+        MatcherAssert.assertThat(unit.resourceFiles(), Matchers.hasSize(2));
+        
+        MatcherAssert.assertThat(unit.resourceFiles().get(0).targetPackageName(), Matchers.is("AP"));
+        MatcherAssert.assertThat(unit.resourceFiles().get(0).resource(), Matchers.is("/compiletests/classpathtest/AR"));
+        
+        MatcherAssert.assertThat(unit.resourceFiles().get(1).targetPackageName(), Matchers.is("BP"));
+        MatcherAssert.assertThat(unit.resourceFiles().get(1).resource(), Matchers.is("/compiletests/classpathtest/BR"));
+        
+    }
+    
+    @Test(expected = IllegalArgumentException.class)
+    public void test_unittest_andResourceFiles_nonexistingResource() {
+
+        CuteApi.CompilerTestBB unit = ((Cute.UnitTestGivenInterfaceImpl) Cute.unitTest().given()
+                
+        		.useResourceFile("AP", "/compiletests/classpathtest/ARR")
+        		
+        ).backingBean;
+       
+        
+    }
+    
+    @Test(expected = IllegalArgumentException.class)
+    public void test_unittest_andResourceFiles_directoryResource() {
+
+        CuteApi.CompilerTestBB unit = ((Cute.UnitTestGivenInterfaceImpl) Cute.unitTest().given()
+                
+        		.useResourceFile("AP", "/compiletests/classpathtest")
+        		
+        ).backingBean;
+       
+        
+    }
+    
+    @Test
+    public void test_blackboxtest_andResourceFiles() {
+
+        CuteApi.CompilerTestBB unit = ((Cute.BlackBoxTestFinalGivenInterfaceImpl) Cute.blackBoxTest().given()
+        		.noProcessors()
+        		
+        		.andResourceFile("AP", "/compiletests/classpathtest/AR")
+        		.andResourceFile("BP", "/compiletests/classpathtest/BR")
+        		
+        ).backingBean;
+        MatcherAssert.assertThat(unit.resourceFiles(), Matchers.hasSize(2));
+        
+        MatcherAssert.assertThat(unit.resourceFiles().get(0).targetPackageName(), Matchers.is("AP"));
+        MatcherAssert.assertThat(unit.resourceFiles().get(0).resource(), Matchers.is("/compiletests/classpathtest/AR"));
+        
+        MatcherAssert.assertThat(unit.resourceFiles().get(1).targetPackageName(), Matchers.is("BP"));
+        MatcherAssert.assertThat(unit.resourceFiles().get(1).resource(), Matchers.is("/compiletests/classpathtest/BR"));
+        
+    }
+    
+    @Test(expected = IllegalArgumentException.class)
+    public void test_blackboxtest_useResourceFiles_nonexistingResource() {
+
+    	CuteApi.CompilerTestBB unit = ((Cute.BlackBoxTestFinalGivenInterfaceImpl) Cute.blackBoxTest().given()
+        		.noProcessors()
+        		
+        		.andResourceFile("AP", "/compiletests/classpathtest/ARR")
+        		
+        ).backingBean;
+       
+        
+    }
+    
+    @Test(expected = IllegalArgumentException.class)
+    public void test_blackboxtest_useResourceFiles_directoryResource() {
+
+    	CuteApi.CompilerTestBB unit = ((Cute.BlackBoxTestFinalGivenInterfaceImpl) Cute.blackBoxTest().given()
+        		.noProcessors()
+        		
+        		.andResourceFile("AP", "/compiletests/classpathtest")
+        		
+        ).backingBean;
+       
+        
     }
 
 }

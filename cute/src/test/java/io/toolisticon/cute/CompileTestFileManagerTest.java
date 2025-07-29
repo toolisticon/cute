@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collections;
 
 /**
  * Unit test for {@link CompileTestFileManager}.
@@ -123,67 +124,69 @@ public class CompileTestFileManagerTest {
     // ---------------------------------------------
 
     @Test
-    public void test_CompileTestFileManager_isSameFile_sameFile() throws URISyntaxException {
+    public void test_CompileTestFileManager_isSameFile_sameFile() throws URISyntaxException,IOException {
 
-        CompileTestFileManager unit = new CompileTestFileManager(standardJavaFileManager);
+    	try (CompileTestFileManager unit = new CompileTestFileManager(standardJavaFileManager, Collections.emptyList())){
 
-        JavaFileObject javaFileObject1 = Mockito.mock(JavaFileObject.class);
-        URI uri1 = new URI("string://abc");
-        Mockito.when(javaFileObject1.toUri()).thenReturn(uri1);
+	        JavaFileObject javaFileObject1 = Mockito.mock(JavaFileObject.class);
+	        URI uri1 = new URI("string://abc");
+	        Mockito.when(javaFileObject1.toUri()).thenReturn(uri1);
+	
+	        JavaFileObject javaFileObject2 = Mockito.mock(JavaFileObject.class);
+	        URI uri2 = new URI("string://abc");
+	        Mockito.when(javaFileObject2.toUri()).thenReturn(uri2);
+	
+	        MatcherAssert.assertThat("Should be detected as same file", unit.isSameFile(javaFileObject1, javaFileObject2));
 
-        JavaFileObject javaFileObject2 = Mockito.mock(JavaFileObject.class);
-        URI uri2 = new URI("string://abc");
-        Mockito.when(javaFileObject2.toUri()).thenReturn(uri2);
-
-        MatcherAssert.assertThat("Should be detected as same file", unit.isSameFile(javaFileObject1, javaFileObject2));
-
-
+    	}
     }
 
     @Test
-    public void test_CompileTestFileManager_isSameFile_differentFile() throws URISyntaxException {
+    public void test_CompileTestFileManager_isSameFile_differentFile() throws URISyntaxException,IOException {
 
-        CompileTestFileManager unit = new CompileTestFileManager(standardJavaFileManager);
+    	try (CompileTestFileManager unit = new CompileTestFileManager(standardJavaFileManager, Collections.emptyList())){
 
-        JavaFileObject javaFileObject1 = Mockito.mock(JavaFileObject.class);
-        URI uri1 = new URI("string://abc");
-        Mockito.when(javaFileObject1.toUri()).thenReturn(uri1);
-
-        JavaFileObject javaFileObject2 = Mockito.mock(JavaFileObject.class);
-        URI uri2 = new URI("string://plainjava");
-        Mockito.when(javaFileObject2.toUri()).thenReturn(uri2);
-
-        MatcherAssert.assertThat("Should be detected as different file", !unit.isSameFile(javaFileObject1, javaFileObject2));
-
+	        JavaFileObject javaFileObject1 = Mockito.mock(JavaFileObject.class);
+	        URI uri1 = new URI("string://abc");
+	        Mockito.when(javaFileObject1.toUri()).thenReturn(uri1);
+	
+	        JavaFileObject javaFileObject2 = Mockito.mock(JavaFileObject.class);
+	        URI uri2 = new URI("string://plainjava");
+	        Mockito.when(javaFileObject2.toUri()).thenReturn(uri2);
+	
+	        MatcherAssert.assertThat("Should be detected as different file", !unit.isSameFile(javaFileObject1, javaFileObject2));
+    	
+    	}
 
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void test_CompileTestFileManager_getFileForInput_nonExistingFile() throws IOException {
 
-        CompileTestFileManager unit = new CompileTestFileManager(standardJavaFileManager);
+    	try (CompileTestFileManager unit = new CompileTestFileManager(standardJavaFileManager, Collections.emptyList())){
 
-        unit.getFileForInput(StandardLocation.SOURCE_OUTPUT, "de.toolisticon", "Test");
+    		unit.getFileForInput(StandardLocation.SOURCE_OUTPUT, "de.toolisticon", "Test");
 
-
+    	}
+    	
     }
 
     @Test
     public void test_CompileTestFileManager_getFileForInput_existingFile() throws IOException {
 
-        CompileTestFileManager unit = new CompileTestFileManager(standardJavaFileManager);
-
-        FileObject fileObject1 = unit.getFileForOutput(StandardLocation.SOURCE_OUTPUT, "de.toolisticon", "Test", null);
-        Writer writer = fileObject1.openWriter();
-        writer.write("ABC");
-        writer.flush();
-        writer.close();
-
-        FileObject fileObject2 = unit.getFileForInput(StandardLocation.SOURCE_OUTPUT, "de.toolisticon", "Test");
-
-
-        MatcherAssert.assertThat((String) fileObject2.getCharContent(false), Matchers.is("ABC"));
-
+    	try (CompileTestFileManager unit = new CompileTestFileManager(standardJavaFileManager, Collections.emptyList());) {
+        
+	        FileObject fileObject1 = unit.getFileForOutput(StandardLocation.SOURCE_OUTPUT, "de.toolisticon", "Test", null);
+	        Writer writer = fileObject1.openWriter();
+	        writer.write("ABC");
+	        writer.flush();
+	        writer.close();
+	
+	        FileObject fileObject2 = unit.getFileForInput(StandardLocation.SOURCE_OUTPUT, "de.toolisticon", "Test");
+	
+	
+	        MatcherAssert.assertThat((String) fileObject2.getCharContent(false), Matchers.is("ABC"));
+    	}
 
     }
 
@@ -191,29 +194,31 @@ public class CompileTestFileManagerTest {
     @Test(expected = IllegalArgumentException.class)
     public void test_CompileTestFileManager_getJavaFileForInput_nonExistingFile() throws IOException {
 
-        CompileTestFileManager unit = new CompileTestFileManager(standardJavaFileManager);
+        try(CompileTestFileManager unit = new CompileTestFileManager(standardJavaFileManager, Collections.emptyList())){
 
-        unit.getJavaFileForInput(StandardLocation.SOURCE_OUTPUT, "de.toolisticon.Test", JavaFileObject.Kind.SOURCE);
+        	unit.getJavaFileForInput(StandardLocation.SOURCE_OUTPUT, "de.toolisticon.Test", JavaFileObject.Kind.SOURCE);
 
-
+        }
     }
 
     @Test
     public void test_CompileTestFileManager_getJavaFileForInput_existingFile() throws IOException {
 
-        CompileTestFileManager unit = new CompileTestFileManager(standardJavaFileManager);
+        try(CompileTestFileManager unit = new CompileTestFileManager(standardJavaFileManager, Collections.emptyList())){
 
-        JavaFileObject fileObject1 = unit.getJavaFileForOutput(StandardLocation.SOURCE_OUTPUT, "de.toolisticon.Test", JavaFileObject.Kind.SOURCE, null);
-
-        Writer writer = fileObject1.openWriter();
-        writer.write("ABC");
-        writer.flush();
-        writer.close();
-
-        FileObject fileObject2 = unit.getJavaFileForInput(StandardLocation.SOURCE_OUTPUT, "de.toolisticon.Test", JavaFileObject.Kind.SOURCE);
-
-
-        MatcherAssert.assertThat((String) fileObject2.getCharContent(false), Matchers.is("ABC"));
+	        JavaFileObject fileObject1 = unit.getJavaFileForOutput(StandardLocation.SOURCE_OUTPUT, "de.toolisticon.Test", JavaFileObject.Kind.SOURCE, null);
+	
+	        Writer writer = fileObject1.openWriter();
+	        writer.write("ABC");
+	        writer.flush();
+	        writer.close();
+	
+	        FileObject fileObject2 = unit.getJavaFileForInput(StandardLocation.SOURCE_OUTPUT, "de.toolisticon.Test", JavaFileObject.Kind.SOURCE);
+	
+	
+	        MatcherAssert.assertThat((String) fileObject2.getCharContent(false), Matchers.is("ABC"));
+	        
+        }
 
 
     }

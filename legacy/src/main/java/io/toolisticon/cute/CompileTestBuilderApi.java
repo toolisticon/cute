@@ -38,13 +38,17 @@ public class CompileTestBuilderApi {
     @FluentApiBackingBean
     public interface CompilerTestBB extends CuteApi.CompilerTestBB {
 
-
+    }
+    
+    
+    @FluentApiBackingBean
+    public interface ResourceFileBB extends CuteApi.ResourceFileBB {
+    	
     }
 
 
     @FluentApiBackingBean
     public interface ExceptionCheckBB extends CuteApi.ExceptionCheckBB {
-
 
     }
 

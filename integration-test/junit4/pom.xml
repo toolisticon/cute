@@ -8,7 +8,7 @@
     <parent>
         <groupId>io.toolisticon.cute</groupId>
         <artifactId>integration-test-parent</artifactId>
-        <version>1.8.0</version>
+        <version>1.8.1</version>
     </parent>
 
     <name>integration-test-junit4</name>

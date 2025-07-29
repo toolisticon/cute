@@ -16,7 +16,9 @@ import io.toolisticon.fluapigen.api.FluentApiParentBackingBeanMapping;
 import io.toolisticon.fluapigen.api.FluentApiRoot;
 import io.toolisticon.fluapigen.api.MappingAction;
 import io.toolisticon.fluapigen.api.TargetBackingBean;
+import io.toolisticon.fluapigen.validation.api.FluentApiValidator;
 import io.toolisticon.fluapigen.validation.api.NotNull;
+import io.toolisticon.fluapigen.validation.api.Validator;
 
 import javax.annotation.processing.Processor;
 import javax.lang.model.element.Element;
@@ -57,12 +59,13 @@ public class CuteApi {
 
         UnitTestType getPassInType();
 
-
         List<Class<? extends Processor>> processors();
 
         List<String> compilerOptions();
 
         Set<JavaFileObject> sourceFiles();
+        
+        List<ResourceFileBB> resourceFiles();
 
         Set<String> modules();
 
@@ -121,6 +124,34 @@ public class CuteApi {
 
 
     }
+    
+    @FluentApiBackingBean
+    public interface ResourceFileBB {
+    	
+    	@FluentApiBackingBeanField("targetPackageName")
+    	String targetPackageName();
+    	
+    	@FluentApiBackingBeanField("resource")
+    	String resource();
+    	
+    	
+    	/**
+    	 * Gets the relative file name of the resource
+    	 * @return
+    	 */
+    	default String getRelativeName() {
+    		
+			try {
+				return new File(ResourceFileBB.class.getResource(resource()).toURI()).getName();
+			} catch (URISyntaxException e) {
+				return null;
+			}
+			
+    	}
+    }
+    
+    
+    
     
     @FluentApiBackingBean
     public interface ExceptionCheckBB {
@@ -442,7 +473,21 @@ public class CuteApi {
             return andSourceFiles(files.toArray(new String[0]));
         }
 
-
+        /**
+         * Adds a resource file to a specific package in the class path. 
+         * By doing that the passed resource file will be available with it's original name in the passed target package.
+         * This shadows existing resource files in CLASS_PATH location!
+         * !!! WARNING - This will work in the tests but it's not guaranteed that your annotation processor will work out of the box with all the different kind of build tools or compilers out there !!!
+         * @param targetPackageName The target package name to use
+         * @param resource The resource to use
+         * @return the next fluent interface
+         */
+        @FluentApiInlineBackingBeanMapping("resourceFiles")
+        BlackBoxTestFinalGivenInterface andResourceFile(
+        		@FluentApiBackingBeanMapping(action = MappingAction.SET, value =  "targetPackageName" , target = TargetBackingBean.INLINE) String targetPackageName, 
+        		@FluentApiBackingBeanMapping(action = MappingAction.SET, value =  "resource" , target = TargetBackingBean.INLINE) @ResourceIsFileAndExists String resource
+        		);
+        
     }
 
     @FluentApiInterface(CompilerTestBB.class)
@@ -620,6 +665,23 @@ public class CuteApi {
             return useSourceFiles(files.toArray(new String[0]));
         }
 
+        
+
+        /**
+         * Adds a resource file to a specific package in the class path. 
+         * By doing that the passed resource file will be available with it's original name in the passed target package.
+         * This shadows existing resource files in CLASS_PATH location!
+         * !!! WARNING - This will work in the tests but it's not guaranteed that your annotation processor will work out of the box with all the different kind of build tools or compilers out there !!!
+         * @param targetPackageName The target package name to use
+         * @param resource The resource to use
+         * @return the next fluent interface
+         */
+        @FluentApiInlineBackingBeanMapping("resourceFiles")
+        UnitTestGivenInterface useResourceFile(
+        		@FluentApiBackingBeanMapping(action = MappingAction.SET, value =  "targetPackageName" , target = TargetBackingBean.INLINE) String targetPackageName, 
+        		@FluentApiBackingBeanMapping(action = MappingAction.SET, value =  "resource" , target = TargetBackingBean.INLINE) @ResourceIsFileAndExists String resource
+        		);
+        
 
         /**
          * Traverse to when section to pass in an Element or a processor instant and to define the unit test scenario.
@@ -1324,6 +1386,40 @@ public class CuteApi {
          * @return a GeneratedFileObjectMatcher instance that can be used to compare FileObjects
          */
         protected abstract <T extends FileObject> GeneratedFileObjectMatcher createMatcher(T expectedFileObject);
+    }
+    
+    // --------------------------------------------------------------------
+    // Validators
+    // --------------------------------------------------------------------
+
+    
+    @FluentApiValidator(value = CuteApi.ResourceIsFileAndExists.ValidatorImpl.class)
+    public @interface ResourceIsFileAndExists {
+
+        class ValidatorImpl implements Validator<String> {
+
+            
+            @Override
+            public boolean validate(String resourceFile) {
+            	URL resourceURL = CuteApi.class.getResource(resourceFile);
+            	if (resourceURL == null) {
+            		throw new IllegalArgumentException("Passed resource '" + resourceFile + " doesn't exist");
+            	}
+            	
+            	
+            	try {
+					if (new File(resourceURL.toURI()).isDirectory()) {
+						throw new IllegalArgumentException("Passed resource '" + resourceFile + " is a directory, but must be a file.");
+					}
+				} catch (URISyntaxException e) {
+					return false;
+				}
+            	
+                return true;
+            }
+
+        }
+
     }
 
     // --------------------------------------------------------------------
