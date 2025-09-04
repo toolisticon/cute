@@ -1,6 +1,7 @@
 # TOOLISTICON CUTE - Compile-Time Unit Testing
 
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.toolisticon.cute/cute/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.toolisticon.cute/cute)
+[![Maven Central](https://maven-badges.sml.io/maven-central/io.toolisticon.cute/cute/badge.svg)](https://maven-badges.sml.io/maven-central/io.toolisticon.cute/cute)
+[![Maven Central](https://maven-badges.sml.io/sonatype-central/io.toolisticon.cute/cute/badge.svg)](https://maven-badges.sml.io/sonatype-central/io.toolisticon.cute/cute)
 ![Build Status](https://github.com/toolisticon/cute/workflows/default/badge.svg)
 [![codecov](https://codecov.io/gh/toolisticon/cute/branch/master/graph/badge.svg)](https://codecov.io/gh/toolisticon/cute)
 [![javadoc](https://javadoc.io/badge2/io.toolisticon.cute/cute/javadoc.svg)](https://javadoc.io/doc/io.toolisticon.cute/cute)
