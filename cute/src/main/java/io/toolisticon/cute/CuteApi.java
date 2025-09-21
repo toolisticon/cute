@@ -1556,10 +1556,15 @@ public class CuteApi {
         /**
          * Gets the source file name the compiler message is related with.
          *
-         * @return The source file name
+         * @return The source file name or {@code null} if no source object is associated
          */
         public String getSource() {
-            return diagnostic.getSource().getName();
+            JavaFileObject source = diagnostic.getSource();
+            if (source == null) {
+                return null;
+            }
+
+            return source.getName();
         }
 
 
