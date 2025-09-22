@@ -1,6 +1,7 @@
 package io.toolisticon.cute;
 
 
+import io.toolisticon.cute.extension.api.AssertionSpi;
 import io.toolisticon.cute.extension.api.AssertionSpiServiceLocator;
 import io.toolisticon.cute.matchers.CoreGeneratedFileObjectMatchers;
 import io.toolisticon.fluapigen.api.FluentApi;
@@ -1556,10 +1557,15 @@ public class CuteApi {
         /**
          * Gets the source file name the compiler message is related with.
          *
-         * @return The source file name
+         * @return The source file name or {@code null} if no source object is associated
          */
         public String getSource() {
-            return diagnostic.getSource().getName();
+            JavaFileObject source = diagnostic.getSource();
+            if (source == null) {
+                return null;
+            }
+
+            return source.getName();
         }
 
 
@@ -1804,13 +1810,31 @@ public class CuteApi {
 
             try {
                 customAssertion.executeCustomAssertions(new CompilationOutcome(compilationResult));
+            } catch (RuntimeException e) {
+            	throw e;
             } catch (Throwable e) {
-                FailingAssertionException failingAssertionException = new FailingAssertionException(e.getMessage(), e.getCause());
-                // will throw an AssertionError
-                AssertionSpiServiceLocator.locate().fail(e.getMessage() + "\n" + DebugOutputGenerator.getDebugOutput(compilationResult, compileTestConfiguration, failingAssertionException));
+               
+            	AssertionSpi assertionSpi = AssertionSpiServiceLocator.locate();
+            	if (assertionSpi.getSupportedAssertionTypes().contains(e.getClass())) {
+            		
+            		assertionSpi.fail("" + e.getMessage() + "\n" + DebugOutputGenerator.getDebugOutput(compilationResult, compileTestConfiguration, null), e );
+            		
+            	} else {
+            		throw new ExecuteCustomAssertionException("An exception was thrown in custom assertion code!",e);
+	            }
             }
 
         }
+    }
+    
+    public static class ExecuteCustomAssertionException extends RuntimeException {
+    	
+		private static final long serialVersionUID = 7001341640207049485L;
+
+		ExecuteCustomAssertionException (String message, Throwable e) {
+    		super(message, e);
+    	}
+    	
     }
 
 
