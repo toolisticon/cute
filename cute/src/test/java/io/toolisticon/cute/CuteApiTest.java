@@ -1,14 +1,17 @@
 package io.toolisticon.cute;
 
 import io.toolisticon.cute.CuteApi.BlackBoxTestFinalGivenInterface;
+import io.toolisticon.cute.CuteApi.ExecuteCustomAssertionException;
 import io.toolisticon.cute.common.SimpleTestProcessor1;
 import io.toolisticon.cute.common.SimpleTestProcessor2;
 import io.toolisticon.cute.common.SimpleTestProcessor3;
+import io.toolisticon.cute.extension.api.AssertionSpiServiceLocator;
 import io.toolisticon.cute.matchers.CoreGeneratedFileObjectMatchers;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 
+import java.lang.AssertionError;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardLocation;
 import java.util.Arrays;
@@ -561,6 +564,33 @@ public class CuteApiTest {
         		
         ).backingBean;
        
+        
+    }
+    
+    @Test(expected = AssertionError.class)
+    public void test_ifAssertionErrorsInCustomAssertionsAreHandledCorrectly() {
+
+    	 Cute.blackBoxTest().given()
+        		.noProcessors()
+        		.andSourceFiles("/compiletests/TestClass.java")
+        		.executeTest()
+        		.executeCustomAssertions(e -> {
+        			AssertionSpiServiceLocator.locate().fail("FAILED!!!!!");
+        		});
+        
+    }
+    
+    @Test(expected = NullPointerException.class)
+    public void test_ifExpectionsTriggeredInCustomAnnotationsAreHandledCorrectly() {
+
+    	 Cute.blackBoxTest().given()
+        		.noProcessors()
+        		.andSourceFiles("/compiletests/TestClass.java")
+        		.executeTest()
+        		.executeCustomAssertions(e -> {
+        			throw new NullPointerException();
+        			
+        		});
         
     }
 
